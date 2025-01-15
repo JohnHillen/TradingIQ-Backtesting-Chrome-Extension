@@ -24,7 +24,7 @@ function checkIsTVChart() {
       let isTVTab = tabs[0].url.includes('tradingview.com')
       let isEnglish = tabs[0].url.includes('www.tradingview.com') || tabs[0].url.includes('https://tradingview.com')
       document.getElementById("unsupportedPage").style.display = (isTVTab && isEnglish) ? 'none' : 'block'
-      document.getElementById("Testing").style.display = !(isTVTab && isEnglish) ? 'none' : 'block'
+      document.getElementById("supportedPage").style.display = !(isTVTab && isEnglish) ? 'none' : 'block'
 
       if (isTVTab && isEnglish) {
         document.getElementById("testStrategy").addEventListener('click', function () { startTest() })
@@ -154,18 +154,18 @@ function openTab(tabName) {
   }
   tablinks = document.getElementsByClassName("tablink");
   for (i = 0; i < x.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" w3-border-red", "");
+    tablinks[i].className = tablinks[i].className.replace(" w3-border-aqua", "");
   }
   document.getElementById(tabName).style.display = "block";
   switch (tabName) {
     case 'Testing':
-      document.getElementById('testingTab').className += " w3-border-red";
+      document.getElementById('testingTab').className += " w3-border-aqua";
       break
     case 'Initialize':
-      document.getElementById('initTab').className += " w3-border-red";
+      document.getElementById('initTab').className += " w3-border-aqua";
       break
     case 'Settings':
-      document.getElementById('settingTab').className += " w3-border-red";
+      document.getElementById('settingTab').className += " w3-border-aqua";
       break
   }
 }
