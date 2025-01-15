@@ -1,0 +1,46 @@
+{
+  "name": "Trading IQ assistant",
+  "version": "1.0",
+  "description": "An assistant for backtesting Trading IQ strategies",
+  "author": "John Hillen (JohnHillen)",
+  "manifest_version": 3,
+  "action": {
+    "default_icon": {
+      "16": "images/logo_16.png",
+      "32": "images/logo_32.png",
+      "48": "images/logo_48.png",
+      "64": "images/logo_64.png",
+      "128": "images/logo_128.png"
+    },
+    "default_title": "TIQ",
+    "default_popup": "popup/index.html"
+  },
+  "icons": {
+    "16": "images/logo_16.png",
+    "32": "images/logo_32.png",
+    "48": "images/logo_48.png",
+    "64": "images/logo_64.png",
+    "128": "images/logo_128.png"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.tradingview.com/chart/*"],
+      "js": ["content_scripts/selector.js", "content_scripts/page.js",
+      "content_scripts/ui.js", "content_scripts/tv.js",
+      "content_scripts/tvChart.js", "content_scripts/file.js",
+      "content_scripts/action.js", "content_scripts/util.js", "content_scripts/controller.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [],
+      "matches": ["https://*.tradingview.com/*"]
+    }
+  ]
+}
