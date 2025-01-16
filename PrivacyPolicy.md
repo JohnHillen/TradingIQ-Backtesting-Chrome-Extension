@@ -1,4 +1,4 @@
-# Chrome Extensions Privacy Policy
+# Privacy Policy
 
 January 16, 2025
 
