@@ -13,6 +13,8 @@ const SEL = {
     tabInput: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#inputs',
     tabInputActive: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#inputs[class*="selected"]',
     tabProperties: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#properties',
+    tabPropertiesActive: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#properties[class*="selected"]',
+    tabProperties: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#properties',
     ticker: '#header-toolbar-symbol-search > div[class*="text-"]',
     timeFrame: '#header-toolbar-intervals div[data-role^="button"]',
     timeFrameActive: '#header-toolbar-intervals div[data-role^="button"][class*="isActive"]',
@@ -22,6 +24,15 @@ const SEL = {
     cancelBtn: 'div[data-name="indicator-properties-dialog"] span[data-name="close"][data-role="button"]',
     scriptEditorTab: '[data-name="scripteditor"]',
     scriptEditorActive: '[data-name="scripteditor"][data-active="true"]',
+
+    datePickerSwitchToMonth: 'div[class^="picker-"] div[class^="calendar-"] button[aria-label^="Switch to months"]',
+    datePickerSwitchToYears: 'div[class^="picker-"] div[class^="calendar-"] button[aria-label^="Switch to years"]',
+    datePickerViewDecades: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-decades-"]',
+    datePickerDecadesButtons: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-decades-"] button[class^="decade-"]',
+    datePickerViewMonths: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-year-"]',
+    datePickerMonthButtons: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-year-"] button',
+    datePickerViewDays: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-month-"]',
+    datePickerDaysButtons: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-month-"] button',
 
     dataWindowAndObjectTreeBtn: 'button[data-name="object_tree"]',
     dataWindowBtn: '#data-window',
@@ -49,10 +60,11 @@ const SEL = {
     strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="container"] [class*=emptyStateIcon]',
     strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] table thead > tr > th',
     strategyReportRow: '#bottom-area  div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] table tbody > tr',
-    strategyReportWarningHint: '#bottom-area  div[class^="backtesting"] div[class^="widgetContainer"] div[class^="warningHint"]',
+    strategyReportWarningHint: '#bottom-area  div[class^="backtesting"] div[class^="warningHint"]',
 
     strategyDeepTestCheckbox: '#bottom-area div[class^="backtesting"]  [class^="deepHistoryContainer"]  [class^="switcher"] input',
     strategyDeepTestStartDate: '#bottom-area div[class^="backtesting"]  [class^="historyParams"]  [class^="container" ]> div:nth-child(1) div[class^="pickerInput"] input',
+    strategyDeepTestEndDate: '#bottom-area div[class^="backtesting"]  [class^="historyParams"]  [class^="container" ]> div:nth-child(3) div[class^="pickerInput"] input',
     strategyDeepTestGenerateBtn: '#bottom-area div[class^="backtesting"]  [class^="historyParams"] button[class^="generateReportBtn"]:not([disabled])',
     strategyDeepTestGenerateBtnDisabled: '#bottom-area div[class^="backtesting"]  [class^="historyParams"] button[class^="generateReportBtn"][disabled]',
 
@@ -64,7 +76,7 @@ const SEL = {
 
     strategyListOptions: 'div[role="listbox"] div[data-name="menu-inner"] div[role="option"] span[class^="label-"]',
     strategyDefaultElement: '#property-actions',
-
+    strategyDefaultElementList: '#id_property-actions_listbox span[class^="label-"]',
     strategyImportExport: '#iondvImportExport',
 
     changeIntervalDialog: 'div[data-dialog-name="change-interval-dialog"]',

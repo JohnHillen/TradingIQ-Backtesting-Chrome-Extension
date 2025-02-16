@@ -114,7 +114,6 @@ tvChart.changeTimeFrame = async (setTF) => {
     throw new Error(`Failed to set the timeframe value to "${strategyTF}" after adding it to timeframe list, the current "${curTimeFrameText}"`)
 }
 
-
 tvChart.selectTimeFrameMenuItem = async (alertTF) => {
   const allMenuTFItems = document.querySelectorAll(SEL.chartTimeframeMenuItem)
   for (let item of allMenuTFItems) {
@@ -132,7 +131,6 @@ tvChart.selectTimeFrameMenuItem = async (alertTF) => {
   }
   return null
 }
-
 
 tvChart.isTFDataMinutes = (tf) => !['S', 'D', 'M', 'W', 'R'].includes(tf[tf.length - 1])
 tvChart.correctTF = (tf) => ['D', 'M', 'W'].includes(tf) ? `1${tf}` : tf

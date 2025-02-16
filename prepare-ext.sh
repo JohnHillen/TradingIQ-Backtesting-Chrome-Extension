@@ -10,4 +10,5 @@ fi
 if [ -d ./${EXT_NAME} ]; then
   rm -r ./${EXT_NAME}
 fi
-7z a -r ${EXT_NAME}.zip content_scripts/* fonts/* images/* lib/* popup/* manifest.json page-context.js
+7z a -r ${EXT_NAME}.zip content_scripts/* images/* popup/* manifest.json background.js
+7z x ${EXT_NAME}.zip -o${EXT_NAME}

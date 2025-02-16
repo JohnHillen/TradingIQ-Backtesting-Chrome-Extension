@@ -1,0 +1,177 @@
+body {
+    width: 600px;
+    height: 600px;
+    color:#00ffff;
+    background-color: #181818!important;
+    background: radial-gradient(circle at top, #313131, #181818);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+hr {
+    border-color: #00ffff;
+}
+
+.center {
+    margin: auto;
+    width: fit-content;
+}
+
+.vertical-center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+input,
+.w3-input,
+select {
+    background-color: #31313100;
+    color: #00ffff;
+    padding: 8px 2px 8px 4px;
+}
+
+input[type=checkbox] {
+    background-color: #313131;
+    color: #00ffff;
+}
+
+input[type=date] {
+    color-scheme: dark;
+}
+
+input:focus {
+    outline: 0px solid #00ffff;
+    outline-offset: -2px;
+}
+
+option {
+    background-color: #313131;
+    color: #00ffff;
+}
+
+footer {
+    display: table;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+label,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.prevent-select {
+    -webkit-user-select: none;
+    /* Safari */
+    -ms-user-select: none;
+    /* IE 10 and IE 11 */
+    user-select: none;
+    /* Standard syntax */
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.unselected {
+    color: gray;
+}
+
+/* scrollbar */
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: radial-gradient(circle at top, #313131, #181818);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #00ffff;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #00ffffA0;
+}
+
+/* --- CUSTOM DATE INPUT --- */
+input[type="date"] {
+    border: none;
+    border-bottom: 1px solid #00ffff;
+}
+
+/* Change the color of the date picker icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background-image: url('https://api.iconify.design/ep/calendar.svg?color=aqua');
+}
+
+/* --- CUSTOM NUMBER INPUT --- */
+/* Hide the default arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    border: none; /* Remove border from input field */
+    width: 100%;
+    padding: 8px 2px 8px 4px;
+    border-bottom: 1px solid #00ffff; /* Add border to bottom */
+}
+
+/* Custom buttons */
+.custom-buttons-container {
+    position: relative;
+    width: 100%; /* Adjust as needed */
+}
+
+.custom-buttons {
+    position: absolute;
+    right: 5px; /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    display: none; /* Hide buttons by default */
+    flex-direction: column;
+}
+
+.custom-buttons-container:hover .custom-buttons {
+    display: flex; /* Show buttons on hover */
+}
+
+.custom-buttons button {
+    background: none; /* Remove background */
+    border: none; /* Remove border */
+    width: 8px; /* Adjust as needed */
+    height: 8px; /* Adjust as needed */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 2px 0;
+}
+
+.custom-buttons button:active {
+    background: none; /* Remove background on active state */
+}
+
+.custom-buttons button.plus::before {
+    content: url('https://api.iconify.design/ep/arrow-right.svg?color=aqua&rotate=270deg');
+}
+
+.custom-buttons button.minus::before {
+    content: url('https://api.iconify.design/ep/arrow-right.svg?color=aqua&rotate=90deg');
+}

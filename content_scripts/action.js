@@ -3,48 +3,8 @@ const action = {
     bestStrategyNumberCount: 0
 }
 
-const IMPULS = 'Impulse IQ Backtester [Trading IQ]'
-const REVERSAL = 'Reversal IQ Backtester [Trading IQ]'
-const COUNTER_STRIKE = 'Counter Strike Backtester [Trading IQ]'
-const NOVA = 'Nova IQ Backtester [Trading IQ]'
-const SUPPORTED_STRATEGIES = [IMPULS, REVERSAL, COUNTER_STRIKE, NOVA];
 const PERFORMANCE_VALUES = ['Net Profit %: All', 'Max Drawdown %', 'Profit Factor: Long', 'Profit Factor: Short', 'Percent Profitable: Long', 'Percent Profitable: Short', 'Total Closed Trades: Long', 'Total Closed Trades: Short', 'Avg # Bars in Trades: Long', 'Avg # Bars in Trades: Short', 'Number Winning Trades: All', 'Number Winning Trades: Long', 'Number Winning Trades: Short', 'Number Losing Trades: All', 'Number Losing Trades: Long', 'Number Losing Trades: Short']
 const STATUS_MSG = 'Please do not click on the page elements.<br>And do not change the window/tab.<br>If the Tradingview page is not in the foreground, the extension will not work.'
-action.initIq = async (request) => {
-    console.log('action.initIq')
-    try {
-        let timeout = request.options.timeout * 1000 //convert to ms
-        let retry = request.options.retry
-        let iqIndicator = request.options.iqIndicator
-
-        let tf = action._parseTF(request.options.tf)
-        if (tf.error !== null) {
-            await ui.showPopup(tf.error)
-            return
-        }
-        ui.statusMessage(STATUS_MSG)
-        tf = tf.data[0]
-        console.log('Set timeframe:', tf)
-        await tvChart.changeTimeFrame(tf)
-
-        await util.openDataWindow()
-        await util.openStrategyTab()
-        let iqWidget = await action.enableStrategy(iqIndicator.replace('tester [Trading IQ]', '').trim())
-        if (!iqWidget) {
-            await ui.showPopup(iqIndicator + ' could not be added. Please reload the page and try again.')
-            return
-        }
-        //set strategy params
-        let bestStrategyNumbers = await startTest(iqIndicator, false, iqWidget, timeout, retry, tf)
-        if (Object.keys(bestStrategyNumbers).length === 0) {
-            await ui.showPopup('No best strategy numbers found after 5 attempts. Please try again later.')
-            return
-        }
-    } catch (err) {
-        console.error(err)
-        await ui.showPopup(`${err}`)
-    }
-}
 
 action.testStrategy = async (request) => {
     console.log('action.testStrategy')
@@ -52,50 +12,87 @@ action.testStrategy = async (request) => {
     try {
         let timeout = request.options.timeout * 1000 //convert to ms
         let retry = request.options.retry
-        let tfList = action._parseTF(request.options.tfList)
-        if (tfList.error !== null) {
-            await ui.showPopup(tfList.error)
-            return
-        }
-        if (tfList.data.length === 0) {
-            await ui.showPopup('No timeframes selected. Please select at least one timeframe.')
-            return
-        }
-        tfList = tfList.data
-        console.log('tfList', tfList)
+        let cycles = request.options.cycles
+        let strategyProperties = request.options.strategyProperties
+        let iqIndicator = request.options.iqIndicator
+        let rfHtml = request.options.reportFormat.html
+        let rfCsv = request.options.reportFormat.csv
+        let isDeepTest = request.options.deeptest
+        let deepfrom = request.options.deepfrom
+        let deepto = request.options.deepto
 
         ui.statusMessage(STATUS_MSG)
 
         await util.openDataWindow()
         await util.openStrategyTab()
 
-        let strategyData = await getStrategyData()
-        let strategyName = strategyData.strategyName
-        let iqWidget = strategyData.iqWidget
-        console.log('strategyName:', (!strategyName ? 'null' : strategyName), 'iqWidget:', iqWidget)
-        if (!strategyName || !iqWidget || !SUPPORTED_STRATEGIES.includes(strategyName)) {
-            await ui.showPopup('No strategy found. Only Nova IQ, Impulse IQ, Reversal IQ and Counter Strike IQ are supported.')
+        let iqWidget = await action.enableStrategy(iqIndicator.replace('tester [Trading IQ]', '').trim())
+        if (!iqWidget) {
+            await ui.showPopup(iqIndicator + ' could not be added. Please reload the page and try again.')
             return
         }
 
-        const deepCheckboxEl = await page.waitForSelector(SEL.strategyDeepTestCheckbox)
-        const isDeepTest = Boolean(deepCheckboxEl.checked)
+        //Set strategy properties
+        await tv.setStrategyProps(iqIndicator, strategyProperties, isDeepTest)
+
+        console.log('iqIndicator:', (!iqIndicator ? 'null' : iqIndicator), 'iqWidget:', iqWidget)
+        await page.waitForTimeout(1000)
 
         let testReport = []
         let header = []
         let symbol = null
-        for (const tf of tfList) {
+        let error = null
+        let cyclesLength = cycles.length
+        let currentCycle = 0
+        for (const cycle of cycles) {
             if (action.workerStatus === null) {
                 console.log('Stopped by User')
                 break
             }
-            console.log('Set timeframe:', tf)
-            await tvChart.changeTimeFrame(tf)
+
+            ui.statusMessage(STATUS_MSG, `Backtest ${++currentCycle} / ${cyclesLength}`)
+            console.log('Set timeframe:', cycle.tf)
+            if (cycle.tf !== 'CURRENT_TF') {
+                await tvChart.changeTimeFrame(cycle.tf)
+            }
+            let deepCheckbox = document.querySelector(SEL.strategyDeepTestCheckbox)
+            if (isDeepTest !== deepCheckbox.checked) {
+                //deepCheckbox.click()
+                page.mouseClick(deepCheckbox)
+                await page.waitForTimeout(1500)
+            }
+
+            if (isDeepTest) {
+                console.log('Set deep test date range:', deepfrom, deepto)
+                let startDate = document.querySelector(SEL.strategyDeepTestStartDate)
+                let endDate = document.querySelector(SEL.strategyDeepTestEndDate)
+                let changed = false
+                if (startDate.value !== deepfrom) {
+                    let msg = await tv.setDeepDateValues(startDate, deepfrom)
+                    if (msg !== null) {
+                        await ui.showPopup(msg)
+                        return
+                    }
+                    changed = true
+                }
+                if (endDate.value !== deepto) {
+                    let msg = await tv.setDeepDateValues(endDate, deepto)
+                    if (msg !== null) {
+                        await ui.showPopup(msg)
+                        return
+                    }
+                    changed = true
+                }
+                if (changed) {
+                    let msg = await tv.generateDeepTestReport();
+                    console.log('Deep Test Result:', msg)
+                }
+            }
 
             let testResults = {}
             testResults.isDeepTest = isDeepTest
 
-            let bestStrategyNumbers = await startTest(strategyName, isDeepTest, iqWidget, timeout, retry, tf)
+            let bestStrategyNumbers = await startTest(iqIndicator, isDeepTest, iqWidget, timeout, retry, cycle)
             if (Object.keys(bestStrategyNumbers).length === 0 && testReport.length === 0) {
                 await ui.showPopup('No best strategy numbers found after 5 attempts. Please try again later.')
                 return
@@ -104,34 +101,60 @@ action.testStrategy = async (request) => {
                 action.bestStrategyNumberCount = Object.keys(bestStrategyNumbers).length
             }
 
-            if (isDeepTest) {
+            let testResult = null
+            let strategyParams = null
+            console.log('bestStrategyNumbers detected:', bestStrategyNumbers, 'Get performance values')
+            for (let i = 1; i <= retry; i++) {
+
+                testResult = await tv.getPerformance(testResults)
+                strategyParams = await tv.getStrategyPropertyData()
+
+                if (testResult === null || strategyParams === null) {
+                    console.log('No test result or strategy params found. Retry:', i, 'strategyParams:', strategyParams, 'testResult:', testResult)
+                    let tf1 = "1m" === cycle.tf ? "2m" : "1m"
+                    await tvChart.changeTimeFrame(tf1)
+                    await page.waitForTimeout(2000)
+                    await tvChart.changeTimeFrame(cycle.tf)
+                    await page.waitForTimeout(2000)
+                }
+                else {
+                    break
+                }
+            }
+            if (testResult === null || testResult.data === null || strategyParams === null) {
+                console.log('No test result or strategy params found. Stop testing')
+                error = 'Test results could not be found. Please try again again.'
+                break
             }
 
-            let testResult = await tv.getPerformance(testResults)
-            let strategyParams = await tv.getStrategyPropertyData()
             if (symbol === null && strategyParams.Symbol) {
                 symbol = strategyParams.Symbol.replace(':', '-')
             }
             delete strategyParams['Symbol']
 
             if (testReport.length === 0) {
-                header = action.createReportHeader(bestStrategyNumbers, strategyParams)
+                header = action.createReportHeader(bestStrategyNumbers, testResult, strategyParams)
                 testReport.push(header)
             }
 
-            testReport.push(action.createReport(tf, bestStrategyNumbers, testResult, strategyParams))
+            testReport.push(action.createReport(cycle.tf, bestStrategyNumbers, testResult, strategyParams))
+        }
+
+        if (error) {
+            await ui.showPopup(error)
+            return
         }
 
         ui.statusMessageRemove()
-        if (request.options.reportFormat === "1") {
+        if (rfHtml) {
             console.log('create HTML report')
-            const data = file.createHTML(symbol, strategyName, testReport)
-            file.saveAs(data, `${symbol}_${strategyName}.html`)
+            const data = file.createHTML(symbol, iqIndicator, testReport)
+            file.saveAs(data, `${symbol}_${iqIndicator}.html`)
         }
-        else {
+        if (rfCsv) {
             console.log('create CSV report')
-            const data = file.createCSV(testReport)
-            file.saveAs(data, `${symbol}_${strategyName}.csv`)
+            const data = file.createCSV(symbol, iqIndicator, testReport)
+            file.saveAs(data, `${symbol}_${iqIndicator}.csv`)
         }
     } catch (err) {
         console.error(err)
@@ -139,17 +162,22 @@ action.testStrategy = async (request) => {
     }
 }
 
-async function startTest(strategyName, isDeepTest, iqWidget, timeout, retryCount, tf) {
+async function startTest(strategyName, isDeepTest, iqWidget, timeout, retryCount, cycle) {
+    console.log('startTest:', strategyName, isDeepTest)
+    console.log('Reset indicator parameter')
+    await tv.resetStrategyInputs(strategyName, isDeepTest)
+    await page.waitForTimeout(100)
     for (let i = 1; i <= retryCount; i++) {
-        console.log(i + '. try to get best strategy numbers for tf: ', tf)
-        let bestStrategyNumbers = await action.test(strategyName, isDeepTest, iqWidget, timeout)
+        console.log(i + '. try to get best strategy numbers for tf: ', cycle.tf)
+        let bestStrategyNumbers = await action.test(strategyName, isDeepTest, iqWidget, timeout, cycle)
+        console.log(i + '. detected best strategy numbers: ', bestStrategyNumbers)
         if (Object.keys(bestStrategyNumbers).length === 0) {
             //we will switch back and forth between previous and current timeframe. Sometimes it helps to get the values
-            console.log(i + '. try to get best strategy numbers for tf: ', tf)
-            let tf1 = "1m" === tf ? "2m" : "1m"
+            console.log(i + '. try to get best strategy numbers failed for tf: ', cycle.tf)
+            let tf1 = "1m" === cycle.tf ? "2m" : "1m"
             await tvChart.changeTimeFrame(tf1)
             await page.waitForTimeout(1000)
-            await tvChart.changeTimeFrame(tf)
+            await tvChart.changeTimeFrame(cycle.tf)
         } else {
             return bestStrategyNumbers
         }
@@ -157,28 +185,16 @@ async function startTest(strategyName, isDeepTest, iqWidget, timeout, retryCount
     return {}
 }
 
-action.createReportHeader = (bestStrategyNumbers, strategyParams) => {
+action.createReportHeader = (bestStrategyNumbers, testResult, strategyParams) => {
     let header = []
     header.push('Timeframe')
     for (let key in bestStrategyNumbers) {
         header.push(key)
     }
-    header.push('Net Profit %')
-    header.push('Max Drawdown %')
-    header.push('PF Long')
-    header.push('PF Short')
-    header.push('Profitable Long %')
-    header.push('Profitable Short %')
-    header.push('Closed Trades Long')
-    header.push('Closed Trades Short')
-    header.push('Avg Bars Long')
-    header.push('Avg Bars Short')
-    header.push('Winning Trades All')
-    header.push('Winning Trades Long')
-    header.push('Winning Trades Short')
-    header.push('Losing Trades All')
-    header.push('Losing Trades Long')
-    header.push('Losing Trades Short')
+
+    for (let key in testResult.data) {
+        header.push(key)
+    }
 
     for (let key in strategyParams) {
         header.push(key)
@@ -200,8 +216,7 @@ action.createReport = (tf, bestStrategyNumbers, testResult, strategyParams) => {
     }
 
     if (testResult.data !== null) {
-        for (let index in PERFORMANCE_VALUES) {
-            let key = PERFORMANCE_VALUES[index]
+        for (let key in testResult.data) {
             let val = testResult.data[key]
             report.push(val)
         }
@@ -221,28 +236,13 @@ action.createReport = (tf, bestStrategyNumbers, testResult, strategyParams) => {
     return report
 }
 
-async function getStrategyData() {
-    let strategyCaptionEl = document.querySelector(SEL.strategyCaption)
-    let strategyName = null
-    let iqWidget = null
-    if (!strategyCaptionEl || !SUPPORTED_STRATEGIES.includes(strategyCaptionEl.innerText)) {
-        iqWidget = await action.enableStrategy(null) //Enable first Trading IQ strategy
-        strategyCaptionEl = await page.waitForSelector(SEL.strategyCaption, 500)
-        strategyName = strategyCaptionEl.innerText
-    } else {
-        strategyName = strategyCaptionEl.innerText
-        iqWidget = await action.enableStrategy(strategyName)
-    }
-    return { strategyName: strategyName, iqWidget: iqWidget }
-}
-
 action.getStrategyFromDataWindow = async (strategyName) => {
     // Enable the strategy
     let dataWindowWidgetEl = document.querySelector(SEL.dataWindowWidget)
     let headers = dataWindowWidgetEl.getElementsByClassName('headerTitle-_gbYDtbd')
     let iqWidgetEl = null
     for (let header of headers) {
-        if (header.innerText && header.innerText.includes(IMPULS) || header.innerText.includes(REVERSAL) || header.innerText.includes(COUNTER_STRIKE) || header.innerText.includes(NOVA)) {
+        if (header.innerText && SUPPORTED_STRATEGIES.some(strategy => header.innerText.includes(strategy))) {
             let iqWidget = header.parentElement.parentElement
             if (header.innerText.includes(strategyName) || strategyName === null) {
                 strategyName = header.innerText
@@ -343,7 +343,7 @@ action.enableStrategy = async (strategyName) => {
 }
 
 
-action.test = async (name, isDeepTest, iqWidget, timeout) => {
+action.test = async (name, isDeepTest, iqWidget, timeout, cycle) => {
     console.log('action.test: ' + name)
     await util.openDataWindow()
     await util.openStrategyTab()
@@ -351,6 +351,11 @@ action.test = async (name, isDeepTest, iqWidget, timeout) => {
     let iqValues = []
     let tick = 1000
     let selReportReady = isDeepTest ? SEL.strategyReportDeepTestReady : SEL.strategyReportReady
+
+    await page.waitForTimeout(1000)
+    console.log('Set indicator parameter:', cycle)
+    await tv.setStrategyInputs(name, cycle, isDeepTest)
+
 
     for (let i = 0; i < timeout / tick; i++) {
         console.log('waiting for ' + name + ' values')
@@ -360,48 +365,46 @@ action.test = async (name, isDeepTest, iqWidget, timeout) => {
         }
 
         await util.openDataWindow()
-        await util.openStrategyTab()
-
-        if (isDeepTest) {
-            let resultMsg = await tv.generateDeepTestReport()
-            console.log('Deep Test Result:', resultMsg)
-        } else {
-            page.mouseClickSelector(SEL.strategySummaryActive)
+        if ((tick * i) % 5000 === 0) {
+            await util.openPineEditorTab()
+            await page.waitForTimeout(250)
         }
-        await page.waitForTimeout(50)
+        await util.openStrategyTab()
+        await page.waitForTimeout(250)
         iqValues = iqWidget.getElementsByClassName('item-_gbYDtbd')
         isProcessError = await page.waitForSelector(SEL.strategyReportWarningHint, tick)
         isProcessError = isProcessError || document.querySelector(SEL.strategyReportError)
 
-        await tv.switchToStrategySummaryTab()
+        await tv.switchToStrategySummaryTab(isDeepTest)
         isProcessEnd = document.querySelector(selReportReady)
         if (isProcessError || (isProcessEnd && iqValues.length > 0)) {
-            console.log('Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues.length)
+            console.log('Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
             break
         }
     }
 
     let isNova = name === NOVA
-    const propVal = {}
+    let props = []
     for (let value of iqValues) {
         let values = value.innerText.split('\n')
-        if (values[0].includes('Best Long')) {
+        if (values[0].includes('Long Strategy')) {
             let bestLong = parseInt(values[1].replace(',', ''))
             let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Long Stratgy Reversion Number' : 'Best Long Stratgy Trend Number')
-            propVal[propName] = bestLong
+            props[propName] = bestLong
         }
-        else if (values[0].includes('Best Short')) {
+        else if (values[0].includes('Short Strategy')) {
             let bestShort = parseInt(values[1].replace(',', ''))
             let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Short Stratgy Reversion Number' : 'Best Short Stratgy Trend Number')
-            propVal[propName] = bestShort
+            props[propName] = bestShort
         }
     }
-    if (Object.keys(propVal).length === 0) {
+    if (Object.keys(props).length === 0) {
         console.log('No values found for ' + name + ' in the Data Window.')
-        return propVal
+        return props
     }
-    console.log('Set best strategy numbers: propVal', propVal)
-    await tv.setStrategyParams(name, propVal)
+
+    console.log('Set best strategy numbers:', props)
+    await tv.setStrategyInputs(name, props, isDeepTest)
 
     if (isDeepTest) {
         await page.waitForTimeout(1000)
@@ -409,95 +412,5 @@ action.test = async (name, isDeepTest, iqWidget, timeout) => {
         console.log('Deep Test Result::', resultMsg)
     }
 
-    return propVal
-}
-
-action._parseTF = (listOfTF) => {
-    let errorMsg = null;
-    function fixTf(tf) {
-        const supportedSeconds = [1, 5, 10, 15, 30, 45]
-        let unit = tf.slice(-1);
-        let num = parseInt(tf.slice(0, tf.length - 1));
-        switch (unit) {
-            case 's':
-                if (!supportedSeconds.includes(num)) {
-                    errorMsg = `Timeframe value is not supported (${tf}). Supported values for seconds are: ${supportedSeconds.join(', ')}`;
-                }
-                return tf
-            case 'm':
-                if (num >= 10000) {
-                    errorMsg = `Timeframe value is too big (${tf}). Max value for minutes is 9999`;
-                } else if (num % 60 === 0) {
-                    return (num / 60) + 'h'
-                }
-                return tf
-            case 'h':
-            case 'H':
-                if (num >= 25) {
-                    errorMsg = `Timeframe value is too big (${tf}). Max value for hours is 24`;
-                }
-                return tf
-            case 'd':
-            case 'D':
-                if (num >= 366) {
-                    errorMsg = `Timeframe value is too big (${tf}). Max value for days is 365`;
-                }
-                return tf
-            case 'w':
-            case 'W':
-                if (num >= 53) {
-                    errorMsg = `Timeframe value is too big (${tf}). Max value for weeks is 52`;
-                }
-                return tf
-            case 'M':
-                if (num >= 13) {
-                    errorMsg = `Timeframe value is too big (${tf}). Max value for months is 12`;
-                }
-                return tf
-            case 'R':
-                if (num > 999999) {
-                    errorMsg = `Timeframe value is too big (${tf}). Max value for range is 999999`;
-                }
-                return tf
-            default:
-                return tf;
-        }
-    }
-    if (!listOfTF || typeof listOfTF !== 'string') return { error: null, data: [] };
-
-
-    const tfList = listOfTF.split(',').reduce((acc, tf) => {
-        tf = tf.trim();
-        tf = tf.replaceAll('d', 'D').replaceAll('w', 'W').replaceAll('r', 'R').replaceAll('H', 'h').replaceAll('S', 's')
-        tf = tf.length === 1 ? "1" + tf : tf // m -> 1m, D -> 1D...
-
-        if (tf.includes('-')) {
-            const [start, end] = tf.split('-').map(t => t.trim());
-            const unit = start.slice(-1);
-            if (unit !== end.slice(-1)) {
-                errorMsg = `Timeframe range must have the same unit: ${tf}`;
-                return acc;
-            }
-            let [startNum, endNum] = [parseInt(start), parseInt(end)];
-            if (startNum > endNum) [startNum, endNum] = [endNum, startNum];
-            for (let i = startNum; i <= endNum; i++) {
-                let newTf = i + unit;
-                newTf = fixTf(newTf);
-                if (errorMsg)
-                    return acc
-                acc.push(newTf);
-            }
-        } else {
-            tf = fixTf(tf);
-            if (errorMsg)
-                return acc
-            acc.push(tf);
-        }
-        return acc;
-    }, []);
-
-    if (errorMsg) return { error: errorMsg, data: null };
-
-    const validTFs = tfList.filter(tf => /(^\d{1,2}[mhdsDWMR]$)/.test(tf));
-    return { error: null, data: validTFs };
+    return props
 }

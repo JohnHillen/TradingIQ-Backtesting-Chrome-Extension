@@ -130,7 +130,7 @@ ui.styleValStausMessage = `
     border: 2px solid gray;
 }`
 
-ui.statusMessage = (msgText, extraHeader = null) => {
+ui.statusMessage = (msgText, processInfo = '', extraHeader = null) => {
   const isStatusPresent = document.getElementById('tiqStatus')
   const mObj = isStatusPresent ? document.getElementById('tiqStatus') : document.createElement('div')
   let msgEl
@@ -143,10 +143,11 @@ ui.statusMessage = (msgText, extraHeader = null) => {
     msgEl = mObj.appendChild(document.createElement('div'))
     msgEl.id = 'tiqStatusMsg'
   } else {
-    msgEl = mObj.getElementById('tiqStatusMsg')
+    msgEl = document.getElementById('tiqStatusMsg')
   }
   if (isStatusPresent && msgEl && document.getElementById('tiqBoxMsg') && !extraHeader) {
     document.getElementById('tiqBoxMsg').innerHTML = msgText
+    document.getElementById('tiqProcessInfo').innerHTML = processInfo
   } else {
     extraHeader = extraHeader !== null ? `<div style="font-size: 12px;margin-left: 5px;margin-right: 5px;text-align: left;">${extraHeader}</div>` : '' //;margin-bottom: 10px
     msgEl.innerHTML = ui.tiqStylePopup + `
@@ -156,6 +157,9 @@ ui.statusMessage = (msgText, extraHeader = null) => {
         ${extraHeader}
         <div class="w3-padding">
           <p id="tiqBoxMsg">${msgText}</p>
+        </div>
+        <div class="w3-padding w3-center">
+          <p id="tiqProcessInfo">${processInfo}</p>
         </div>
         <div class="w3-padding">
             <button id="tiqBoxClose" class="w3-btn w3-block w3-round w3-aqua">Stop</button>

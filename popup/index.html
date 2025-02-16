@@ -1,191 +1,1070 @@
 <!DOCTYPE>
 <html lang="en">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 <head>
     <title>Trading IQ assistant</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="customSelect.css">
+    <link rel="stylesheet" type="text/css" href="customInput.css">
+    <link rel="stylesheet" type="text/css" href="init.css">
+    <script src="../content_scripts/util.js"></script>
+    <script src="../content_scripts/constants.js"></script>
+    <script src="customSelect.js"></script>
     <script src="init.js"></script>
 </head>
 
-<body style="width: 300px;color:#00ffff;background: radial-gradient(circle at top, #313131, #181818);" class="w3-small">
-    <div id="mainDiv" class="w3-container">
+<body class="w3-small">
+    <div id="mainDiv" class="w3-container" style="padding: 0.01em 4px">
+        <button id="settingBtn" class="w3-button w3-xlarge w3-circle" style="width: 30;height: 30;padding: 2px 0 0 0px;position: fixed;top: 8px;right:8px;z-index: 1000;">
+            <svg width="20px" height="20px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="#e0e0e0" stroke="#e0e0e0">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path fill="#00ffff"
+                        d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384zm0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256z">
+                    </path>
+                </g>
+            </svg>
+        </button>
 
-        <div id="unsupportedPage" class="w3-container w3-padding">
-            <label>The extension only works with the <a href="https://www.tradingview.com/chart" target="_blank">English
-                    version</a> of Tradingview.</label>
-        </div>
         <div id="supportedPage">
-            <div class="w3-container">
-                <div class="w3-cell tablink w3-bottombar w3-hover-light-grey w3-padding tablink w3-border-aqua"
-                    id="testingTab">Testing</div>
-                <div class="w3-cell tablink w3-bottombar w3-hover-light-grey w3-padding tablink" id="initTab">Initialize
-                </div>
-                <div class="w3-cell tablink w3-bottombar w3-hover-light-grey w3-padding tablink" id="settingTab">
-                    Settings</div>
-            </div>
-
             <div id="Testing" class="w3-container tabs">
                 <div class="w3-section">
-                    <div class="w3-container" style="padding: 0px 0px 3px 0px;">
-                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4"
-                                style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">Comma seperated
-                                Timeframes or ranges.
-                                e.g.:<br>
-                                single: 1m,1h,1D,1W,1M,...<br>
-                                ranges: 1h-5h,30m-35m,...</span>
-                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
-                                height="18">
-                                <path fill="currentColor"
-                                    d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
-                                </path>
-                            </svg>
-                        </div>
-                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Timeframes</label>
-                    </div>
-                    <input class="w3-input" id="tfList" type="text" placeholder="1m,2h,1D,2W,1M,1h-5h"
-                        title="List of timeframes">
-                </div>
-                <div class="w3-section">
-                    <label>Report Format</label>
-                    <select class="w3-select" name="reportFormat" id="reportFormat" style="margin-top: 3px;">
-                        <option value="1" selected="selected">HTML</option>
-                        <option value="2">CSV</option>
-                    </select>
-                </div>
-                <div>
-                    <button id="testStrategy" class="w3-btn w3-block w3-round w3-aqua">Start</button>
-                </div>
-            </div>
-
-            <div id="Initialize" class="w3-container tabs" style="display:none">
-                <div class="w3-section">
-                    <label>IQ Indicator</label>
-                    <select class="w3-select" name="iqIndicator" id="iqIndicator" style="margin-top: 3px;">
-                        <option value="0" selected="selected">Impulse IQ Backtester</option>
-                        <option value="1">Reversal IQ Backtester</option>
-                        <option value="2">Counter Strike IQ Backtester</option>
-                        <option value="3">Nova IQ Backtester</option>
-                    </select>
-                </div>
-                <div class="w3-section">
-                    <div class="w3-container" style="padding: 0px 0px 3px 0px;">
-                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4"
-                                style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">Set the timeframe
-                                which
-                                should Initialize.
-                                The extension will load the best strategy numbers for the selected timeframe and sets
-                                the
-                                numbers in the settings of the trading iq backtesting indicator</span>
-                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
-                                height="18">
-                                <path fill="currentColor"
-                                    d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
-                                </path>
-                            </svg>
-                        </div>
-                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Timeframe</label>
-                    </div>
-                    <div class="w3-cell" style="padding-right: 2px;width:50%;">
-                        <input class="w3-input" id="tfInterval" type="number" value="1" title="timeframe"
-                            style="height: 36px;">
-                    </div>
-                    <div class="w3-cell" style="padding-left: 2px;width:50%;">
-                        <select class="w3-select" id="tfUnit">
-                            <option value="0">seconds</option>
-                            <option value="1" selected="selected">minutes</option>
-                            <option value="2">hours</option>
-                            <option value="3">days</option>
-                            <option value="4">weeks</option>
-                            <option value="5">months</option>
-                            <option value="6">range</option>
+                    <label class="prevent-select">IQ Indicator</label>
+                    <div class="custom-select" style="color:#00ffff">
+                        <select data-name="iqSettings" id="iqIndicator" style="margin-top: 3px;">
+                            <option value="0">Impulse IQ Backtester</option>
+                            <option value="1">Reversal IQ Backtester</option>
+                            <option value="2">Counter Strike IQ Backtester</option>
+                            <option value="3" selected>Nova IQ Backtester</option>
+                            <option value="4" selected>Razor IQ Backtester</option>
                         </select>
                     </div>
                 </div>
+
+                <div id="impulsIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
+                    <label class="prevent-select">Impulse IQ Settings</label>
+                    <p>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="w3-cell">
+                                <label class="container">Long
+                                    <input data-name="iqSettings" id="impulsIq_trade_long" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div class="w3-cell" style="padding: 0 8px;">
+                                <label class="container">Short
+                                    <input data-name="iqSettings" id="impulsIq_trade_short" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Optimize</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="impulsIq_optimize" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">Minimum Stop Loss And Trailing
+                                Target
+                                Distance</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" data-min="0.4" class="w3-input" id="impulsIq_slAndTd" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell" style="width: 35%;">
+                            <label>Strategy Type</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;" id="impulsIq_strategyTypeDiv">
+                                <select data-name="iqSettings" name="impulsIq_strategyType" id="impulsIq_strategyType" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">Breakout</option>
+                                    <option value="1">Cheap</option>
+                                    <option value="2">Breakout, Cheap</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Use R Multiple
+                                (R:R)</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;width: 100px;padding-right: 20px;">
+                                <select data-name="iqSettings" id="impulsIq_rr_on_off" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <div class="w3-container prevent-select" style="padding: 0px 0px 3px 0px;">
+                                <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                    <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-200;top:20px;width:370px;z-index: 100;">Comma
+                                        seperated
+                                        list of single values and ranges.
+                                        Ranges are defined by a dash.<br><br>
+                                        The first value of a range defines the step size. (0.1-0.4 will have a step size of
+                                        0.1 and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                        If the last value of a range is not a multiple of the step size, the last value will
+                                        be included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                        If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                        You can combine single values and different ranges.
+                                        e.g.<br>
+                                        0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                        single values: 0.1,0.2<br>
+                                        range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                        range: 1-5 -> 1,2,3,4,5<br>
+                                        range: 2-11 -> 2,4,6,8,10,11<br>
+                                        final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11</span>
+                                    <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                        <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <label class="w3-cell w3-cell-middle" style="white-space:nowrap;"></label>
+                            </div>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" class="w3-input" id="impulsIq_rr" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                </div>
+                <div id="reversalIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
+                    <label class="prevent-select">Reversal IQ Settings</label>
+                    <p>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Run Optimization</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_optimize" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Place Limit Orders Immediately At Entry</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_limit_order_at_entry" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade Very High Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_not_trade_very_high_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row  w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade High Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_not_trade_high_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade Average Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_not_trade_avg_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade Low Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_not_trade_low_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Optimization Al Aggressiveness</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_optimize_ai_agg" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">Sniper</option>
+                                    <option value="1">Aggressive</option>
+                                    <option value="2">Very Aggressive</option>
+                                    <option value="3">Sniper, Aggressive</option>
+                                    <option value="4">Sniper, Very Aggressive</option>
+                                    <option value="5">Sniper, Aggressive, Very Aggressive</option>
+                                    <option value="6">Aggressive, Very Aggressive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Al Direction</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="reversalIq_ai_direction" style="margin-top: 3px;">
+                                    <option value="0">Both</option>
+                                    <option value="1">Long</option>
+                                    <option value="2">Short</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">Minimum ATR TP/SL</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" class="w3-input" id="reversalIq_min_atr_sl_tp" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                </div>
+                <div id="counterIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
+                    <label class="prevent-select">Counter Srike IQ Settings</label>
+                    <p>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="w3-cell" style="width: 100px;">
+                                <label class="container">Long
+                                    <input data-name="iqSettings" id="counterIq_trade_long" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div class="w3-cell" style="padding: 0 8px;">
+                                <label class="container">Short
+                                    <input data-name="iqSettings" id="counterIq_trade_short" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Optimize</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_optimize" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Stop Loss Learning Type</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_sl_learning_type" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">Auto</option>
+                                    <option value="1">Trailing</option>
+                                    <option value="2">Fixed</option>
+                                    <option value="3">Auto, Trailing</option>
+                                    <option value="4">Auto, Fixed</option>
+                                    <option value="5">Auto, Trailing, Fixed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">Minimum ATR Profit</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" class="w3-input" id="counterIq_min_atr_profit" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">Minimum ATR Stop</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" class="w3-input" id="counterIq_min_atr_stop" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Stop Type Long</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_stop_type_long" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">Trailing Stop</option>
+                                    <option value="1">Fixed Stop</option>
+                                    <option value="2">Trailing Stop, Fixed Stop</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Stop Type Short</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_stop_type_short" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">Trailing Stop</option>
+                                    <option value="1">Fixed Stop</option>
+                                    <option value="2">Trailing Stop, Fixed Stop</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small" style="white-space:nowrap;">Use EMA Filter</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_use_ema_filter" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">EMA Length</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" class="w3-input" id="counterIq_ema_length" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                </div>
+                <div id="novaIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
+                    <label class="prevent-select">Nova IQ Settings</label>
+                    <p>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="w3-cell" style="width: 100px;">
+                                <label class="container">Long
+                                    <input data-name="iqSettings" id="novaIq_trade_long" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div class="w3-cell" style="padding: 0 8px;">
+                                <label class="container">Short
+                                    <input data-name="iqSettings" id="novaIq_trade_short" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade nova IQ</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="w3-cell" style="width: 100px;">
+                                <label class="container">Reversions
+                                    <input data-name="iqSettings" id="novaIq_trade_reversions" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div class="w3-cell" style="padding: 0 8px;">
+                                <label class="container">Trends
+                                    <input data-name="iqSettings" id="novaIq_trade_trends" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Use Higher RR</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="novaIq_use_higher_rr" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">Minimum ATR TP/SL</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" data-min="0.4" class="w3-input" id="novaIq_min_atr_sl_tp" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                </div>
+                <div id="razorIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
+                    <label class="prevent-select">Razor IQ Settings</label>
+                    <p>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="w3-cell">
+                                <label class="container">Long
+                                    <input data-name="iqSettings" id="razorIq_trade_long" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div class="w3-cell" style="padding: 0 8px;">
+                                <label class="container">Short
+                                    <input data-name="iqSettings" id="razorIq_trade_short" type="checkbox" checked="checked">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Limit Order Stop Loss (Longs only)</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="razorIq_limit_order_sl" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
+                                    list of single values and ranges.
+                                    Ranges are defined by a dash.<br><br>
+                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
+                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
+                                    If the last value of a range is not a multiple of the step size, the last value will be
+                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
+                                    You can combine single values and different ranges.
+                                    e.g.<br>
+                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+                                    single values: 0.1,0.2<br>
+                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+                                    range: 1-5 -> 1,2,3,4,5<br>
+                                    range: 2-11 -> 2,4,6,8,10,11<br>
+                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
+                                </span>
+                                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <label class="w3-cell w3-cell-middle">Minimum ATR TP/SL - Shorts Only</label>
+                        </div>
+                        <div class="w3-cell w3-cell-middle">
+                            <input data-name="iqSettings" data-min="0.5" class="w3-input" id="razorIq_slAndTp" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-section">
+                    <div class="w3-container prevent-select" style="padding: 0px 0px 3px 0px;">
+                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-10;top:20px;width:270px;z-index: 100;">Comma seperated
+                                Timeframes or ranges.
+                                e.g.<br>
+                                single: 1m,1h,1D,1W,1M,...<br>
+                                ranges: 1h-5h,30m-35m,...</span>
+                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h6 class="w3-cell w3-cell-middle" style="white-space:nowrap;">Timeframes</h6>
+                    </div>
+                    <input data-name="iqSettings" class="w3-input" id="tfList" type="text" placeholder="1m,2h,1D,2W,1M,1h-5h" title="List of timeframes">
+                </div>
+
+                <div id="warningDiv" class="w3-container prevent-select w3-red w3-margin">
+                    <span><b>Warning </b><span id="warningMsg"></span></span>
+                </div>
+
+                <div class="w3-section w3-cell-row">
+                    <div class="w3-cell" style="width: 35%;">
+                        <label class="container">Deep Backtesting
+                            <input data-name="iqSettings" id="iq_deep_enabled" type="checkbox" checked="checked">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="w3-cell" style="padding: 0 8px;">
+                        <label>From
+                            <input data-name="iqSettings" id="iq_deep_from" type="date">
+                        </label>
+                    </div>
+                    <div class="w3-cell" style="padding: 0 8px;">
+                        <label>To
+                            <input data-name="iqSettings" id="iq_deep_to" type="date">
+                        </label>
+                    </div>
+                </div>
+
                 <div>
-                    <button id="initIq" class="w3-btn w3-block w3-round w3-aqua">Start</button>
-                </div>
-            </div>
-
-            <div id="Settings" class="w3-container tabs" style="display:none">
-                <div class="w3-section">
-                    <div class="w3-container" style="padding: 0px 0px 3px 0px;">
-                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4"
-                                style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">This is the maximum
-                                time
-                                the extension will wait for the best strategy numbers to load.<br>
-                                On lower timeframes the time to load the best strategy numbers can increase
-                                significant.<br>
-                                If the extension runs in timeouts and is not able to load the best strategy numbers, you
-                                can
-                                increase this timeout.</span>
-                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
-                                height="18">
-                                <path fill="currentColor"
-                                    d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
-                                </path>
-                            </svg>
-                        </div>
-                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Timeout (sec)</label>
-                    </div>
-                    <input class="w3-input" id="timeoutInput" type="text" value="60" title="Timeout">
-                </div>
-                <div class="w3-section">
-                    <div class="w3-container" style="padding: 0px 0px 3px 0px;">
-                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4"
-                                style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">This is the number
-                                of
-                                retries the extension makes to identify the best strategy numbers after the timeout is
-                                reached.<br>
-                                The maximum amount of time the extension will attempt to recognize the best strategy
-                                numbers
-                                is calculated by multiplying the number of retries by the timeout (5 x 60 seconds = 300
-                                seconds) for each timeframe.</span>
-                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
-                                height="18" style="z-index: 1;">
-                                <path fill="currentColor"
-                                    d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
-                                </path>
-                            </svg>
-                        </div>
-                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Number of
-                            Retry</label>
-                    </div>
-                    <input class="w3-input" type="text" id="retryInput" type="text" value="5" title="Retry">
-                </div>
-            </div>
-
-            <div class="w3-container">
-                <hr class="w3-aqua" />
-                <h5>Disclaimer</h5>
-                <div class="w3-container" style="padding: 0px 0px 3px 0px;">
-                    <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4"
-                            style="position:absolute;left:0;bottom:18px;width:270px;z-index: 100;">It is possible that
-                            the
-                            extension will be detected by TradingView and the user's account will be
-                            banned.<br><br>
-                            The developer of the extension does not response for any possible consequences of its
-                            use.</span>
-                        <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
-                            height="18" style="z-index: 1;">
-                            <path fill="currentColor"
-                                d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
-                            </path>
-                        </svg>
-                    </div>
-                    <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Use at your own
-                        risk.</label>
+                    <button id="testStrategy" class="w3-btn w3-block w3-round w3-aqua"><b>Start</b> (Number of
+                        backtests: <span id="numberOfBacktests">1</span>)</button>
                 </div>
             </div>
         </div>
+
+        <div id="disclaimer" class="w3-container w3-center" style="margin-bottom: 25px;">
+            <br>
+            <h5>Disclaimer</h5>
+            <div class="w3-container center" style="padding: 0px 0px 3px 0px;">
+                <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                    <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-50px;bottom:18px;width:270px;z-index: 100;">It is possible that
+                        the
+                        extension will be detected by TradingView and the user's account will be
+                        banned.<br><br>
+                        The developer of the extension does not response for any possible consequences of its
+                        use.</span>
+                    <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18" style="z-index: 1;">
+                        <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                        </path>
+                    </svg>
+                </div>
+                <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Use at your own risk.</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="Settings" style="height: 100%; width: 100%;display:none;z-index: 200;background-color: #181818A0;position: fixed;top: 0px;left:0px;">
+        <div class="w3-card-4" style="overflow-y: scroll; height:550px; width: 550px; position: fixed;top: 25px;left:25px;background: radial-gradient(circle at top, #313131, #181818)">
+            <div class="w3-container">
+                <h5>Extension Settings</h5>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Report
+                            Format</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="w3-cell">
+                            <label class="container">HTML
+                                <input data-name="strategySettings" id="reportFormatHtml" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="w3-cell" style="padding: 0 8px;">
+                            <label class="container">CSV
+                                <input data-name="strategySettings" id="reportFormatCsv" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-tooltip w3-small w3-cell" style="width: 22px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">This is the maximum time the extension
+                                will
+                                wait for the best strategy numbers to load.<br>
+                                On lower timeframes the time to load the best strategy numbers can increase significant.<br>
+                                If the extension runs in timeouts and is not able to load the best strategy numbers, you can increase this timeout.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Timeout
+                            (sec)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="tiq_timeout" type="number" value="60" step="10">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-tooltip w3-small w3-cell" style="width: 22px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">This is the
+                                number of retries the extension makes to identify the best strategy numbers after the timeout is reached.<br>
+                                The maximum amount of time the extension will attempt to recognize the best strategy numbers is calculated by multiplying the number of retries by the timeout (5 x
+                                60
+                                seconds = 300 seconds) for each cycle.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18" style="z-index: 1;">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Number of Retry</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="tiq_retry" type="number" value="5">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="w3-container">
+                <h5>Strategy Properties</h5>
+            </div>
+            <div class="w3-container">
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Initial capital</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_initial_capital" type="number" value="10000" step="1000">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Base currency</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-select" style="color:#00ffff;">
+                            <select data-name="strategySettings" id="strategy_properties_base_currency" style="margin-top: 3px;">
+                                <option value="0">Default</option>
+                                <option value="1">USD</option>
+                                <option value="2">EUR</option>
+                                <option value="3">AUD</option>
+                                <option value="4">GBP</option>
+                                <option value="5">NZD</option>
+                                <option value="6">CAD</option>
+                                <option value="7">CHF</option>
+                                <option value="8">HKD</option>
+                                <option value="9">JPY</option>
+                                <option value="10">NOK</option>
+                                <option value="11">RUB</option>
+                                <option value="12">SEK</option>
+                                <option value="13">SGD</option>
+                                <option value="14">TRY</option>
+                                <option value="15">ZAR</option>
+                                <option value="16">BTC</option>
+                                <option value="17">ETH</option>
+                                <option value="18">MYR</option>
+                                <option value="19">KRW</option>
+                                <option value="20">USD</option>
+                                <option value="21">INR</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Order size</label>
+                    </div>
+                    <div class="w3-cell" style="width: 20%;">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_ordersize" type="number" value="100">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell" style="padding-left: 4px;">
+                        <div class="custom-select" style="color:#00ffff;">
+                            <select data-name="strategySettings" data-adaptive="true" id="sp_ordersize_type" style="margin-top: 3px;">
+                                <option value="0">Contracts</option>
+                                <option value="1">USDT</option>
+                                <option value="2" selected>% of equity</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Pyramiding</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_pyramiding" type="number" value="1">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Commission</label>
+                    </div>
+                    <div class="w3-cell" style="width: 20%;">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" type="number" value="0" id="sp_commission" step="0.01" />
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell" style="padding-left: 4px;">
+                        <div class="custom-select" style="color:#00ffff;">
+                            <select data-name="strategySettings" data-adaptive="true" id="sp_commission_type" style="margin-top: 3px;">
+                                <option value="0">%</option>
+                                <option value="1">USDT per contract</option>
+                                <option value="2">USDT per order</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small">Verify price for limit orders (ticks)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" type="number" value="0" id="sp_price_limit_orders" />
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Slippage (ticks)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_slippage" type="number" value="0">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Margin long positions (%)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_marging_long" type="number" value="0">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Margin short positions (%)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_marging_short" type="number" value="0">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Recalculate</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">After Order os filled
+                                <input data-name="strategySettings" id="sp_after_order_is_filled" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">On every tick
+                                <input data-name="strategySettings" id="sp_on_every_tick" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Fill Orders</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">Using bar magnifier
+                                <input data-name="strategySettings" id="sp_using_bar_magnifier" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">On bar close
+                                <input data-name="strategySettings" id="sp_on_bar_close" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">Using standard OHLC
+                                <input data-name="strategySettings" id="sp_using_standard_ohlc" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div id="unsupportedPage" class="w3-container w3-padding vertical-center" style="text-align: center;width: 100%;">
+        <label>The extension only works with the<br> <a href="https://www.tradingview.com/chart" target="_blank">English
+                version</a> of Tradingview.</label>
     </div>
 </body>
 
