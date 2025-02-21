@@ -5,13 +5,35 @@
 'use strict';
 
 const TF_UNIT_LIST = ['s', 'm', 'h', 'D', 'W', 'M', 'r']
+const VERSION = 'Version 2.1'
 let currentIqId = 'impulsIq'
+
+const CSL_INFO = `Comma seperated list of single values and ranges. Ranges are defined by a dash.<br><br>
+The first value of a range defines the step size.<br>
+(0.1-0.4 will have a step size of 0.1 and will generate a list of 0.1,0.2,0.3,0.4)<br>
+Optional the step size can be defined by a ':',<br>
+eg: (0-5:2) will be converted to 0,2,4,5.<br><br>
+If the last value of a range is not a multiple of the step size, the last value will be
+included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
+If you want to define a range that starts at 0, define something like 0,1-5 or 0-5:1<br><br>
+You can combine single values and different ranges.
+e.g.<br>
+0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
+single values: 0.1,0.2<br>
+range: 0.4-1.2 -> 0.4,0.8,1.2<br>
+range: 1-5 -> 1,2,3,4,5<br>
+range: 2-11 -> 2,4,6,8,10,11<br>
+final: 0.1,0.2, 0.4,0.8,1,1.2, 2,3,4,5,6,8,10,11`
 
 document.addEventListener('DOMContentLoaded', () => {
   checkIsTVChart()
   loadSettings()
 
+  document.getElementById('version').innerText = VERSION
   document.onmouseleave = function () {
+    saveSettings()
+  }
+  document.getElementById("Settings").onmouseleave = function () {
     saveSettings()
   }
   let debounceTimeout;
@@ -67,6 +89,11 @@ function checkIsTVChart() {
           disable('iq_deep_from')
           disable('iq_deep_to')
         });
+
+        let cslList = document.querySelectorAll('[data-info="csl"]')
+        for (let i = 0; i < cslList.length; i++) {
+          cslList[i].innerHTML = CSL_INFO
+        }
       }
     } catch (e) {
       console.error(e)
@@ -74,6 +101,30 @@ function checkIsTVChart() {
   });
 }
 
+/**
+ * Parses a string representing a range of numbers and returns a formatted string of the range.
+ *
+ * The input string can contain individual numbers, ranges (e.g., "1-5"), and ranges with steps (e.g., "1-5:0.5").
+ *
+ * @param {string} val - The input string representing the range of numbers.
+ * @returns {string|Object} - A comma-separated string of numbers in the range, or an object with an error property if invalid.
+ *
+ * @example
+ * // Returns "1,2,3,4,5"
+ * parseRange("1-5");
+ *
+ * @example
+ * // Returns "0,0.5,1,1.5,2,2.5,3"
+ * parseRange("0-3:0.5");
+ *
+ * @example
+ * // Returns "1,2,3,4,5,7,8,9"
+ * parseRange("1-5,7-9");
+ *
+ * @example
+ * // Returns { error: 'invalid: 1-5:0' }
+ * parseRange("1-5:0");
+ */
 function parseRange(val) {
   let parts = val.split(',').filter(part => part.trim() !== '');
   let result = [];
@@ -84,10 +135,10 @@ function parseRange(val) {
         part = part.slice(0, -1);
       }
       if (part.includes('-')) {
-        let [start, end] = part.split('-').map(Number);
+        let [start, end] = part.replace(/:.*$/g, '').split('-').map(Number);
         if (start > end) [start, end] = [end, start];
-        let decimalPlaces = (start.toString().split('.')[1] || '').length;
-        let step = start;
+        let step = part.includes(':') ? parseFloat(part.split(':')[1]) : start;
+        let decimalPlaces = (step.toString().split('.')[1] || '').length;
         if (step > 0) {
           for (let i = start; i <= end; i += step) {
             result.push(i.toFixed(decimalPlaces));
@@ -96,7 +147,7 @@ function parseRange(val) {
             result.push(end.toFixed(decimalPlaces));
           }
         } else {
-          result.error = 'Range start value must be greater than 0: ' + part;
+          result.error = 'invalid: ' + part;
           return result
         }
       } else {
@@ -120,6 +171,7 @@ function calcNumberOfBacktests() {
   for (let key in iqParameters) {
     if (iqParameters.hasOwnProperty(key)) {
       let elVal = iqParameters[key];
+      console.log('calcNumberOfBacktests elVal', elVal)
       if (document.getElementById(key).type === 'text') {
         if (elVal.error === null) {
           elVal = parseRange(elVal.value);
@@ -134,7 +186,7 @@ function calcNumberOfBacktests() {
       else {
         elVal = elVal.value;
       }
-      let commaCount = (elVal.match(/,/g) || []).length + 1;
+      let commaCount = elVal === true || elVal === false ? 1 : (elVal.match(/,/g) || []).length + 1;
       if (elVal.length > 0) {
         countArr.push(commaCount);
       }
@@ -192,6 +244,8 @@ function getStrategyCycles() {
       let iqValue = iqParameters[key].value;
       if (document.getElementById(key).type === 'text') {
         iqValue = parseRange(iqValue);
+      } else if (iqValue === true || iqValue === false) {
+        iqValue = iqValue.toString();
       }
       let values = iqValue.split(',');
       let tempCombinations = [];
@@ -203,7 +257,7 @@ function getStrategyCycles() {
             let rrVal = newCombination[constants['impulsIq_rr']];
             newCombination[constants['impulsIq_rr']] = { adaptive: true, value1: rrVal, value2: value };
           } else {
-            newCombination[constants[key]] = (value === 'True' || value === 'False') ? (value === 'True') : value;
+            newCombination[constants[key]] = parseValue(value);
           }
           tempCombinations.push(newCombination);
         });
@@ -221,6 +275,15 @@ function getStrategyCycles() {
   return cycles;
 }
 
+function parseValue(value) {
+  if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+    return value.toLowerCase() === 'true';
+  } else if (value.toLowerCase() === 'on' || value.toLowerCase() === 'off') {
+    return value.toLowerCase() === 'on';
+  }
+  return value;
+}
+
 function getIqParameter() {
   let iqSettings = document.querySelectorAll('[data-name="iqSettings"]')
   let iqParrameter = {}
@@ -228,6 +291,9 @@ function getIqParameter() {
     let element = iqSettings[i]
     if (!element.id.includes(currentIqId)) {
       continue
+    }
+    else if (element.tagName.toLowerCase() === 'input' && element.type === 'checkbox') {
+      iqParrameter[element.id] = { value: element.checked, error: null };
     }
     else if (element.tagName.toLowerCase() === 'input' && element.value.length > 0) {
       let dataMin = element.hasAttribute('data-min') ? parseFloat(element.getAttribute('data-min')) : null;
@@ -351,6 +417,7 @@ function getTestOptions() {
   options.iqIndicator = SUPPORTED_STRATEGIES[document.getElementById('iqIndicator').value]
   options.strategyProperties = getStrategyProperties()
   options.deeptest = document.getElementById('iq_deep_enabled').checked
+  options.resetAtStart = document.getElementById('iq_reset_at_start').checked
   if (options.deeptest) {
     options.deepfrom = document.getElementById('iq_deep_from').value
     options.deepto = document.getElementById('iq_deep_to').value

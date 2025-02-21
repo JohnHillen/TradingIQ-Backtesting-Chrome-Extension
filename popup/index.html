@@ -48,6 +48,13 @@
 
                 <div id="impulsIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
                     <label class="prevent-select">Impulse IQ Settings</label>
+                    <div class="w3-tooltip w3-small w3-cell w3-left" style="width: 22px;margin-bottom: -4px;">
+                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">If a field has not been filled, it will not be changed in the Strategy settings.</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                            <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                            </path>
+                        </svg>
+                    </div>
                     <p>
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
@@ -87,23 +94,7 @@
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -182,6 +173,13 @@
                 </div>
                 <div id="reversalIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
                     <label class="prevent-select">Reversal IQ Settings</label>
+                    <div class="w3-tooltip w3-small w3-cell w3-left" style="width: 22px;margin-bottom: -4px;">
+                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">If a field has not been filled, it will not be changed in the Strategy settings.</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                            <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                            </path>
+                        </svg>
+                    </div>
                     <p>
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
@@ -284,10 +282,10 @@
                                     <option value="0">Sniper</option>
                                     <option value="1">Aggressive</option>
                                     <option value="2">Very Aggressive</option>
-                                    <option value="3">Sniper, Aggressive</option>
-                                    <option value="4">Sniper, Very Aggressive</option>
-                                    <option value="5">Sniper, Aggressive, Very Aggressive</option>
-                                    <option value="6">Aggressive, Very Aggressive</option>
+                                    <option value="3">Aggressive, Very Aggressive</option>
+                                    <option value="4">Sniper, Aggressive</option>
+                                    <option value="5">Sniper, Very Aggressive</option>
+                                    <option value="6">Sniper, Aggressive, Very Aggressive</option>
                                 </select>
                             </div>
                         </div>
@@ -309,23 +307,7 @@
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -339,7 +321,14 @@
                     </div>
                 </div>
                 <div id="counterIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
-                    <label class="prevent-select">Counter Srike IQ Settings</label>
+                    <label class="prevent-select">Counter Strike IQ Settings</label>
+                    <div class="w3-tooltip w3-small w3-cell w3-left" style="width: 22px;margin-bottom: -4px;">
+                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">If a field has not been filled, it will not be changed in the Strategy settings.</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                            <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                            </path>
+                        </svg>
+                    </div>
                     <p>
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
@@ -397,23 +386,7 @@
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -428,23 +401,7 @@
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -454,6 +411,66 @@
                         </div>
                         <div class="w3-cell w3-cell-middle">
                             <input data-name="iqSettings" class="w3-input" id="counterIq_min_atr_stop" type="text" placeholder="comma seperated list" title="Timeout">
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade Very High Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_not_trade_very_high_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row  w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade High Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_not_trade_high_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade Average Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_not_trade_avg_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row w3-section">
+                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                            <label class="w3-small">Do Not Trade Low Volatility</label>
+                        </div>
+                        <div class="w3-cell">
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="counterIq_not_trade_low_vola" style="margin-top: 3px;">
+                                    <option value="-1">select...</option>
+                                    <option value="0">True</option>
+                                    <option value="1">False</option>
+                                    <option value="2">True, False</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="w3-cell-row">
@@ -504,23 +521,7 @@
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -535,6 +536,13 @@
                 </div>
                 <div id="novaIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
                     <label class="prevent-select">Nova IQ Settings</label>
+                    <div class="w3-tooltip w3-small w3-cell w3-left" style="width: 22px;margin-bottom: -4px;">
+                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">If a field has not been filled, it will not be changed in the Strategy settings.</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                            <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                            </path>
+                        </svg>
+                    </div>
                     <p>
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
@@ -594,23 +602,7 @@
                     <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -625,9 +617,16 @@
                 </div>
                 <div id="razorIq" data-name="iqIndicator" class="w3-section w3-card-4 w3-padding">
                     <label class="prevent-select">Razor IQ Settings</label>
+                    <div class="w3-tooltip w3-small w3-cell w3-left" style="width: 22px;margin-bottom: -4px;">
+                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">If a field has not been filled, it will not be changed in the Strategy settings.</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                            <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                            </path>
+                        </svg>
+                    </div>
                     <p>
                     <div class="w3-cell-row">
-                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-cell w3-cell-middle" style="width: 45%;">
                             <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade</label>
                         </div>
                         <div class="w3-cell">
@@ -647,7 +646,7 @@
                         </div>
                     </div>
                     <div class="w3-cell-row">
-                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-cell w3-cell-middle" style="width: 45%;">
                             <label class="w3-small">Limit Order Stop Loss (Longs only)</label>
                         </div>
                         <div class="w3-cell">
@@ -662,25 +661,9 @@
                         </div>
                     </div>
                     <div class="w3-cell-row">
-                        <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-cell w3-cell-middle" style="width: 45%;">
                             <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;">Comma seperated
-                                    list of single values and ranges.
-                                    Ranges are defined by a dash.<br><br>
-                                    The first value of a range defines the step size. (0.1-0.4 will have a step size of 0.1
-                                    and will generate a list of 0.1,0.2,0.3,0.4)<br><br>
-                                    If the last value of a range is not a multiple of the step size, the last value will be
-                                    included in the list. (0.2-0.5 -> 0.2,0.4,0.5)<br><br>
-                                    If you want to define a range that starts at 0, define something like 0,1-5<br><br>
-                                    You can combine single values and different ranges.
-                                    e.g.<br>
-                                    0.1,0.2,0.4-1.2,1-5,2-11 will be converted to the following list:<br>
-                                    single values: 0.1,0.2<br>
-                                    range: 0.4-1.2 -> 0.4,0.8,1.2<br>
-                                    range: 1-5 -> 1,2,3,4,5<br>
-                                    range: 2-11 -> 2,4,6,8,10,11<br>
-                                    final: 0.1,0.2,0.4,0.8,1,1.2,2,3,4,5,6,8,10,11
-                                </span>
+                                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
                                 <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                     <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                     </path>
@@ -700,7 +683,9 @@
                                 Timeframes or ranges.
                                 e.g.<br>
                                 single: 1m,1h,1D,1W,1M,...<br>
-                                ranges: 1h-5h,30m-35m,...</span>
+                                ranges: 1h-5h,30m-35m:5,...<br><br>
+                                Step size is 1 or can be specified by a ':', eg: (1-11:2) This will be converted to 1,3,5,...,10,11.<br>
+                            </span>
                             <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
                                 <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
                                 </path>
@@ -733,7 +718,23 @@
                         </label>
                     </div>
                 </div>
-
+                <div class="w3-section">
+                    <div class="w3-container w3-cell-row" style="padding: 0px 0px 0px 0px;">
+                        <div class="w3-cell" style="width: 175px;">
+                            <label class="container">Reset Strategy at start
+                                <input data-name="iqSettings" id="iq_reset_at_start" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="w3-tooltip w3-small w3-cell w3-left" style="width: 22px;margin-bottom: -4px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">If enabled, the strategy parameters are reset once before the start of the backtest.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <button id="testStrategy" class="w3-btn w3-block w3-round w3-aqua"><b>Start</b> (Number of
                         backtests: <span id="numberOfBacktests">1</span>)</button>
@@ -765,7 +766,10 @@
     <div id="Settings" style="height: 100%; width: 100%;display:none;z-index: 200;background-color: #181818A0;position: fixed;top: 0px;left:0px;">
         <div class="w3-card-4" style="overflow-y: scroll; height:550px; width: 550px; position: fixed;top: 25px;left:25px;background: radial-gradient(circle at top, #313131, #181818)">
             <div class="w3-container">
-                <h5>Extension Settings</h5>
+                <div class="w3-cell-row w3-section">
+                    <h5 class="w3-cell">Extension Settings</h5>
+                    <label id="version" class="w3-cell w3-small w3-right"></label>
+                </div>
                 <div class="w3-cell-row">
                     <div class="w3-cell w3-cell-middle" style="width: 35%;">
                         <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Report

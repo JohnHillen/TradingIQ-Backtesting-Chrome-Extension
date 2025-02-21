@@ -114,6 +114,19 @@ tvChart.changeTimeFrame = async (setTF) => {
     throw new Error(`Failed to set the timeframe value to "${strategyTF}" after adding it to timeframe list, the current "${curTimeFrameText}"`)
 }
 
+tvChart.toggleTimeFrame = async (cycle) => {
+  const cycleTf = cycle.tf === CURRENT_TF ? tvChart.getCurrentTimeFrame() : cycle.tf
+  let tf1 = "1m" === cycleTf ? "2m" : "1m"
+
+  console.log('tvChart.toggleTimeFrame:', cycleTf, '->', tf1)
+  await tvChart.changeTimeFrame(tf1)
+  await page.waitForTimeout(500)
+
+  console.log('tvChart.toggleTimeFrame:', tf1, '->', cycleTf)
+  await tvChart.changeTimeFrame(cycleTf)
+  await page.waitForTimeout(500)
+}
+
 tvChart.selectTimeFrameMenuItem = async (alertTF) => {
   const allMenuTFItems = document.querySelectorAll(SEL.chartTimeframeMenuItem)
   for (let item of allMenuTFItems) {

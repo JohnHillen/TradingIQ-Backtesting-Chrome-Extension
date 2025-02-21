@@ -12,7 +12,7 @@ tv.setStrategyProps = async (name, props, isDeepTest) => {
   const indicatorTitleEl = await tv.checkAndOpenStrategy(name, false, isDeepTest)
   if (!indicatorTitleEl)
     return null
-  const strategyProperties = document.querySelectorAll(SEL.indicatorProperty)
+  const strategyProperties = document.querySelectorAll(sw.indicatorPropertyContent())
   const propKeys = Object.keys(props)
   let setResultNumber = 0
   let setPropertiesNames = {}
@@ -38,7 +38,7 @@ tv.setStrategyProps = async (name, props, isDeepTest) => {
         } else if (strategyProperties[i].querySelector('span[role="button"]')) { // List
           await setSelectValue(strategyProperties[i], props[propText])
         }
-      } else if (propClassName.includes('fill-')) {
+      } else if (propClassName.includes('fill-') || propClassName.includes('checkboxItem-')) {
         const checkboxEl = strategyProperties[i].querySelector('input[type="checkbox"]')
         if (checkboxEl) {
           const isChecked = Boolean(checkboxEl.checked)
@@ -76,14 +76,20 @@ tv.resetStrategyInputs = async (name, isDeepTest) => {
     return
 
   page.mouseClickSelector(SEL.strategyDefaultElement)
+  await page.waitForTimeout(50)
   page.setSelByText(SEL.strategyDefaultElementList, 'Reset settings')
+  await page.waitForTimeout(150)
+
+  if (document.querySelector(SEL.okBtn))
+    document.querySelector(SEL.okBtn).click()
 }
+
 tv.setStrategyInputs = async (name, propVal, isDeepTest) => {
   console.log('setStrategyInputs', name, propVal)
   const indicatorTitleEl = await tv.checkAndOpenStrategy(name, true, isDeepTest)
   if (!indicatorTitleEl)
     return null
-  const indicProperties = document.querySelectorAll(SEL.indicatorProperty)
+  const indicProperties = document.querySelectorAll(SEL.indicatorPropertyContent)
   const propKeys = Object.keys(propVal)
   let setResultNumber = 0
   let setPropertiesNames = {}
@@ -148,12 +154,17 @@ tv.openCurrentStrategy = async (isInputTab) => {
   let selActiveTab = isInputTab ? SEL.tabInputActive : SEL.tabPropertiesActive
   let tab = isInputTab ? 'input' : 'properties'
 
-  let stratParamEl = document.querySelector(SEL.strategyDialogParam)
+  let stratParamEl = document.querySelector(sw.strategyDialogParam())
   if (!stratParamEl) {
     await ui.showPopup('There is not strategy param button on the strategy tab. Test stopped. Open correct page please')
     return null
   }
   stratParamEl.click()
+
+  if (sw.newStrategyView) {
+    await page.waitForMouseClickSelector(SEL2.strategyPropertiesBtn)
+  }
+
   const stratIndicatorEl = await page.waitForSelector(SEL.indicatorTitle, 2000)
   if (!stratIndicatorEl) {
     await ui.showPopup('There is not strategy parameters. Test stopped. Open correct page please')
@@ -178,12 +189,13 @@ tv.checkAndOpenStrategy = async (name, isInputTab, isDeepTest) => {
   if (!indicatorTitleEl || indicatorTitleEl.innerText !== name) {
     try {
       await tv.switchToStrategyTab(isDeepTest)
-    } catch {
+    } catch (e) {
+      console.error('tv.switchToStrategyTab error', e)
       return null
     }
     if (!await tv.openCurrentStrategy(isInputTab))
       return null
-    indicatorTitleEl = document.querySelector(SEL.indicatorTitle)
+    indicatorTitleEl = await page.waitForSelector(SEL.indicatorTitle, 2000)
     if (!indicatorTitleEl || indicatorTitleEl.innerText !== name) {
       await ui.showPopup(`The ${name} strategy parameters could not opened. ${indicatorTitleEl.innerText ? 'Opened "' + indicatorTitleEl.innerText + '".' : ''} Reload the page, leave one strategy on the chart and try again.`)
       return null
@@ -199,22 +211,9 @@ tv.openStrategyTab = async () => {
     if (strategyTabEl) {
       strategyTabEl.click()
       await page.waitForSelector(SEL.strategyTesterTabActive)
+      await page.waitForTimeout(500)
     } else {
       throw new Error('There is not "Strategy Tester" tab on the page. Reload the page and try again.')
-    }
-  }
-  return true
-}
-
-tv.openScriptEditorTab = async () => {
-  let isActiveEl = await page.waitForSelector(SEL.scriptEditorActive)
-  if (!isActiveEl) {
-    const tabEl = await page.waitForSelector(SEL.scriptEditorTab)
-    if (tabEl) {
-      tabEl.click()
-      await page.waitForSelector(SEL.scriptEditorActive)
-    } else {
-      throw new Error('There is not "Script Editor" tab on the page. Reload the page and try again.')
     }
   }
   return true
@@ -235,13 +234,14 @@ tv.switchToStrategyTab = async (isDeepTest) => {
   testResults.name = strategyCaptionEl.getAttribute('data-strategy-title') //strategyCaptionEl.innerText
 
 
-  await tv.switchToStrategySummaryTab(isDeepTest)
+  await util.switchToStrategySummaryTab(isDeepTest)
 
-  await page.waitForSelector(SEL.strategyReportObserveArea, 10000)
+  await page.waitForSelector(sw.strategyReportObserveArea(), 10000)
 
+  console.log('tv.reportNode', tv.reportNode)
   if (!tv.reportNode) {
     // tv.reportNode = await page.waitForSelector(SEL.strategyReport, 10000)
-    tv.reportNode = await page.waitForSelector(SEL.strategyReportObserveArea, 10000)
+    tv.reportNode = await page.waitForSelector(sw.strategyReportObserveArea(), 10000)
     if (tv.reportNode) {
       const reportObserver = new MutationObserver(() => {
         tv.isReportChanged = true
@@ -258,8 +258,9 @@ tv.switchToStrategyTab = async (isDeepTest) => {
     }
   }
 
+  console.log('tv.reportDeepNode', tv.reportDeepNode)
   if (!tv.reportDeepNode) {
-    tv.reportDeepNode = await page.waitForSelector(SEL.strategyReportDeepTestObserveArea, 5000)
+    tv.reportDeepNode = await page.waitForSelector(sw.strategyReportDeepTestObserveArea(), 5000)
     if (tv.reportDeepNode) {
       const reportObserver = new MutationObserver(() => {
         tv.isReportChanged = true
@@ -277,26 +278,13 @@ tv.switchToStrategyTab = async (isDeepTest) => {
   return testResults
 }
 
-tv.switchToStrategySummaryTab = async (isDeepTest) => {
-  await tv.openStrategyTab()
+tv.parseReportTable = async (isDeepTest, baseCurrency = null) => {
+  await util.openStrategyTab()
 
-  let stratSummaryEl = await page.waitForSelector(SEL.strategySummary, 1000)
-  if (!stratSummaryEl) {
-    throw new Error('There is not "Performance summary" tab on the page. Open correct page.')
-  }
-  if (!page.$(SEL.strategySummaryActive)) {
-    stratSummaryEl.click()
-  }
-  const isActive = await page.waitForSelector(SEL.strategySummaryActive, 1000)
-  if (!isActive && !isDeepTest) {
-    console.error('The "Performance summary" tab is not active after click')
-  }
-}
-
-tv.parseReportTable = async (isDeepTest) => {
+  let currency = baseCurrency
   const strategyHeaders = []
-  const selHeader = isDeepTest ? SEL.strategyReportDeepTestHeader : SEL.strategyReportHeader
-  const selRow = isDeepTest ? SEL.strategyReportDeepTestRow : SEL.strategyReportRow
+  const selHeader = isDeepTest ? sw.strategyReportDeepTestHeader() : sw.strategyReportHeader()
+  const selRow = isDeepTest ? sw.strategyReportDeepTestRow() : sw.strategyReportRow()
   await page.waitForSelector(selHeader, 2500)
 
   let allHeadersEl = document.querySelectorAll(selHeader)
@@ -329,37 +317,47 @@ tv.parseReportTable = async (isDeepTest) => {
         continue
       }
       let paramName = allTdEl[0].innerText
-      // if (paramName === 'Net Profit') console.log('##paramName', paramName, allTdEl[1].innerText)
-      let isSingleValue = allTdEl.length === 3 || ['Buy & Hold Return', 'Max Run-up', 'Max Drawdown', 'Sharpe Ratio', 'Sortino Ratio', 'Open PL'].includes(paramName)
-      let hasPercentValue = allTdEl.length === 3 || ['Net Profit', 'Gross Profit', 'Gross Loss', 'Max Run-up', 'Max Drawdown', 'Buy & Hold Return', 'Open PL', 'Avg Trade', 'Avg Winning Trade', 'Avg Losing Trade', 'Largest Winning Trade', 'Largest Losing Trade'].includes(paramName)
+      let isSingleValue = allTdEl.length === 3 || HEADER_SINGLE.includes(paramName.toLowerCase())
+      let hasPercentValue = allTdEl.length === 3 || HEADER_PERCENT.includes(paramName.toLowerCase())
       for (let i = 1; i < allTdEl.length; i++) {
         if (isSingleValue && i >= 2)
           continue
         let values = allTdEl[i].innerText
 
-        const isNegative = allTdEl[i].querySelector('[class^="negativeValue"]') && !['Avg Losing Trade', 'Largest Losing Trade', 'Gross Loss', 'Max Run-up', 'Max Drawdown'].includes(paramName)
+        const isNegative = allTdEl[i].querySelector('[class^="negativeValue"]') && !['avg losing trade', 'largest losing trade', 'gross loss', 'max run-up', 'max drawdown'].includes(paramName.toLowerCase())
         if (values && typeof values === 'string' && strategyHeaders[i]) {
           values = values.replaceAll(' ', ' ').replaceAll('−', '-').trim()
+          if (sw.newStrategyView && paramName.toLowerCase() === 'net profit') {
+            const valueParts = values.split('\n');
+            if (valueParts.length === 3) {
+              currency = valueParts[1];
+            }
+          }
           const digitalValues = values.replaceAll(/([\-\d\.])|(.)/g, (a, b) => b || '')
           let digitOfValues = digitalValues.match(/-?\d+\.?\d*/)
-          const nameDigits = isSingleValue ? paramName : `${paramName}: ${strategyHeaders[i]}`
+          let nameDigits = isSingleValue ? paramName : `${paramName}: ${strategyHeaders[i]}`
           const namePercents = isSingleValue ? `${paramName} %` : `${paramName} %: ${strategyHeaders[i]}`
+          if (sw.newStrategyView && currency && values.includes(currency)) {
+            nameDigits += ` (${currency})`
+          }
           if ((values.includes('\n') && values.endsWith('%'))) {
-            const valuesPair = values.split('\n', 2)
-            if (valuesPair && valuesPair.length === 2) {
+            const countNewLines = (str) => (str.match(/\n/g) || []).length + 1;
+            const newLineCount = countNewLines(values);
+            const valuesPair = values.split('\n', newLineCount)
+            if (valuesPair && valuesPair.length === newLineCount) {
               const digitVal0 = valuesPair[0].replaceAll(/([\-\d\.])|(.)/g, (a, b) => b || '') //.match(/-?\d+\.?\d*/)
-              const digitVal1 = valuesPair[1].replaceAll(/([\-\d\.])|(.)/g, (a, b) => b || '') //match(/-?\d+\.?\d*/)
+              const digitVal1 = valuesPair[newLineCount - 1].replaceAll(/([\-\d\.])|(.)/g, (a, b) => b || '') //match(/-?\d+\.?\d*/)
 
-              report[nameDigits] = nameDigits.includes('Trades') ? parseInt(digitVal0) : parseFloat(digitVal0)//[0])
+              report[nameDigits] = nameDigits.includes('Trades') ? parseInt(digitVal0) : parseFloat(digitVal0)
               if (report[nameDigits] > 0 && isNegative)
                 report[nameDigits] = report[nameDigits] * -1
 
-              report[namePercents] = namePercents.includes('Trades') ? parseInt(digitVal1) : parseFloat(digitVal1) //[0])
+              report[namePercents] = namePercents.includes('Trades') ? parseInt(digitVal1) : parseFloat(digitVal1)
               if (report[namePercents] > 0 && isNegative)
                 report[namePercents] = report[namePercents] * -1
             }
           } else if (Boolean(digitOfValues)) {
-            report[nameDigits] = nameDigits.includes('Trades') ? parseInt(digitalValues) : parseFloat(digitalValues)//[0])
+            report[nameDigits] = nameDigits.includes('Trades') ? parseInt(digitalValues) : parseFloat(digitalValues)
             if (report[nameDigits] > 0 && isNegative)
               report[nameDigits] = report[nameDigits] * -1
           } else {
@@ -372,13 +370,14 @@ tv.parseReportTable = async (isDeepTest) => {
       }
     }
   }
-  return report.length === 0 ? null : report
+  return report.length === 0 ? null : { data: report, baseCurrency: currency }
 }
 
 tv.generateDeepTestReport = async () => {
   const generateBtnEl = await page.waitForSelector(SEL.strategyDeepTestGenerateBtn)
   if (generateBtnEl) {
     page.mouseClick(generateBtnEl)
+    await page.waitForTimeout(65)
   } else if (page.$(SEL.strategyDeepTestGenerateBtnDisabled)) {
     return 'Deep backtesting process is not started'
   } else {
@@ -391,9 +390,9 @@ tv.getPerformance = async (testResults) => {
   let reportData = null
   let message = ''
   let isProcessError = null
-  let selProgress = testResults.isDeepTest ? SEL.strategyReportDeepTestInProcess : SEL.strategyReportInProcess
-  let selReady = testResults.isDeepTest ? SEL.strategyReportDeepTestReady : SEL.strategyReportReady
-  const dataWaitingTime = 60000
+  let baseCurrency = null
+  let selProgress = testResults.isDeepTest ? sw.strategyReportDeepTestInProcess() : sw.strategyReportInProcess()
+  let selReady = testResults.isDeepTest ? sw.strategyReportDeepTestReady() : sw.strategyReportReady()
   console.log('getPerformance isDeepTest: ', testResults.isDeepTest)
   if (testResults.isDeepTest) {
     message = await tv.generateDeepTestReport() //testResults.dataLoadingTime * 2000)
@@ -403,58 +402,85 @@ tv.getPerformance = async (testResults) => {
   let isProcessEnd = tv.isReportChanged
   console.log('getPerformance: isProcessStart', isProcessStart, 'isProcessEnd', isProcessEnd)
   if (isProcessStart) {
-    const tick = 100
+    const tick = 1000
     //isProcessEnd = await page.waitForSelector(selReady, dataWaitingTime)
-    for (let i = 0; i < dataWaitingTime / tick; i++) {
+    for (let i = 0; i < action.timeout / tick; i++) {
       if (action.workerStatus === null) {
         console.log('Worker is stopped')
         isProcessError = true
         break
       }
-      isProcessError = await page.waitForSelector(SEL.strategyReportWarningHint, tick)
+      isProcessError = await page.waitForSelector(SEL.strategyReportWarningHint, 100)
+      if (!isProcessError) {
+        isProcessError = await page.waitForSelector(sw.strategyReportError(), 100)
+      }
       //isProcessEnd = await page.waitForSelector(selReady, dataWaitingTime)
       isProcessEnd = document.querySelector(selReady)
-      console.log('isProcessError', isProcessError, 'isProcessEnd', isProcessEnd)
+      console.log('Waiting for report data isProcessError ' + isProcessError + ' isProcessEnd ' + isProcessEnd)
       if (isProcessError || isProcessEnd) {
         console.log('break by isProcessError', isProcessError, 'isProcessEnd', isProcessEnd)
         break
       }
-      if ((tick * i) % 2500 === 0) {
+      if (!sw.newStrategyView && (tick * i) % 5000 === 0) {
         console.log('Switch between StrategyTester and ScriptEditor tabs')
         await util.openPineEditorTab()
         await page.waitForTimeout(500)
         await util.openStrategyTab()
         await page.waitForTimeout(250)
       }
-      console.log('Waiting for report data:', i * tick)
     }
   } else if (isProcessEnd) {
     isProcessStart = true
   }
 
-  isProcessError = isProcessError || document.querySelector(SEL.strategyReportError)
+  isProcessError = isProcessError || document.querySelector(sw.strategyReportError())
   await page.waitForTimeout(250) // Waiting for update digits. 150 is enough but 250 for reliable TODO Another way?
 
-  if (!isProcessError) {
-    reportData = await tv.parseReportTable(testResults.isDeepTest)
+  if (!isProcessError && isProcessEnd) {
+    await util.switchToStrategySummaryTab(testResults.isDeepTest)
+    let result = await tv.parseReportTable(testResults.isDeepTest)
+    reportData = result.data
+    baseCurrency = result.baseCurrency
+    if (sw.newStrategyView) {
+      await util.switchToStrategyTradesAnalysisTab(testResults.isDeepTest)
+      result = await tv.parseReportTable(testResults.isDeepTest, baseCurrency)
+      for (let key in result.data) {
+        reportData[key] = result.data[key]
+      }
+      await util.switchToStrategyRatioTab(testResults.isDeepTest)
+      result = await tv.parseReportTable(testResults.isDeepTest, baseCurrency)
+      for (let key in result.data) {
+        reportData[key] = result.data[key]
+      }
+    }
     console.log('Report data ready:', reportData)
   }
 
   console.log('isProcessError', isProcessError, 'isProcessStart', isProcessStart, 'isProcessEnd', isProcessEnd, 'message', message, 'reportData', reportData)
-  return { error: isProcessError ? 2 : !isProcessStart ? 1 : !isProcessEnd ? 3 : null, message: message, data: reportData }
+  return { error: isProcessError ? 2 : !isProcessStart ? 1 : !isProcessEnd ? 3 : null, message: message, data: reportData, currency: baseCurrency }
 }
 
-tv.getStrategyPropertyData = async () => {
-  function getText(child) {
-    if (!child)
-      return ""
-    let text = child.innerText.trim().replaceAll(',', '')
-    text = text.endsWith(':') ? text.slice(0, text.length - 1) : text
-    return text
-  }
+tv.getStrategyPropertyData = async (isDeepTest, deepfrom, deepto, name) => {
+  if (sw.newStrategyView)
+    return await getStrategyPropertyDataNew(isDeepTest, deepfrom, deepto, name)
+  else
+    return await getStrategyPropertyDataOld()
+}
+
+function getText(child) {
+  if (!child)
+    return ""
+  let text = child.innerText.trim().replaceAll(',', '')
+  text = text.endsWith(':') ? text.slice(0, text.length - 1) : text
+  return text
+}
+
+// For old strategy tester view
+async function getStrategyPropertyDataOld() {
+  console.log('getStrategyPropertyDataOld')
   let result = {}
   try {
-
+    console.log('getStrategyPropertyDataOld get strategy data range')
     page.mouseClickSelector(SEL.strategyProperties)
     await page.waitForSelector(SEL.strategyPropertiesDataRange, 100)
     let dataRangeEl = document.querySelector(SEL.strategyPropertiesDataRange)
@@ -466,6 +492,7 @@ tv.getStrategyPropertyData = async () => {
       }
     }
 
+    console.log('getStrategyPropertyDataOld get strategy symbol info')
     await page.waitForSelector(SEL.strategyPropertiesSymbolInfo, 100)
     let symbolInfoEl = document.querySelector(SEL.strategyPropertiesSymbolInfo)
     if (symbolInfoEl) {
@@ -475,6 +502,7 @@ tv.getStrategyPropertyData = async () => {
       }
     }
 
+    console.log('getStrategyPropertyDataOld get strategy inputs')
     await page.waitForSelector(SEL.strategyPropertiesStrategyInputsBtn, 100)
     let strategyInputBtn = document.querySelector(SEL.strategyPropertiesStrategyInputsBtn)
     if (strategyInputBtn.ariaExpanded === "false") {
@@ -490,6 +518,7 @@ tv.getStrategyPropertyData = async () => {
       }
     }
 
+    console.log('getStrategyPropertyDataOld get strategy properties')
     await page.waitForSelector(SEL.strategyPropertiesStrategyProperties, 100)
     let strategyPropertiesEl = document.querySelector(SEL.strategyPropertiesStrategyProperties)
     if (strategyPropertiesEl) {
@@ -499,6 +528,76 @@ tv.getStrategyPropertyData = async () => {
       }
     }
   } catch (e) {
+    return null
+  }
+  return result
+}
+// For old strategy tester view
+async function getStrategyPropertyDataNew(isDeepTest, deepfrom, deepto, name) {
+  console.log('getStrategyPropertyDataNew', isDeepTest, deepfrom, deepto, name)
+  let result = {}
+  try {
+    console.log('getStrategyPropertyDataNew get strategy data range')
+    await util.switchToStrategyTradesTab()
+    await page.waitForTimeout(500)
+    let allHeadersEl = document.querySelectorAll(SEL2.strategyReportHeader)
+    if (!allHeadersEl || allHeadersEl.length === 0) {
+      return result
+    }
+    let emptyCoulmnCounter = 0
+    let dateIndex
+    for (let i = 0; i < allHeadersEl.length; i++) {
+      if (allHeadersEl[i].innerText.includes("Date")) {
+        dateIndex = i + 1
+        break
+      } else if (allHeadersEl[i].innerText === "") {
+        emptyCoulmnCounter++
+      }
+    }
+    if (dateIndex === undefined) {
+      return result
+    }
+
+    let table = await page.waitForSelector(SEL2.strategyReportTable, 100)
+    let rows = await page.waitForSelectorAll(SEL2.strategyReportRow, 100)
+    let to = rows[0].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="0"]`).innerText
+    let toFormatted = new Date(to).toISOString().split('T')[0]
+
+    await util.scrollToBottom(table)
+    rows = await page.waitForSelectorAll(SEL2.strategyReportRow, 100)
+    let from = rows[rows.length - 1].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="1"]`).innerText
+    let fromFormatted = new Date(from).toISOString().split('T')[0]
+
+    result['Trading range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
+    if (isDeepTest) {
+      fromFormatted = new Date(deepfrom).toISOString().split('T')[0]
+      toFormatted = new Date(deepto).toISOString().split('T')[0]
+    }
+    result['Backtesting range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
+
+
+    console.log('getStrategyPropertyDataNew get strategy symbol info')
+    result['Symbol'] = await util.getTickerExchange()
+
+    console.log('getStrategyPropertyDataNew get strategy inputs')
+    await tv.openCurrentStrategy(true)
+    let inputs = await tv.getStrategyParams()
+    for (let key in inputs) {
+      if (!key.includes("Best Short") && !key.includes("Best Long "))
+        result[key] = inputs[key]
+    }
+    await util.closeStrategyPropertyDialog()
+
+    console.log('getStrategyPropertyDataNew get strategy properties')
+    await tv.openCurrentStrategy(false)
+    let props = await tv.getStrategyParams()
+    for (let key in props) {
+      result[key] = props[key]
+    }
+    await util.closeStrategyPropertyDialog()
+
+  } catch (e) {
+    console.error('getStrategyPropertyDataNew error:', e)
     return null
   }
   return result
@@ -555,3 +654,65 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   }
   return null
 }
+
+tv.getStrategyParams = async () => {
+  const strategyInputs = {}
+  const indicProperties = document.querySelectorAll(SEL.indicatorPropertyContent)
+  for (let i = 0; i < indicProperties.length; i++) {
+    const propClassName = indicProperties[i].getAttribute('class')
+    const propText = indicProperties[i].innerText
+    if (!propClassName || !propText) // Undefined type of element
+      continue
+    if (propClassName.includes('first-') && indicProperties[i].innerText) {
+      i++
+      if (indicProperties[i].querySelector('div[class^="inputGroup"')) {
+        const dateElement = indicProperties[i].querySelector('div[class^="inputGroup"')
+        let propValue = util.parseInputValue(dateElement);
+
+        const listValue = util.parseSelectValue(indicProperties[i]);
+        if (listValue)
+          propValue += ' ' + listValue
+
+        if (propValue)
+          strategyInputs[propText] = propValue
+      }
+      else if (indicProperties[i] && indicProperties[i].querySelector('input')) {
+        strategyInputs[propText] = util.parseInputValue(indicProperties[i]);
+      } else if (indicProperties[i].querySelector('span[role="button"]')) { // List
+        const listValue = util.parseSelectValue(indicProperties[i]);
+        if (listValue)
+          strategyInputs[propText] = listValue
+      } else { // Undefined
+        console.log('getStrategyParams 1 skipped:', propText)
+        continue
+      }
+    } else if (propClassName.includes('fill-')) {
+      const element = indicProperties[i].querySelector('input[type="checkbox"]')
+      if (element) {
+        strategyInputs[propText] = element.getAttribute('checked') !== null ? element.checked : false
+
+        /*                                                 _
+           Ugly solution because the value2 has no label: |_| Use R Multiple (R:R) ' ' <input>
+           value1 - checkbox value, value2 - input value
+        */
+        if (propText === 'Use R Multiple (R:R)') {
+          i += 2;
+          if (indicProperties[i].querySelector('input')) {
+            let propValue = indicProperties[i].querySelector('input').value
+            strategyInputs['R:R'] = parseFloat(propValue) == parseInt(propValue) ? parseInt(propValue) : parseFloat(propValue)
+          }
+        }
+      } else { // Undefined type of element
+        console.log('getStrategyParams 2 skipped:', propText)
+        continue
+      }
+    } else if (propClassName.includes('titleWrap-')) { // Titles bwtwen parameters
+      continue
+    } else { // Undefined type of element
+      console.log('getStrategyParams 3 skipped:', propText)
+      continue
+    }
+  }
+  return strategyInputs
+}
+

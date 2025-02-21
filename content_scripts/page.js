@@ -19,14 +19,22 @@ page.waitForSelectorOld2del = async function (selector, timeout = 5000, isHide =
 
 
 page.waitForSelector = async (selector, timeout = 5000, isHide = false, parentEl = null) => {
+  return waitForSelector(selector, timeout, isHide, parentEl, false)
+}
+
+page.waitForSelectorAll = async (selector, timeout = 5000, isHide = false, parentEl = null) => {
+  return waitForSelector(selector, timeout, isHide, parentEl, true)
+}
+
+async function waitForSelector(selector, timeout = 5000, isHide = false, parentEl = null, selectorAll) {
   return new Promise(async (resolve) => {
     parentEl = parentEl ? parentEl : document
     let iter = 0
-    let elem = parentEl.querySelector(selector)
+    let elem = selectorAll ? parentEl.querySelectorAll(selector) : parentEl.querySelector(selector)
     const tikTime = timeout === 0 ? 1000 : 50
     while (timeout === 0 || (!isHide && !elem) || (isHide && !!elem)) {
       await page.waitForTimeout(tikTime)
-      elem = parentEl.querySelector(selector)
+      elem = selectorAll ? parentEl.querySelectorAll(selector) : parentEl.querySelector(selector)
       iter += 1
       if (elem || (timeout !== 0 && tikTime * iter >= timeout))
         break
@@ -89,6 +97,14 @@ page.mouseClickSelector = function (selector) {
   const el = document.querySelector(selector)
   if (el)
     page.mouseClick(el)
+}
+
+page.waitForMouseClickSelector = async function (selector, timeout = 1000) {
+  const el = await page.waitForSelector(selector, timeout)
+  if (el) {
+    page.mouseClick(el)
+    await page.waitForTimeout(50)
+  }
 }
 
 page.$ = function (selector) {

@@ -5,6 +5,9 @@ const NOVA = 'Nova IQ Backtester [Trading IQ]'
 const RAZOR = 'Razor IQ Backtester [TradingIQ]'
 const SUPPORTED_STRATEGIES = [IMPULS, REVERSAL, COUNTER_STRIKE, NOVA, RAZOR];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const CURRENT_TF = 'CURRENT_TF';
+const HEADER_SINGLE = ['buy & hold return', 'max run-up', 'max drawdown', 'sharpe ratio', 'sortino ratio', 'open pl'];
+const HEADER_PERCENT = ['net profit', 'gross profit', 'gross loss', 'max run-up', 'max drawdown', 'buy & hold return', 'open pl', 'avg trade', 'avg winning trade', 'avg losing trade', 'largest winning trade', 'largest losing trade'];
 
 const constants = {
     'impulsIq_optimize': 'Optimize',
@@ -25,6 +28,10 @@ const constants = {
     'counterIq_stop_type_short': 'Stop Type Short',
     'counterIq_trade_long': 'Trade Long',
     'counterIq_trade_short': 'Trade Short',
+    'counterIq_not_trade_avg_vola': 'Do Not Trade Average Volatility',
+    'counterIq_not_trade_high_vola': 'Do Not Trade High Volatility',
+    'counterIq_not_trade_low_vola': 'Do Not Trade Low Volatility',
+    'counterIq_not_trade_very_high_vola': 'Do Not Trade Very High Volatility',
 
     'novaIq_min_atr_sl_tp': 'Minimum ATR Profit Target And Stop Loss',
     'novaIq_trade_long': 'Trade Long',

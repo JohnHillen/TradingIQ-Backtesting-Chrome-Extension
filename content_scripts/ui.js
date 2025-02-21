@@ -1,33 +1,7 @@
 const ui = {
   isMsgShown: false
 }
-/*
-const scriptFonts = document.createElement('style')
-scriptFonts.innerHTML = '@font-face {' +
-  '    font-family: "Font Awesome 5 Free";' +
-  '    font-style: normal;\n' +
-  '    font-weight: 900;' +
-  '    font-display: block;' +
-  `    src: url(${chrome.runtime.getURL('fonts/fa-solid-900.woff2')}) format('woff2');` +
-  '}\n' +
-  '.iondv_icon::before {\n' +
-  '    display: inline-block;\n' +
-  '    font-style: normal;\n' +
-  '    font-variant: normal;\n' +
-  '    text-rendering: auto;\n' +
-  '    -webkit-font-smoothing: antialiased;\n' +
-  '  }\n' +
-  '.iondv_download::before {\n' +
-  '    font-family: "Font Awesome 5 Free"; font-weight: 900; font-size: 1.25em; content: "\\f56d";\n' +
-  '  }\n' +
-  '.iondv_upload::before {\n' +
-  '    font-family: "Font Awesome 5 Free"; font-weight: 900; font-size: 1.25em; content: "\\f574";\n' +
-  '  }\n' +
-  '.iondv_copy::before {\n' +
-  '    font-family: "Font Awesome 5 Free"; font-weight: 900; font-size: 1.25em; content: "\\f0c5";\n' +
-  '  }\n'
-document.documentElement.appendChild(scriptFonts)
-*/
+
 ui.tiqStylePopup = `<style>
   .tiqPopup {
     display: table;

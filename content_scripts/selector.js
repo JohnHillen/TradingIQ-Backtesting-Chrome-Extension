@@ -14,12 +14,11 @@ const SEL = {
     tabInputActive: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#inputs[class*="selected"]',
     tabProperties: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#properties',
     tabPropertiesActive: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#properties[class*="selected"]',
-    tabProperties: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="tab"] button#properties',
     ticker: '#header-toolbar-symbol-search > div[class*="text-"]',
     timeFrame: '#header-toolbar-intervals div[data-role^="button"]',
     timeFrameActive: '#header-toolbar-intervals div[data-role^="button"][class*="isActive"]',
     indicatorScroll: 'div[data-name="indicator-properties-dialog"] div[class^="scrollable-"]',
-    indicatorProperty: 'div[data-name="indicator-properties-dialog"] div[class^="content-"] div[class^="cell-"]',
+    indicatorPropertyContent: 'div[data-name="indicator-properties-dialog"] div[class^="content-"] div[class^="cell-"]',
     okBtn: 'div[data-name="indicator-properties-dialog"] div[class^="footer-"] button[name="submit"]',
     cancelBtn: 'div[data-name="indicator-properties-dialog"] span[data-name="close"][data-role="button"]',
     scriptEditorTab: '[data-name="scripteditor"]',
@@ -43,9 +42,9 @@ const SEL = {
     strategyTesterTabActive: '[data-name="backtesting"][data-active="true"]',
     strategyCaption: '#bottom-area div[class^="backtesting"]  [class^="strategyGroup"] [data-strategy-title]',
     strategyDialogParam: '#bottom-area div[class^="backtesting"]  [class^="strategyGroup"]  > div:nth-child(2) > button:nth-child(1)',
+
     strategySummary: 'button[id="Performance Summary"]',
     strategySummaryActive: 'button[id="Performance Summary"][class*="selected"]',
-
     strategyProperties: 'button[id="Properties"]',
     strategyPropertiesDataRange: '#bottom-area div[class^="reportViewContainer"] button[aria-controls="id_Date-range"] span[class^="minimizedData"]',
     strategyPropertiesSymbolInfo: '#bottom-area div[class^="reportViewContainer"] button[aria-controls="id_Symbol-info"] span[class^="minimizedData"]',
@@ -54,9 +53,9 @@ const SEL = {
     strategyPropertiesStrategyProperties: '#bottom-area div[class^="reportViewContainer"] button[aria-controls="id_Strategy-properties"] span[class^="minimizedData"]',
 
     strategyReportObserveArea: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"]',
-    strategyReportInProcess: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"]  div[role="progressbar"]', //div[class^="tv-spinner"]',
+    strategyReportInProcess: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"]  div[role="progressbar"]',
     strategyReportReady: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] [class*="root"]',
-    // strategyReportTransitionReady: '#bottom-area div.backtesting-content-wrapper > div:not(.opacity-transition).reports-content',
+
     strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="container"] [class*=emptyStateIcon]',
     strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] table thead > tr > th',
     strategyReportRow: '#bottom-area  div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] table tbody > tr',
@@ -77,7 +76,6 @@ const SEL = {
     strategyListOptions: 'div[role="listbox"] div[data-name="menu-inner"] div[role="option"] span[class^="label-"]',
     strategyDefaultElement: '#property-actions',
     strategyDefaultElementList: '#id_property-actions_listbox span[class^="label-"]',
-    strategyImportExport: '#iondvImportExport',
 
     changeIntervalDialog: 'div[data-dialog-name="change-interval-dialog"]',
     chartTicker: '#header-toolbar-symbol-search > div[class*="text-"]',
@@ -85,26 +83,130 @@ const SEL = {
     chartTimeframeActive: '#header-toolbar-intervals button[data-value][aria-checked="true"]',
     chartTimeframeMenuOrSingle: '#header-toolbar-intervals button[class^="menu"]',
 
+    chartTimeframeMenuAddCustomTf: '#overlap-manager-root div[data-name="menu-inner"] div[class^="dropdown"] div[aria-level="1"][aria-posinset="1"][aria-haspopup="dialog"]',
+    chartTimeframeAddCustomDialogInput: '#overlap-manager-root div[data-name="add-custom-interval-dialog"] input',
+    chartTimeframeAddCustomDialogType: '#overlap-manager-root div[data-name="add-custom-interval-dialog"] span[aria-haspopup="listbox"]',
+    chartTimeframeAddCustomDialogAddBtn: '#overlap-manager-root div[data-name="add-custom-interval-dialog"] button[name="submit"]',
 
-    // chartTimeframeFavorite: '#header-toolbar-intervals div[data-role="button"][data-value]',
-    // chartTimeframeActive: '#header-toolbar-intervals div[data-role="button"][data-value][class*="isActive"]',
-    // chartTimeframeMenuOrSingle: '#header-toolbar-intervals div[data-role="button"][class^="menu"]',
+    chartTimeframeMenuItem: '#overlap-manager-root div[data-name="menu-inner"] div[class^="dropdown"] div[data-value]',
+    chartTimeframeMenuInput: '#overlap-manager-root div[data-name="menu-inner"] div[class^="dropdown"] div[class^="form"] > input',
+    chartTimeframeMenuType: '#overlap-manager-root div[data-name="menu-inner"] div[class^="dropdown"] div[class^="form"] > div[class^="menu"]',
+    chartTimeframeMenuAdd: '#overlap-manager-root div[data-name="menu-inner"] div[class^="dropdown"] div[class^="form"] > div[class^="add"]',
+    chartTimeframeMenuTypeItems: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]',
+    chartTimeframeMenuTypeItemsMin: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(1)',
+    chartTimeframeMenuTypeItemsHours: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(2)',
+    chartTimeframeMenuTypeItemsDays: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(3)',
+    chartTimeframeMenuTypeItemsWeeks: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(4)',
+    chartTimeframeMenuTypeItemsMonth: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(5)',
+    chartTimeframeMenuTypeItemsRange: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(6)',
+}
 
-    chartTimeframeMenuAddCustomTf: "#overlap-manager-root div[data-name=\"menu-inner\"] div[class^=\"dropdown\"] div[aria-level=\"1\"][aria-posinset=\"1\"][aria-haspopup=\"dialog\"]",
-    chartTimeframeAddCustomDialogInput: "#overlap-manager-root div[data-name=\"add-custom-interval-dialog\"] input",
-    chartTimeframeAddCustomDialogType: "#overlap-manager-root div[data-name=\"add-custom-interval-dialog\"] span[aria-haspopup=\"listbox\"]",
-    chartTimeframeAddCustomDialogAddBtn: "#overlap-manager-root div[data-name=\"add-custom-interval-dialog\"] button[name=\"submit\"]",
+// New strategy Tester tabs: Overview, Performance, Trades analysis, Risk/performance ratios, List of trades
+// The whole structure of the html elements has been changed, so we need to update the selectors
+const SEL2 = {
+    indicatorPropertyContent: 'div[data-name="indicator-properties-dialog"] div[class^="content-"] div[class^="cell-"], div[class^="checkboxItem-"]',
 
-    chartTimeframeMenuItem: "#overlap-manager-root div[data-name=\"menu-inner\"] div[class^=\"dropdown\"] div[data-value]",
-    chartTimeframeMenuInput: "#overlap-manager-root div[data-name=\"menu-inner\"] div[class^=\"dropdown\"] div[class^=\"form\"] > input",
-    chartTimeframeMenuType: "#overlap-manager-root div[data-name=\"menu-inner\"] div[class^=\"dropdown\"] div[class^=\"form\"] > div[class^=\"menu\"]",
-    chartTimeframeMenuAdd: "#overlap-manager-root div[data-name=\"menu-inner\"] div[class^=\"dropdown\"] div[class^=\"form\"] > div[class^=\"add\"]",
-    chartTimeframeMenuTypeItems: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]",
-    chartTimeframeMenuTypeItemsMin: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]:nth-child(1)",
-    chartTimeframeMenuTypeItemsHours: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]:nth-child(2)",
-    chartTimeframeMenuTypeItemsDays: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]:nth-child(3)",
-    chartTimeframeMenuTypeItemsWeeks: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]:nth-child(4)",
-    chartTimeframeMenuTypeItemsMonth: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]:nth-child(5)",
-    chartTimeframeMenuTypeItemsRange: "#overlap-manager-root div[data-name=\"menu-inner\"] > div[class^=\"item\"]:nth-child(6)",
+    strategyPropertiesBtn: '#overlap-manager-root div[role="menuitem"][aria-label^="Settings"]',
+    strategySummary: 'button[id="Performance"]',
+    strategySummaryActive: 'button[id="Performance"][class*="selected"]',
+    strategyTradesAnalysis: 'button[id="Trades Analysis"]',
+    strategyTradesAnalysisActive: 'button[id="Trades Analysis"][class*="selected"]',
+    strategyRatios: 'button[id="Ratios"]', // Risk/performance ratios
+    strategyRatiosActive: 'button[id="Ratios"][class*="selected"]', // Risk/performance ratios
+    strategyTrades: 'button[id="List of Trades"]',
+    strategyTradesActive: 'button[id="List of Trades"][class*="selected"]',
 
+    strategyReportObserveArea: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"]',
+    strategyReportInProcess: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"]  div[role="progressbar"]',
+    strategyReportReady: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="wrapper-"] [class*="root"]',
+
+    strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="container"] [class*=emptyStateIcon]',
+    strategyReportTable: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"]',
+    strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table thead > tr > th',
+    strategyReportRow: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table tbody > tr[class^="ka-tr"]',
+}
+
+const sw = {
+    newStrategyView: null
+}
+
+sw.init = async () => {
+    console.log('init selectorWrapper')
+    await util.openStrategyTab();
+    let deepCheckbox = document.querySelector(SEL.strategyDeepTestCheckbox)
+    if (deepCheckbox.checked) {
+        deepCheckbox.click()
+        await page.waitForTimeout(50)
+    }
+
+    let tablist = document.getElementById('report-tabs');
+    console.log('tablist', tablist)
+    if (!tablist) return false;
+
+    // #Performance is the new id, #Performance Summary is the old one
+    let tab = document.getElementById('Performance');
+    console.log('tab', tab)
+    sw.newStrategyView = tab !== null;
+
+    console.log('newStrategyView', sw.newStrategyView)
+}
+
+sw.strategySummeryTab = () => {
+    return sw.newStrategyView ? SEL2.strategySummary : SEL.strategySummary;
+}
+
+sw.strategySummeryTabActive = () => {
+    return sw.newStrategyView ? SEL2.strategySummaryActive : SEL.strategySummaryActive;
+}
+
+sw.strategyReportObserveArea = () => {
+    return sw.newStrategyView ? SEL2.strategyReportObserveArea : SEL.strategyReportObserveArea;
+}
+
+sw.strategyReportInProcess = () => {
+    return sw.newStrategyView ? SEL2.strategyReportInProcess : SEL.strategyReportInProcess;
+}
+
+sw.strategyReportReady = () => {
+    return sw.newStrategyView ? SEL2.strategyReportReady : SEL.strategyReportReady;
+}
+
+sw.strategyReportError = () => {
+    return sw.newStrategyView ? SEL2.strategyReportError : SEL.strategyReportError;
+}
+
+sw.strategyReportHeader = () => {
+    return sw.newStrategyView ? SEL2.strategyReportHeader : SEL.strategyReportHeader;
+}
+
+sw.strategyReportRow = () => {
+    return sw.newStrategyView ? SEL2.strategyReportRow : SEL.strategyReportRow;
+}
+
+sw.strategyReportDeepTestReady = () => {
+    return sw.newStrategyView ? SEL2.strategyReportReady : SEL.strategyReportDeepTestReady;
+}
+
+sw.strategyReportDeepTestObserveArea = () => {
+    return sw.newStrategyView ? SEL2.strategyReportObserveArea : SEL.strategyReportDeepTestObserveArea;
+}
+
+sw.strategyReportDeepTestInProcess = () => {
+    return sw.newStrategyView ? SEL2.strategyReportInProcess : SEL.strategyReportDeepTestInProcess;
+}
+
+sw.strategyReportDeepTestHeader = () => {
+    return sw.newStrategyView ? SEL2.strategyReportHeader : SEL.strategyReportDeepTestHeader;
+}
+
+sw.strategyReportDeepTestRow = () => {
+    return sw.newStrategyView ? SEL2.strategyReportRow : SEL.strategyReportDeepTestRow;
+}
+
+sw.indicatorPropertyContent = () => {
+    return sw.newStrategyView ? SEL2.indicatorPropertyContent : SEL.indicatorPropertyContent;
+}
+
+sw.strategyDialogParam = () => {
+    return sw.newStrategyView ? SEL.strategyCaption : SEL.strategyDialogParam;
 }

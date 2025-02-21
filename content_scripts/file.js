@@ -79,6 +79,10 @@ file.createHTML = (ticker, strategy, testResults) => {
       background-color: #ffffff30;
     }
 
+    #resultTable tbody td {
+      text-wrap-mode: nowrap;
+    }
+
     .dark-mode #resultTable tbody tr:nth-child(even) {
       background-color: #38384d;
     }
@@ -261,7 +265,7 @@ file.createHTML = (ticker, strategy, testResults) => {
   html += "</tbody></table></div>\n</div>\n"
 
   html += `
-  <div id="columnModal" class="w3-modal">
+  <div id="filterColumnModal" class="w3-modal">
     <div class="w3-modal-content w3-animate-zoom" style="max-width:600px;">
       <div class="w3-container w3-border-bottom w3-padding-16 w3-cell-row">
         <div class="w3-cell" style="position: relative;width: 250px;">
@@ -270,9 +274,10 @@ file.createHTML = (ticker, strategy, testResults) => {
           <span id="clearButton" class="prevent-select w3-circle w3-button w3-light-grey" onclick="clearFilter()"
             style="width: 20px;height: 20px;padding: 0; position: absolute; right: 0px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none;">&times;</span>
         </div>
-        <button onclick="modalClose()" type="button" class="w3-button w3-round w3-right w3-cell"><span style="transform: translateY(-50%);">&times;</span></button>
+        <button onclick="selectAll()" type="button" class="w3-button w3-round w3-cell" style="margin-left: 5px;background-color: #00ffff;">(De)Select all</button>
+        <button onclick="modalClose()" type="button" class="w3-button w3-round w3-right w3-cell" style="background-color: #00ffff;"><span style="transform: translateY(-50%);">&times;</span></button>
       </div>
-      <div id="servicesTable" style="overflow-x:auto;overflow-y:auto;height:auto;max-height:70vh;z-index:-5;" class="w3-card">
+      <div id="filterColumnTable" style="overflow-x:auto;overflow-y:auto;height:auto;max-height:70vh;z-index:-5;" class="w3-card">
         <section>
           <table id="services-table" class="w3-padding" style="width: 100%;">
             <tbody>`
@@ -345,12 +350,26 @@ file.createHTML = (ticker, strategy, testResults) => {
     }
 
     function openServiceModal() {
-      document.getElementById('columnModal').style.display = 'block';
+      document.getElementById('filterColumnModal').style.display = 'block';
+    }
+
+    function selectAll() {
+      const rows = document.querySelectorAll('#filterColumnTable tr:not([style*="display: none"])');
+      let deselectAll = rows[0].querySelector('.column-button').classList.contains('selected');
+      for (let row of rows) {
+        const column = row.querySelector('.column-button');
+        if (!deselectAll) {
+          column.classList.remove('selected');
+        } else {
+          column.classList.add('selected');
+        }
+        modalSelectedColumn(column);
+      }
     }
 
     function modalClose() {
       let selectedRows = [];
-      const columns = document.querySelectorAll('#servicesTable .column-button');
+      const columns = document.querySelectorAll('#filterColumnTable .column-button');
       for (let column of columns) {
         if (column.classList.contains('selected')) {
           selectedRows.push(column.parentElement.rowIndex);
@@ -360,7 +379,7 @@ file.createHTML = (ticker, strategy, testResults) => {
       let iqIndicator = document.getElementById('tiqTitle').getAttribute('data-iqindicator');
       console.log('tiqSelectedColumns-' + iqIndicator);
       localStorage.setItem('tiqSelectedColumns-' + iqIndicator, JSON.stringify(selectedRows));
-      document.getElementById('columnModal').style.display = 'none';
+      document.getElementById('filterColumnModal').style.display = 'none';
     }
 
     function sortTable(n) {
@@ -456,7 +475,7 @@ file.createHTML = (ticker, strategy, testResults) => {
 
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function (event) {
-      if (event.target == document.getElementById('columnModal')) {
+      if (event.target == document.getElementById('filterColumnModal')) {
         modalClose();
       }
     }
@@ -479,7 +498,7 @@ file.createHTML = (ticker, strategy, testResults) => {
       let iqIndicator = document.getElementById('tiqTitle').getAttribute('data-iqindicator');
       let selectedRows = JSON.parse(localStorage.getItem('tiqSelectedColumns-'+iqIndicator));
       if (selectedRows) {
-        const columns = document.querySelectorAll('#servicesTable .column-button');
+        const columns = document.querySelectorAll('#filterColumnTable .column-button');
         const resultThColumns = document.querySelectorAll('#resultTable th');
         const resultRows = document.querySelectorAll('#resultTable tbody tr');
         for (let column of columns) {
@@ -496,7 +515,7 @@ file.createHTML = (ticker, strategy, testResults) => {
 
       document.getElementById('modalFilter').addEventListener('input', function () {
         var filter = this.value.toLowerCase();
-        var rows = document.getElementById("servicesTable").querySelectorAll("tr");
+        var rows = document.getElementById("filterColumnTable").querySelectorAll("tr");
         for (var i = 0; i < rows.length; i++) {
           var txtValue = rows[i].textContent || rows[i].innerText;
           if (txtValue.toLowerCase().indexOf(filter) > -1) {
