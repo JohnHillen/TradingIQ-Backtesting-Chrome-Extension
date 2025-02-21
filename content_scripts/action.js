@@ -6,8 +6,7 @@ const action = {
     timeout: 60000
 }
 
-const PERFORMANCE_VALUES = ['Net Profit %: All', 'Max Drawdown %', 'Profit Factor: Long', 'Profit Factor: Short', 'Percent Profitable: Long', 'Percent Profitable: Short', 'Total Closed Trades: Long', 'Total Closed Trades: Short', 'Avg # Bars in Trades: Long', 'Avg # Bars in Trades: Short', 'Number Winning Trades: All', 'Number Winning Trades: Long', 'Number Winning Trades: Short', 'Number Losing Trades: All', 'Number Losing Trades: Long', 'Number Losing Trades: Short']
-const STATUS_MSG = 'Please do not click on the page elements.<br>And do not change the window/tab.<br>If the Tradingview page is not in the foreground, the extension will not work.'
+const STATUS_MSG = 'Do not change the window/tab.<br>If the Tradingview page is not in the foreground, the extension will not work.'
 
 action.testStrategy = async (request) => {
     console.log('action.testStrategy')
@@ -61,6 +60,7 @@ action.testStrategy = async (request) => {
                 break
             }
 
+            const cycleTf = cycle.tf === CURRENT_TF ? await tvChart.getCurrentTimeFrame() : cycle.tf
             ui.statusMessage(STATUS_MSG, `Backtest ${++currentCycle} / ${cyclesLength}`)
             if (cycle.tf !== CURRENT_TF) {
                 await tvChart.changeTimeFrame(cycle.tf)
@@ -117,10 +117,10 @@ action.testStrategy = async (request) => {
 
                 if (testResult.data === null || strategyParams === null) {
                     console.log('No test result or strategy params found. Retry:', i, 'strategyParams:', strategyParams, 'testResult:', testResult)
-                    let tf1 = "1m" === cycle.tf ? "2m" : "1m"
+                    let tf1 = "1m" === cycleTf ? "2m" : "1m"
                     await tvChart.changeTimeFrame(tf1)
                     await page.waitForTimeout(2000)
-                    await tvChart.changeTimeFrame(cycle.tf)
+                    await tvChart.changeTimeFrame(cycleTf)
                     await page.waitForTimeout(2000)
                 }
                 else {
@@ -143,7 +143,7 @@ action.testStrategy = async (request) => {
                 testReport.push(header)
             }
 
-            testReport.push(action.createReport(cycle.tf, bestStrategyNumbers, testResult, strategyParams, header))
+            testReport.push(action.createReport(cycleTf, bestStrategyNumbers, testResult, strategyParams, header))
         }
 
         if (error) {
@@ -173,9 +173,9 @@ async function processCycle(strategyName, isDeepTest, iqWidget, retryCount, cycl
 
     // TV changed the behavior: if the strategy parameters change, the best strategy numbers are not reset.
     // So we need to reset the strategy parameters before each cycle by changing the tf shortly.
-    const cycleTf = cycle.tf === CURRENT_TF ? tvChart.getCurrentTimeFrame() : cycle.tf
+    const cycleTf = cycle.tf === CURRENT_TF ? await tvChart.getCurrentTimeFrame() : cycle.tf
     console.log('processCycle cycleTf:', cycleTf)
-    let tf1 = "1m" === cycle.tf ? "2m" : "1m"
+    let tf1 = "1m" === cycleTf ? "2m" : "1m"
     await tvChart.changeTimeFrame(tf1)
     await page.waitForTimeout(500)
     await tvChart.changeTimeFrame(cycleTf)
@@ -183,16 +183,16 @@ async function processCycle(strategyName, isDeepTest, iqWidget, retryCount, cycl
 
     await page.waitForTimeout(100)
     for (let i = 1; i <= retryCount; i++) {
-        console.log(i + '. try to get best strategy numbers for tf: ', cycle.tf)
+        console.log(i + '. try to get best strategy numbers for tf: ', cycleTf)
         let bestStrategyNumbers = await action.detectBestStrategyNumbers(strategyName, isDeepTest, iqWidget, cycle)
         console.log(i + '. detected best strategy numbers: ', bestStrategyNumbers)
         if (Object.keys(bestStrategyNumbers).length === 0) {
             //we will switch back and forth between previous and current timeframe. Sometimes it helps to get the values
-            console.log(i + '. try to get best strategy numbers failed for tf: ', cycle.tf)
-            let tf1 = "1m" === cycle.tf ? "2m" : "1m"
+            console.log(i + '. try to get best strategy numbers failed for tf: ', cycleTf)
+            let tf1 = "1m" === cycleTf ? "2m" : "1m"
             await tvChart.changeTimeFrame(tf1)
             await page.waitForTimeout(1000)
-            await tvChart.changeTimeFrame(cycle.tf)
+            await tvChart.changeTimeFrame(cycleTf)
         } else {
             return bestStrategyNumbers
         }

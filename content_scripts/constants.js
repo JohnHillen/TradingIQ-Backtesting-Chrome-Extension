@@ -6,8 +6,8 @@ const RAZOR = 'Razor IQ Backtester [TradingIQ]'
 const SUPPORTED_STRATEGIES = [IMPULS, REVERSAL, COUNTER_STRIKE, NOVA, RAZOR];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const CURRENT_TF = 'CURRENT_TF';
-const HEADER_SINGLE = ['buy & hold return', 'max run-up', 'max drawdown', 'sharpe ratio', 'sortino ratio', 'open pl'];
-const HEADER_PERCENT = ['net profit', 'gross profit', 'gross loss', 'max run-up', 'max drawdown', 'buy & hold return', 'open pl', 'avg trade', 'avg winning trade', 'avg losing trade', 'largest winning trade', 'largest losing trade'];
+const HEADER_SINGLE = ['buy & hold return', 'max equity run-up', 'max equity drawdown', 'sharpe ratio', 'sortino ratio', 'open p&l'];
+const HEADER_PERCENT = ['net profit', 'gross profit', 'gross loss', 'max equity run-up', 'max equity drawdown', 'buy & hold return', 'open p&l', 'avg trade', 'avg winning trade', 'avg losing trade', 'largest winning trade', 'largest losing trade'];
 
 const constants = {
     'impulsIq_optimize': 'Optimize',

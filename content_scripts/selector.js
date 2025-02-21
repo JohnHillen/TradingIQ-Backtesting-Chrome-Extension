@@ -123,7 +123,7 @@ const SEL2 = {
     strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="container"] [class*=emptyStateIcon]',
     strategyReportTable: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"]',
     strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table thead > tr > th',
-    strategyReportRow: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table tbody > tr[class^="ka-tr"]',
+    strategyReportRow: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table tbody > tr[class^="ka-tr"]:not([class*="ka-no-data-row"])',
 }
 
 const sw = {

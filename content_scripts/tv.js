@@ -319,6 +319,7 @@ tv.parseReportTable = async (isDeepTest, baseCurrency = null) => {
       let paramName = allTdEl[0].innerText
       let isSingleValue = allTdEl.length === 3 || HEADER_SINGLE.includes(paramName.toLowerCase())
       let hasPercentValue = allTdEl.length === 3 || HEADER_PERCENT.includes(paramName.toLowerCase())
+      let unit = paramName.toLowerCase().includes('percent') ? ' (%)' : ''
       for (let i = 1; i < allTdEl.length; i++) {
         if (isSingleValue && i >= 2)
           continue
@@ -327,19 +328,21 @@ tv.parseReportTable = async (isDeepTest, baseCurrency = null) => {
         const isNegative = allTdEl[i].querySelector('[class^="negativeValue"]') && !['avg losing trade', 'largest losing trade', 'gross loss', 'max run-up', 'max drawdown'].includes(paramName.toLowerCase())
         if (values && typeof values === 'string' && strategyHeaders[i]) {
           values = values.replaceAll(' ', ' ').replaceAll('−', '-').trim()
-          if (sw.newStrategyView && paramName.toLowerCase() === 'net profit') {
+          if (sw.newStrategyView && currency === null) {
             const valueParts = values.split('\n');
             if (valueParts.length === 3) {
               currency = valueParts[1];
             }
           }
+
+          if (sw.newStrategyView && currency !== null && values.includes(currency)) {
+            unit = ` (${currency})`
+          }
+
           const digitalValues = values.replaceAll(/([\-\d\.])|(.)/g, (a, b) => b || '')
           let digitOfValues = digitalValues.match(/-?\d+\.?\d*/)
-          let nameDigits = isSingleValue ? paramName : `${paramName}: ${strategyHeaders[i]}`
-          const namePercents = isSingleValue ? `${paramName} %` : `${paramName} %: ${strategyHeaders[i]}`
-          if (sw.newStrategyView && currency && values.includes(currency)) {
-            nameDigits += ` (${currency})`
-          }
+          let nameDigits = isSingleValue ? `${paramName}${unit}` : `${paramName}${unit}: ${strategyHeaders[i]}`
+          const namePercents = isSingleValue ? `${paramName} (%)` : `${paramName} (%): ${strategyHeaders[i]}`
           if ((values.includes('\n') && values.endsWith('%'))) {
             const countNewLines = (str) => (str.match(/\n/g) || []).length + 1;
             const newLineCount = countNewLines(values);
@@ -560,21 +563,26 @@ async function getStrategyPropertyDataNew(isDeepTest, deepfrom, deepto, name) {
 
     let table = await page.waitForSelector(SEL2.strategyReportTable, 100)
     let rows = await page.waitForSelectorAll(SEL2.strategyReportRow, 100)
-    let to = rows[0].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="0"]`).innerText
-    let toFormatted = new Date(to).toISOString().split('T')[0]
 
-    await util.scrollToBottom(table)
-    rows = await page.waitForSelectorAll(SEL2.strategyReportRow, 100)
-    let from = rows[rows.length - 1].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="1"]`).innerText
-    let fromFormatted = new Date(from).toISOString().split('T')[0]
+    if (!table || !rows || rows.length === 0) {
+      result['Trading range (yyyy-mm-dd)'] = 'NA - NA'
+      result['Backtesting range (yyyy-mm-dd)'] = 'NA - NA'
+    } else {
+      let to = rows[0].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="0"]`).innerText
+      let toFormatted = new Date(to).toISOString().split('T')[0]
 
-    result['Trading range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
-    if (isDeepTest) {
-      fromFormatted = new Date(deepfrom).toISOString().split('T')[0]
-      toFormatted = new Date(deepto).toISOString().split('T')[0]
+      await util.scrollToBottom(table)
+      rows = await page.waitForSelectorAll(SEL2.strategyReportRow, 100)
+      let from = rows[rows.length - 1].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="1"]`).innerText
+      let fromFormatted = new Date(from).toISOString().split('T')[0]
+
+      result['Trading range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
+      if (isDeepTest) {
+        fromFormatted = new Date(deepfrom).toISOString().split('T')[0]
+        toFormatted = new Date(deepto).toISOString().split('T')[0]
+      }
+      result['Backtesting range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
     }
-    result['Backtesting range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
-
 
     console.log('getStrategyPropertyDataNew get strategy symbol info')
     result['Symbol'] = await util.getTickerExchange()
@@ -583,7 +591,7 @@ async function getStrategyPropertyDataNew(isDeepTest, deepfrom, deepto, name) {
     await tv.openCurrentStrategy(true)
     let inputs = await tv.getStrategyParams()
     for (let key in inputs) {
-      if (!key.includes("Best Short") && !key.includes("Best Long "))
+      if (!key.includes("Short Strategy ") && !key.includes("Long Strategy "))
         result[key] = inputs[key]
     }
     await util.closeStrategyPropertyDialog()
