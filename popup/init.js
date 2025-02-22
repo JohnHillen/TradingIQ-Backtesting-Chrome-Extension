@@ -5,7 +5,7 @@
 'use strict';
 
 const TF_UNIT_LIST = ['s', 'm', 'h', 'D', 'W', 'M', 'r']
-const VERSION = 'Version 2.1'
+const VERSION = 'Version 2.2'
 let currentIqId = 'impulsIq'
 
 const CSL_INFO = `Comma seperated list of single values and ranges. Ranges are defined by a dash.<br><br>

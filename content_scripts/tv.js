@@ -30,7 +30,11 @@ tv.setStrategyProps = async (name, props, isDeepTest) => {
             page.setInputElementValue(strategyProperties[i].querySelector('input'), value.value1)
 
             if (strategyProperties[i].querySelector('span[role="button"]')) { // List
-              await setSelectValue(strategyProperties[i], value.value2)
+              if (propText.toLowerCase().includes('order size') && value.value2 === 'Base Currency') {
+                await setSelectBySelector(strategyProperties[i], '[id*=cash_per_order]')
+              } else {
+                await setSelectValue(strategyProperties[i], value.value2)
+              }
             }
           } else {
             page.setInputElementValue(strategyProperties[i].querySelector('input'), props[propText])
@@ -68,6 +72,16 @@ async function setSelectValue(strategyProperties, value) {
   await page.waitForTimeout(140)
   page.setSelByText(SEL.strategyListOptions, value)
   await page.waitForTimeout(156)
+}
+async function setSelectBySelector(strategyProperties, selector) {
+  const buttonEl = strategyProperties.querySelector('span[role="button"]')
+  if (!buttonEl || !buttonEl.innerText)
+    return
+  buttonEl.scrollIntoView()
+  await page.waitForTimeout(150)
+  page.mouseClick(buttonEl)
+  await page.waitForTimeout(140)
+  await page.waitForMouseClickSelector(selector, 156)
 }
 tv.resetStrategyInputs = async (name, isDeepTest) => {
   console.log('resetStrategyInputs', name)
