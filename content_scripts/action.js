@@ -386,7 +386,6 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
     let tick = 1000
     let selReportReady = isDeepTest ? sw.strategyReportDeepTestReady() : sw.strategyReportReady()
 
-    await page.waitForTimeout(1000)
     console.log('Set indicator parameter:', cycle)
     await tv.setStrategyInputs(name, cycle, isDeepTest)
     if (isDeepTest) {
@@ -410,7 +409,7 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
             await page.waitForTimeout(250)
         }
         await util.openStrategyTab()
-        await page.waitForTimeout(250)
+        await page.waitForTimeout(750)
         iqValues = iqWidget.getElementsByClassName('item-_gbYDtbd')
         isProcessError = await page.waitForSelector(SEL.strategyReportWarningHint, 100)
         isProcessError = isProcessError || document.querySelector(SEL.strategyReportError)
