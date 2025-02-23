@@ -53,6 +53,17 @@ util.switchToStrategyTradesTab = async (isDeepTest) => {
     await switchToStrategyTab(isDeepTest, SEL2.strategyTrades, SEL2.strategyTradesActive, 'List of trades')
 }
 
+util.equals = (x, y) => {
+    var objectsAreSame = true;
+    for(var propertyName in x) {
+       if(x[propertyName] !== y[propertyName]) {
+          objectsAreSame = false;
+          break;
+       }
+    }
+    return objectsAreSame;
+ }
+
 async function switchToStrategyTab(isDeepTest, sel1, sel2, tabName) {
     await util.openStrategyTab()
 

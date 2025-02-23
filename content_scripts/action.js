@@ -1,6 +1,7 @@
 const action = {
     workerStatus: null,
     bestStrategyNumberCount: 0,
+    previousBestStrategyNumbers: [],
     testResultNumberCount: 0,
     strategyParamsNumberCount: 0,
     timeout: 60000
@@ -98,10 +99,14 @@ action.testStrategy = async (request) => {
             let testResults = {}
             testResults.isDeepTest = isDeepTest
 
+            console.log('previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
             let bestStrategyNumbers = await processCycle(iqIndicator, isDeepTest, iqWidget, retry, cycle)
             if (Object.keys(bestStrategyNumbers).length === 0 && testReport.length === 0) {
                 await ui.showPopup('No best strategy numbers found after 5 attempts. Please try again later.')
                 return
+            }
+            if (Object.keys(bestStrategyNumbers).length > 0) {
+                action.previousBestStrategyNumbers = bestStrategyNumbers
             }
             if (action.bestStrategyNumberCount === 0) {
                 action.bestStrategyNumberCount = Object.keys(bestStrategyNumbers).length
@@ -389,6 +394,8 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
         await tv.generateDeepTestReport()
     }
 
+    let props = []
+    let isNova = name === NOVA
     for (let i = 0; i < action.timeout / tick; i++) {
         console.log('waiting for ' + name + ' values')
 
@@ -396,6 +403,7 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
             break
         }
 
+        await page.waitForTimeout(tick)
         await util.openDataWindow()
         if (!sw.newStrategyView && (tick * i) % 5000 === 0) {
             await util.openPineEditorTab()
@@ -409,27 +417,18 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
 
         await util.switchToStrategySummaryTab(isDeepTest)
         isProcessEnd = document.querySelector(selReportReady)
+        props = getStrategyNumbers(iqValues, isNova);
+
+        // In case the Indicator settings changes, the best strategy numbers in the data window section are not reset.
+        if (util.equals(action.previousBestStrategyNumbers, props)) {
+            continue
+        }
         if (isProcessError || (isProcessEnd && iqValues.length > 0)) {
             console.log('Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
             break
         }
     }
 
-    let isNova = name === NOVA
-    let props = []
-    for (let value of iqValues) {
-        let values = value.innerText.split('\n')
-        if (values[0].includes('Long Strategy')) {
-            let bestLong = parseInt(values[1].replace(',', ''))
-            let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Long Strategy Reversion Number' : 'Best Long Strategy Trend Number')
-            props[propName] = bestLong
-        }
-        else if (values[0].includes('Short Strategy')) {
-            let bestShort = parseInt(values[1].replace(',', ''))
-            let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Short Strategy Reversion Number' : 'Best Short Strategy Trend Number')
-            props[propName] = bestShort
-        }
-    }
     if (Object.keys(props).length === 0) {
         console.log('No values found for ' + name + ' in the Data Window.')
         return props
@@ -446,3 +445,22 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
 
     return props
 }
+
+function getStrategyNumbers(iqValues, isNova) {
+    let props = []
+    for (let value of iqValues) {
+        let values = value.innerText.split('\n')
+        if (values[0].includes('Long Strategy')) {
+            let bestLong = parseInt(values[1].replace(',', ''))
+            let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Long Strategy Reversion Number' : 'Best Long Strategy Trend Number')
+            props[propName] = bestLong
+        }
+        else if (values[0].includes('Short Strategy')) {
+            let bestShort = parseInt(values[1].replace(',', ''))
+            let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Short Strategy Reversion Number' : 'Best Short Strategy Trend Number')
+            props[propName] = bestShort
+        }
+    }
+    return props;
+}
+
