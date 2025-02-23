@@ -18,7 +18,7 @@ const constants = {
     'impulsIq_trade_long': 'Trade Long',
     'impulsIq_trade_short': 'Trade Short',
 
-    'counterIq_use_ema_filter': 'Use EMA Length',
+    'counterIq_use_ema_filter': 'Use EMA Filter',
     'counterIq_ema_length': 'EMA Length',
     'counterIq_min_atr_profit': 'Minimum ATR Profit',
     'counterIq_min_atr_stop': 'Minimum ATR Stop',

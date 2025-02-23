@@ -5,7 +5,6 @@
 'use strict';
 
 const TF_UNIT_LIST = ['s', 'm', 'h', 'D', 'W', 'M', 'r']
-const VERSION = 'Version 2.2'
 let currentIqId = 'impulsIq'
 
 const CSL_INFO = `Comma seperated list of single values and ranges. Ranges are defined by a dash.<br><br>
@@ -29,7 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
   checkIsTVChart()
   loadSettings()
 
-  document.getElementById('version').innerText = VERSION
+  fetch("../manifest.json")
+    .then(response => response.json())
+    .then(json => document.getElementById('version').innerText = 'Version ' + json.version);
+
   document.onmouseleave = function () {
     saveSettings()
   }
