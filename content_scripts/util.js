@@ -234,7 +234,7 @@ util.parseTfList = (listOfTF) => {
 
     if (errorMsg) return { error: errorMsg, data: null };
     tfList = [...new Set(tfList)];
-    const validTFs = tfList.filter(tf => /(^\d{1,2}[mhdsDWMR]$)/.test(tf));
+    const validTFs = tfList.filter(tf => /(^\d+[mhdsDWMR]$)/.test(tf));
     return { error: null, data: validTFs };
 }
 
