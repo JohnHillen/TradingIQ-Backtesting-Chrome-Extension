@@ -2,6 +2,7 @@ const action = {
     workerStatus: null,
     bestStrategyNumberCount: 0,
     previousBestStrategyNumbers: [],
+    currentBestStrategyNumbers: [],
     testResultNumberCount: 0,
     strategyParamsNumberCount: 0,
     timeout: 60000
@@ -45,6 +46,8 @@ action.testStrategy = async (request) => {
 
         //Set strategy properties
         await tv.setStrategyProps(iqIndicator, strategyProperties, isDeepTest)
+
+        await tv.loadCurrentBestStrategyNumbers()
 
         console.log('iqIndicator:', (!iqIndicator ? 'null' : iqIndicator), 'iqWidget:', iqWidget)
         await page.waitForTimeout(1000)
@@ -417,13 +420,17 @@ action.detectBestStrategyNumbers = async (name, isDeepTest, iqWidget, cycle) => 
         await util.switchToStrategySummaryTab(isDeepTest)
         isProcessEnd = document.querySelector(selReportReady)
         props = getStrategyNumbers(iqValues, isNova);
+        let propsLength = Object.keys(props).length
 
         // In case the Indicator settings changes, the best strategy numbers in the data window section are not reset.
-        if (util.equals(action.previousBestStrategyNumbers, props)) {
+        if (util.equals(props, action.previousBestStrategyNumbers)) {
             continue
         }
-        if (isProcessError || (isProcessEnd && iqValues.length > 0)) {
+        if (isProcessError || (propsLength > 0 && (isProcessEnd || !util.equals(props, action.currentBestStrategyNumbers)))) {
             console.log('Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
+            console.log('Previous best strategy numbers:', action.previousBestStrategyNumbers)
+            console.log('Current best strategy numbers:', action.currentBestStrategyNumbers)
+            console.log('New best strategy numbers:', props)
             break
         }
     }

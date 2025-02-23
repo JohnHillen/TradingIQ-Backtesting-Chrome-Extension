@@ -677,6 +677,16 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   return null
 }
 
+tv.loadCurrentBestStrategyNumbers = async () => {
+  console.log('loadCurrentStrategy')
+  let strategyParams = await tv.getStrategyParams();
+  for (let key in strategyParams) {
+    if (key.toLocaleLowerCase().includes('strategy number')) {
+      action.currentBestStrategyNumbers[key] = strategyParams[key]
+    }
+  }
+}
+
 tv.getStrategyParams = async () => {
   const strategyInputs = {}
   const indicProperties = document.querySelectorAll(SEL.indicatorPropertyContent)

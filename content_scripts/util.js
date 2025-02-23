@@ -54,6 +54,13 @@ util.switchToStrategyTradesTab = async (isDeepTest) => {
 }
 
 util.equals = (x, y) => {
+    if (Object.keys(x).length === 0 && Object.keys(y).length === 0) {
+        return true
+    }
+    if (Object.keys(x).length !== Object.keys(y).length) {
+        return false
+    }
+
     var objectsAreSame = true;
     for(var propertyName in x) {
        if(x[propertyName] !== y[propertyName]) {
