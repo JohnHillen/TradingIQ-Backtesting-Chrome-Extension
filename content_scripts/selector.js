@@ -18,11 +18,21 @@ const SEL = {
     timeFrame: '#header-toolbar-intervals div[data-role^="button"]',
     timeFrameActive: '#header-toolbar-intervals div[data-role^="button"][class*="isActive"]',
     indicatorScroll: 'div[data-name="indicator-properties-dialog"] div[class^="scrollable-"]',
-    indicatorPropertyContent: 'div[data-name="indicator-properties-dialog"] div[class^="content-"] div[class^="cell-"]',
+    indicatorPropertyContent: 'div[data-name="indicator-properties-dialog"] div[class^="content-"] div[class^="cell-"], div[class^="checkboxItem-"]',
     okBtn: 'div[data-name="indicator-properties-dialog"] div[class^="footer-"] button[name="submit"]',
     cancelBtn: 'div[data-name="indicator-properties-dialog"] span[data-name="close"][data-role="button"]',
     scriptEditorTab: '[data-name="scripteditor"]',
     scriptEditorActive: '[data-name="scripteditor"][data-active="true"]',
+
+    symbolSearchBtn: '#header-toolbar-symbol-search',
+    symbolSearchDialog: '#overlap-manager-root div[data-name="symbol-search-items-dialog"]',
+    symbolSearchAllBtn: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] #symbol-search-tabs button[tabIndex="0"]',
+    symbolSearchInput: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] input[data-role="search"][class^="search-"]',
+    symbolSearchList: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] div[class^="listContainer-"]',
+    symbolSearchFirstItem: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] div[class^="listContainer-"] div[class^="itemRow"]:nth-child(1)',
+
+    backtestingWarningContainer: '#bottom-area div[class^="backtesting"] div[class^="backtestingWarningContainer"]',
+    backtestingWarningContainerInformerBody: '#bottom-area div[class^="backtesting"] div[class^="backtestingWarningContainer"] div[class^="informerBody"]',
 
     datePickerSwitchToMonth: 'div[class^="picker-"] div[class^="calendar-"] button[aria-label^="Switch to months"]',
     datePickerSwitchToYears: 'div[class^="picker-"] div[class^="calendar-"] button[aria-label^="Switch to years"]',
@@ -41,10 +51,9 @@ const SEL = {
     strategyTesterTab: '[data-name="backtesting"]',
     strategyTesterTabActive: '[data-name="backtesting"][data-active="true"]',
     strategyCaption: '#bottom-area div[class^="backtesting"]  [class^="strategyGroup"] [data-strategy-title]',
-    strategyDialogParam: '#bottom-area div[class^="backtesting"]  [class^="strategyGroup"]  > div:nth-child(2) > button:nth-child(1)',
 
-    strategySummary: 'button[id="Performance Summary"]',
-    strategySummaryActive: 'button[id="Performance Summary"][class*="selected"]',
+    strategySummary: 'button[id="Performance"]',
+    strategySummaryActive: 'button[id="Performance"][class*="selected"]',
     strategyProperties: 'button[id="Properties"]',
     strategyPropertiesDataRange: '#bottom-area div[class^="reportViewContainer"] button[aria-controls="id_Date-range"] span[class^="minimizedData"]',
     strategyPropertiesSymbolInfo: '#bottom-area div[class^="reportViewContainer"] button[aria-controls="id_Symbol-info"] span[class^="minimizedData"]',
@@ -52,26 +61,29 @@ const SEL = {
     strategyPropertiesStrategyInputs: '#bottom-area div[class^="reportViewContainer"] #id_Strategy-inputs',
     strategyPropertiesStrategyProperties: '#bottom-area div[class^="reportViewContainer"] button[aria-controls="id_Strategy-properties"] span[class^="minimizedData"]',
 
-    strategyReportObserveArea: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"]',
-    strategyReportInProcess: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"]  div[role="progressbar"]',
-    strategyReportReady: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] [class*="root"]',
+    strategyPropertiesBtn: '#overlap-manager-root div[role="menuitem"][aria-label^="Settings"]',
+    strategyTradesAnalysis: 'button[id="Trades Analysis"]',
+    strategyTradesAnalysisActive: 'button[id="Trades Analysis"][class*="selected"]',
+    strategyRatios: 'button[id="Ratios"]', // Risk/performance ratios
+    strategyRatiosActive: 'button[id="Ratios"][class*="selected"]', // Risk/performance ratios
+    strategyTrades: 'button[id="List of Trades"]',
+    strategyTradesActive: 'button[id="List of Trades"][class*="selected"]',
+    strategyReportTable: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"]',
 
-    strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="container"] [class*=emptyStateIcon]',
-    strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] table thead > tr > th',
-    strategyReportRow: '#bottom-area  div[class^="backtesting"] div[class^="widgetContainer"] div[class^="reportContainer"] table tbody > tr',
-    strategyReportWarningHint: '#bottom-area  div[class^="backtesting"] div[class^="warningHint"]',
+    strategyReportObserveArea: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"]',
+    strategyReportInProcess: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"]  div[role="progressbar"]',
+    strategyReportReady: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="wrapper-"] [class*="root"]',
+
+    strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="container"] [class*=emptyStateIcon]',
+    strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table thead > tr > th',
+    strategyReportRow: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table tbody > tr[class^="ka-tr"]:not([class*="ka-no-data-row"])',
+    strategyReportWarningHint: '#bottom-area div[class^="backtesting"] div[class^="warningHint"]',
 
     strategyDeepTestCheckbox: '#bottom-area div[class^="backtesting"]  [class^="deepHistoryContainer"]  [class^="switcher"] input',
     strategyDeepTestStartDate: '#bottom-area div[class^="backtesting"]  [class^="historyParams"]  [class^="container" ]> div:nth-child(1) div[class^="pickerInput"] input',
     strategyDeepTestEndDate: '#bottom-area div[class^="backtesting"]  [class^="historyParams"]  [class^="container" ]> div:nth-child(3) div[class^="pickerInput"] input',
     strategyDeepTestGenerateBtn: '#bottom-area div[class^="backtesting"]  [class^="historyParams"] button[class^="generateReportBtn"]:not([disabled])',
     strategyDeepTestGenerateBtnDisabled: '#bottom-area div[class^="backtesting"]  [class^="historyParams"] button[class^="generateReportBtn"][disabled]',
-
-    strategyReportDeepTestObserveArea: '#bottom-area div[class^="backtesting"] div[class^="backtesting-content-wrapper"]',
-    strategyReportDeepTestInProcess: '#bottom-area div[class^="backtesting"] div[class^="backtesting-content-wrapper"] div[role="progressbar"]',
-    strategyReportDeepTestReady: '#bottom-area div[class^="backtesting"] div[class^="backtesting-content-wrapper"] div[class^="reportContainer"] [class*="root"]',
-    strategyReportDeepTestHeader: '#bottom-area div[class^="backtesting"] div[class^="backtesting-content-wrapper"] div[class^="reportContainer"] table thead > tr > th',
-    strategyReportDeepTestRow: '#bottom-area  div[class^="backtesting"] div[class^="backtesting-content-wrapper"] div[class^="reportContainer"] table tbody > tr',
 
     strategyListOptions: 'div[role="listbox"] div[data-name="menu-inner"] div[role="option"] span[class^="label-"]',
     strategyDefaultElement: '#property-actions',
@@ -99,114 +111,4 @@ const SEL = {
     chartTimeframeMenuTypeItemsWeeks: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(4)',
     chartTimeframeMenuTypeItemsMonth: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(5)',
     chartTimeframeMenuTypeItemsRange: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(6)',
-}
-
-// New strategy Tester tabs: Overview, Performance, Trades analysis, Risk/performance ratios, List of trades
-// The whole structure of the html elements has been changed, so we need to update the selectors
-const SEL2 = {
-    indicatorPropertyContent: 'div[data-name="indicator-properties-dialog"] div[class^="content-"] div[class^="cell-"], div[class^="checkboxItem-"]',
-
-    strategyPropertiesBtn: '#overlap-manager-root div[role="menuitem"][aria-label^="Settings"]',
-    strategySummary: 'button[id="Performance"]',
-    strategySummaryActive: 'button[id="Performance"][class*="selected"]',
-    strategyTradesAnalysis: 'button[id="Trades Analysis"]',
-    strategyTradesAnalysisActive: 'button[id="Trades Analysis"][class*="selected"]',
-    strategyRatios: 'button[id="Ratios"]', // Risk/performance ratios
-    strategyRatiosActive: 'button[id="Ratios"][class*="selected"]', // Risk/performance ratios
-    strategyTrades: 'button[id="List of Trades"]',
-    strategyTradesActive: 'button[id="List of Trades"][class*="selected"]',
-
-    strategyReportObserveArea: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"]',
-    strategyReportInProcess: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"]  div[role="progressbar"]',
-    strategyReportReady: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="wrapper-"] [class*="root"]',
-
-    strategyReportError: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="container"] [class*=emptyStateIcon]',
-    strategyReportTable: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"]',
-    strategyReportHeader: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table thead > tr > th',
-    strategyReportRow: '#bottom-area div[class^="backtesting"] div[class^="wrapper-"] div[class^="ka-table-wrapper"] table tbody > tr[class^="ka-tr"]:not([class*="ka-no-data-row"])',
-}
-
-const sw = {
-    newStrategyView: null
-}
-
-sw.init = async () => {
-    console.log('init selectorWrapper')
-    await util.openStrategyTab();
-    let deepCheckbox = document.querySelector(SEL.strategyDeepTestCheckbox)
-    if (deepCheckbox.checked) {
-        deepCheckbox.click()
-        await page.waitForTimeout(50)
-    }
-
-    let tablist = document.getElementById('report-tabs');
-    console.log('tablist', tablist)
-    if (!tablist) return false;
-
-    // #Performance is the new id, #Performance Summary is the old one
-    let tab = document.getElementById('Performance');
-    console.log('tab', tab)
-    sw.newStrategyView = tab !== null;
-
-    console.log('newStrategyView', sw.newStrategyView)
-}
-
-sw.strategySummeryTab = () => {
-    return sw.newStrategyView ? SEL2.strategySummary : SEL.strategySummary;
-}
-
-sw.strategySummeryTabActive = () => {
-    return sw.newStrategyView ? SEL2.strategySummaryActive : SEL.strategySummaryActive;
-}
-
-sw.strategyReportObserveArea = () => {
-    return sw.newStrategyView ? SEL2.strategyReportObserveArea : SEL.strategyReportObserveArea;
-}
-
-sw.strategyReportInProcess = () => {
-    return sw.newStrategyView ? SEL2.strategyReportInProcess : SEL.strategyReportInProcess;
-}
-
-sw.strategyReportReady = () => {
-    return sw.newStrategyView ? SEL2.strategyReportReady : SEL.strategyReportReady;
-}
-
-sw.strategyReportError = () => {
-    return sw.newStrategyView ? SEL2.strategyReportError : SEL.strategyReportError;
-}
-
-sw.strategyReportHeader = () => {
-    return sw.newStrategyView ? SEL2.strategyReportHeader : SEL.strategyReportHeader;
-}
-
-sw.strategyReportRow = () => {
-    return sw.newStrategyView ? SEL2.strategyReportRow : SEL.strategyReportRow;
-}
-
-sw.strategyReportDeepTestReady = () => {
-    return sw.newStrategyView ? SEL2.strategyReportReady : SEL.strategyReportDeepTestReady;
-}
-
-sw.strategyReportDeepTestObserveArea = () => {
-    return sw.newStrategyView ? SEL2.strategyReportObserveArea : SEL.strategyReportDeepTestObserveArea;
-}
-
-sw.strategyReportDeepTestInProcess = () => {
-    return sw.newStrategyView ? SEL2.strategyReportInProcess : SEL.strategyReportDeepTestInProcess;
-}
-
-sw.strategyReportDeepTestHeader = () => {
-    return sw.newStrategyView ? SEL2.strategyReportHeader : SEL.strategyReportDeepTestHeader;
-}
-
-sw.strategyReportDeepTestRow = () => {
-    return sw.newStrategyView ? SEL2.strategyReportRow : SEL.strategyReportDeepTestRow;
-}
-
-sw.indicatorPropertyContent = () => {
-    return sw.newStrategyView ? SEL2.indicatorPropertyContent : SEL.indicatorPropertyContent;
-}
-
-sw.strategyDialogParam = () => {
-    return sw.newStrategyView ? SEL.strategyCaption : SEL.strategyDialogParam;
 }
