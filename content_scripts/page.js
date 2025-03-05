@@ -17,6 +17,10 @@ page.waitForSelectorOld2del = async function (selector, timeout = 5000, isHide =
   });
 }
 
+page.waitForSelectorInnerText = async (selector, timeout = 5000, isHide = false, parentEl = null) => {
+  let el = await waitForSelector(selector, timeout, isHide, parentEl, false)
+  return el ? el.innerText : null
+}
 
 page.waitForSelector = async (selector, timeout = 5000, isHide = false, parentEl = null) => {
   return waitForSelector(selector, timeout, isHide, parentEl, false)

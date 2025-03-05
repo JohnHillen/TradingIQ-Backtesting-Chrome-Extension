@@ -36,21 +36,20 @@ util.openDataWindow = async () => {
     }
 }
 
-util.switchToStrategySummaryTab = async (isDeepTest) => {
-    let tabName = sw.newStrategyView ? 'Performance' : 'Performance summary'
-    await switchToStrategyTab(isDeepTest, sw.strategySummeryTab(), sw.strategySummeryTabActive(), tabName)
+util.switchToStrategySummaryTab = async () => {
+    await switchToStrategyTab(SEL.strategySummary, SEL.strategySummaryActive, 'Performance')
 }
 
-util.switchToStrategyTradesAnalysisTab = async (isDeepTest) => {
-    await switchToStrategyTab(isDeepTest, SEL2.strategyTradesAnalysis, SEL2.strategyTradesAnalysisActive, 'Trades analysis')
+util.switchToStrategyTradesAnalysisTab = async () => {
+    await switchToStrategyTab(SEL.strategyTradesAnalysis, SEL.strategyTradesAnalysisActive, 'Trades analysis')
 }
 
-util.switchToStrategyRatioTab = async (isDeepTest) => {
-    await switchToStrategyTab(isDeepTest, SEL2.strategyRatios, SEL2.strategyRatiosActive, 'Risk/performance ratios')
+util.switchToStrategyRatioTab = async () => {
+    await switchToStrategyTab(SEL.strategyRatios, SEL.strategyRatiosActive, 'Risk/performance ratios')
 }
 
-util.switchToStrategyTradesTab = async (isDeepTest) => {
-    await switchToStrategyTab(isDeepTest, SEL2.strategyTrades, SEL2.strategyTradesActive, 'List of trades')
+util.switchToStrategyTradesTab = async () => {
+    await switchToStrategyTab(SEL.strategyTrades, SEL.strategyTradesActive, 'List of trades')
 }
 
 util.equals = (x, y) => {
@@ -62,19 +61,19 @@ util.equals = (x, y) => {
     }
 
     var objectsAreSame = true;
-    for(var propertyName in x) {
-       if(x[propertyName] !== y[propertyName]) {
-          objectsAreSame = false;
-          break;
-       }
+    for (var propertyName in x) {
+        if (x[propertyName] !== y[propertyName]) {
+            objectsAreSame = false;
+            break;
+        }
     }
     return objectsAreSame;
- }
+}
 
-async function switchToStrategyTab(isDeepTest, sel1, sel2, tabName) {
+async function switchToStrategyTab(sel1, sel2, tabName) {
     await util.openStrategyTab()
 
-    if (sw.newStrategyView && isDeepTest) {
+    if (action.isDeepTest) {
         await tv.generateDeepTestReport()
     }
 
@@ -87,7 +86,7 @@ async function switchToStrategyTab(isDeepTest, sel1, sel2, tabName) {
         await page.waitForTimeout(80)
     }
     const isActive = await page.waitForSelector(sel2, 1000)
-    if (!isActive && !isDeepTest) {
+    if (!isActive && !action.isDeepTest) {
         console.log(`The "${tabName}" tab is not active after click`)
     }
 }
@@ -198,11 +197,11 @@ util.parseTfList = (listOfTF) => {
             errorMsg = `Invalid (${tf})`;
             return acc;
         }
-        else if(tf.includes(':') && !tf.includes('-')) {
+        else if (tf.includes(':') && !tf.includes('-')) {
             errorMsg = `Invalid (${tf})`;
             return acc;
         }
-        else if(tf.includes(':') && !/\d$/.test(tf)) {
+        else if (tf.includes(':') && !/\d$/.test(tf)) {
             errorMsg = `Invalid: (${tf})`;
             return acc;
         }
@@ -223,12 +222,16 @@ util.parseTfList = (listOfTF) => {
             }
             let [startNum, endNum] = [parseInt(start), parseInt(end)];
             if (startNum > endNum) [startNum, endNum] = [endNum, startNum];
-            for (let i = startNum; i <= endNum; i+=step) {
+
+            for (let i = startNum; i <= endNum; i += step) {
                 let newTf = i + unit;
                 newTf = fixTf(newTf);
                 if (errorMsg)
                     return acc
                 acc.push(newTf);
+                if (i + step > endNum && i !== endNum) {
+                    i = endNum - step;
+                }
             }
         } else {
             tf = fixTf(tf);

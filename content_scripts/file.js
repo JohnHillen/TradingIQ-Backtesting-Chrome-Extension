@@ -9,23 +9,23 @@ file.saveAs = (text, filename) => {
     aData.parentNode.removeChild(aData);
 }
 
-file.createCSV = (ticker, strategy, testResults) => {
+file.createCSV = (strategy, testResults) => {
   let csv = ""
   for (i = 0; i < testResults.length; i++) {
-    csv += i === 0 ? ("Ticker;IQ Indicator;") : (ticker + ";" + strategy + ";")
+    csv += i === 0 ? ("IQ Indicator;") : (strategy + ";")
     csv += testResults[i].map(val => JSON.stringify(val)).join(';').replaceAll('"', '')
     csv += "\n"
   }
   return csv
 }
 
-file.createHTML = (ticker, strategy, testResults) => {
+file.createHTML = (strategy, testResults) => {
   let html = `<!DOCTYPE html>
 <html>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <head>
-<title id="tiqTitle" data-iqindicator="${strategy}">${ticker} - ${strategy}</title>
+<title id="tiqTitle" data-iqindicator="${strategy}">${strategy}</title>
 <style>
     html {
       height: 100%;
@@ -206,7 +206,7 @@ file.createHTML = (ticker, strategy, testResults) => {
 <body class="w3-small">
   <div class="w3-container w3-padding">
     <div class="w3-cell w3-container">
-      <h5>${ticker} - ${strategy}</h5>
+      <h5>${strategy}</h5>
     </div>
     <div id="darkModeBtn" class="w3-cell w3-container" onclick="toggleTheme()" style="display:none">
       <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 4px 0 0 0">

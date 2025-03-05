@@ -73,6 +73,11 @@ function checkIsTVChart() {
         document.getElementById('iqIndicator').addEventListener("change", event => {
           currentIqId = customSelect.indicatorChange(event.target)
         });
+        document.getElementById('iq_enable_exchanges').addEventListener('click', function () {
+          document.getElementById('exchanges').disabled = !document.getElementById('iq_enable_exchanges').checked
+          disable('exchanges')
+          calcNumberOfBacktests()
+        });
 
         // Add event listeners for all plus and minus buttons
         document.querySelectorAll('.custom-buttons .plus, .custom-buttons .minus').forEach(button => {
@@ -213,7 +218,14 @@ function calcNumberOfBacktests() {
   if (tfList.length > 0) {
     countArr.push(commaCount);
   }
-
+  let exchangeEl = document.getElementById('exchanges');
+  if (exchangeEl.disabled === false) {
+    let exchanges = exchangeEl.value;
+    commaCount = (exchanges.match(/,/g) || []).length + 1;
+    if (exchanges.length > 0) {
+      countArr.push(commaCount);
+    }
+  }
   if (countArr.length > 0) {
     numberOfBacktests = countArr.reduce((acc, val) => acc * val, 1);
   }
@@ -221,6 +233,14 @@ function calcNumberOfBacktests() {
 }
 
 function getStrategyCycles() {
+  let exchangeEl = document.getElementById('exchanges');
+  let exchanges = ['NA'];
+  if (exchangeEl.disabled === false) {
+    exchanges = exchangeEl.value;
+    exchanges = util.normalize(exchanges);
+    exchanges = exchanges.length === 0 ? ['NA'] : exchanges.split(',');
+  }
+
   let tfList = document.getElementById('tfList').value;
   tfList = util.normalize(tfList);
   tfList = util.parseTfList(tfList)
@@ -237,40 +257,45 @@ function getStrategyCycles() {
   let iqParameters = getIqParameter();
   let cycles = [];
 
-  // Iterate over tfList and iqParameters to get all possible combinations
-  tfList.data.forEach(tf => {
-    let keys = Object.keys(iqParameters);
-    let combinations = [{}];
+  // Iterate over exchanges first
+  exchanges.forEach(exchange => {
+    // Iterate over tfList and iqParameters to get all possible combinations
+    tfList.data.forEach(tf => {
+      let keys = Object.keys(iqParameters);
+      let combinations = [{}];
 
-    keys.forEach(key => {
-      let iqValue = iqParameters[key].value;
-      if (document.getElementById(key).type === 'text') {
-        iqValue = parseRange(iqValue);
-      } else if (iqValue === true || iqValue === false) {
-        iqValue = iqValue.toString();
-      }
-      let values = iqValue.split(',');
-      let tempCombinations = [];
+      keys.forEach(key => {
+        let iqValue = iqParameters[key].value;
+        if (document.getElementById(key).type === 'text') {
+          iqValue = parseRange(iqValue);
+        } else if (iqValue === true || iqValue === false) {
+          iqValue = iqValue.toString();
+        }
+        let values = iqValue.split(',');
+        let tempCombinations = [];
 
-      combinations.forEach(combination => {
-        values.forEach(value => {
-          let newCombination = { ...combination };
-          if (key === 'impulsIq_rr') {
-            let rrVal = newCombination[constants['impulsIq_rr']];
-            newCombination[constants['impulsIq_rr']] = { adaptive: true, value1: rrVal, value2: value };
-          } else {
-            newCombination[constants[key]] = parseValue(value);
-          }
-          tempCombinations.push(newCombination);
+        combinations.forEach(combination => {
+          values.forEach(value => {
+            let newCombination = { ...combination };
+            if (key === 'impulsIq_rr') {
+              let rrVal = newCombination[constants['impulsIq_rr']];
+              newCombination[constants['impulsIq_rr']] = { adaptive: true, value1: rrVal, value2: value };
+            } else {
+              newCombination[constants[key]] = parseValue(value);
+            }
+            tempCombinations.push(newCombination);
+          });
         });
+
+        combinations = tempCombinations;
       });
 
-      combinations = tempCombinations;
-    });
-
-    combinations.forEach(combination => {
-      combination['tf'] = tf;
-      cycles.push(combination);
+      combinations.forEach(combination => {
+        let newCombination = { ...combination };
+        newCombination['tf'] = tf;
+        newCombination['exchange'] = exchange.toUpperCase();
+        cycles.push(newCombination);
+      });
     });
   });
   console.log('cycles', cycles);
@@ -335,6 +360,10 @@ function loadSettings() {
           }
         }
       }
+    }
+    if (!document.getElementById('iq_enable_exchanges').checked) {
+      document.getElementById('exchanges').disabled = true
+      disable('exchanges')
     }
 
     if (!document.getElementById('iq_deep_enabled').checked) {
