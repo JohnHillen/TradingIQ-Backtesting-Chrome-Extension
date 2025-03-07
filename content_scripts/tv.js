@@ -393,7 +393,6 @@ tv.getPerformance = async (testResults) => {
   let endTime = new Date().getTime() + action.timeout
   while (Date.now() < endTime) {
     isProcessError = await getBacktestingErrors()
-    console.log('getPerformance: isProcessError', isProcessError)
     if (isProcessError.msg) {
       if (await tryToFixBacktestingError(isProcessError)) {
         continue
@@ -512,13 +511,14 @@ tv.getStrategyPropertyData = async (name) => {
       return result
     }
     let emptyCoulmnCounter = 0
-    let dateIndex
+    let dateIndex, cumulativeProfitIndex = -1
     for (let i = 0; i < allHeadersEl.length; i++) {
       if (allHeadersEl[i].innerText.includes("Date")) {
         dateIndex = i + 1
-        break
       } else if (allHeadersEl[i].innerText === "") {
         emptyCoulmnCounter++
+      } else if (cumulativeProfitIndex === -1 && allHeadersEl[i].innerText.toLowerCase().includes("cumulative profit")) {
+        cumulativeProfitIndex = i + 1
       }
     }
     if (dateIndex === undefined) {
@@ -534,8 +534,10 @@ tv.getStrategyPropertyData = async (name) => {
     } else {
       let to = rows[0].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="0"]`).innerText
       let toFormatted = new Date(to).toISOString().split('T')[0]
+      let maxTradeId = parseInt(rows[0].querySelector(`td:nth-child(1)`).innerText)
 
       await util.scrollToBottom(table)
+
       rows = await page.waitForSelectorAll(SEL.strategyReportRow, 100)
       let from = rows[rows.length - 1].querySelector(`td:nth-child(${dateIndex}) div[class^="cell-"][data-part="1"]`).innerText
       let fromFormatted = new Date(from).toISOString().split('T')[0]
@@ -546,6 +548,9 @@ tv.getStrategyPropertyData = async (name) => {
         toFormatted = new Date(action.deepTo).toISOString().split('T')[0]
       }
       result['Backtesting range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
+
+      let equityData = await getEqutiyData(table, cumulativeProfitIndex, maxTradeId)
+      result['EquityList'] = equityData
     }
 
     console.log('getStrategyPropertyDataNew get strategy symbol info')
@@ -573,6 +578,48 @@ tv.getStrategyPropertyData = async (name) => {
     return null
   }
   return result
+}
+
+async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
+  if (!table) {
+    return null
+  }
+  let equityData = []
+  equityData.push(100) // equity starts always from 100%
+  let currentEquity = 100.0
+  let rows = null
+  let tradeId = 0
+  while (tradeId < maxTradeId) {
+    rows = await page.waitForSelectorAll(SEL.strategyReportRow, 100)
+    if (!rows || rows.length === 0) {
+      console.log('WARNING: getEqutiyData rows not found')
+      return equityData
+    }
+
+    for (let i = rows.length - 1; i >= 0; i--) {
+      let id = parseInt(rows[i].querySelector(`td:nth-child(1)`).innerText)
+      if (id <= tradeId) {
+        continue
+      }
+
+      tradeId = id
+      let profit = rows[i].querySelector(`td:nth-child(${cumulativeProfitIndex}) div[class^="percentValue-"]`).innerText
+      if (!profit || !profit.endsWith('%')) {
+        console.log('WARNING: getEqutiyData profit not found:', profit, 'row:', rows[i])
+        return equityData
+      }
+      profit = profit.replace(/−/, '-')
+      console.log('getEqutiyData tradeId:', id, 'profit:', profit)
+      currentEquity += parseFloat(profit)
+      currentEquity = parseFloat(currentEquity.toFixed(2))
+      equityData.push(currentEquity)
+    }
+
+    table.scrollTop -= 500;
+    await page.waitForTimeout(20)
+
+  }
+  return equityData
 }
 
 tv.setDeepDateValues = async (dateElement, dateValue) => {

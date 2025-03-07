@@ -19,7 +19,7 @@ file.createCSV = (strategy, testResults) => {
   return csv
 }
 
-file.createHTML = (strategy, testResults) => {
+file.createHTML = (strategy, testResults, equityList) => {
   let html = `<!DOCTYPE html>
 <html>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
@@ -247,15 +247,15 @@ file.createHTML = (strategy, testResults) => {
         </svg>
       </button>
     </div>
-<div class="w3-card-4" style="overflow-x:auto;max-height: 90vh;">`
-  let thTemplate = '<th class="rotate" onclick="sortTable(#INDEX#)"><div><span title="#TITLE#">#VAL#</span></div></th>'
-  let tdTemplate = '<td>#VAL#</td>'
+<div class="w3-card-4" style="overflow-x:auto;max-height: 60vh;">`
+  let thTemplate = '<th class="rotate" onclick="sortTable(#INDEX#)"><div><span title="#TITLE#">#VAL#</span></div></th>\n'
+  let tdTemplate = '<td>#VAL#</td>\n'
   html += '<table  id="resultTable" class="w3-table w3-striped w3-hoverable">\n'
   for (i = 0; i < testResults.length; i++) {
     if (i === 0) {
       html += "<thead>"
     }
-    html += "<tr>"
+    html += i === 0 ? '<tr>\n' : `<tr onmouseover='drawChart([${equityList[i-1].join(',')}])'>\n`
     html += testResults[i].map((val, index) => i === 0 ? thTemplate.replace('#INDEX#', index).replaceAll('#TITLE#', val).replaceAll('#VAL#', getThValue(val)) : tdTemplate.replace('#VAL#', val)).join('')
     html += "</tr>\n"
     if (i === 0) {
@@ -290,9 +290,18 @@ file.createHTML = (strategy, testResults) => {
         </section>
       </div>
     </div>
+  </div>
+  <div class="w3-container w3-padding">
+    <div class="w3-card-4">
+      <header class="w3-container">
+        <h3>Equity Chart</h3>
+      </header>
+      <div id="equityChart" style="width:100%;max-width:100%"></div>
+    </div>
   </div>`
 
   html += `
+    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js"></script>
     <script>
     const cells = document.getElementById('resultTable').querySelectorAll('td,th');
     for (let cell of cells) {
@@ -525,6 +534,40 @@ file.createHTML = (strategy, testResults) => {
           }
         }
       });
+    }
+
+    function drawChart(values) {
+      const yArray = values;
+      const xArray = yArray.map((_, i) => i + 1);
+      const startVal = Math.min(...yArray) - 5;
+      const endVal = Math.max(...yArray) + 5;
+
+      // Define Data
+      const data = [{
+        fill: "tozeroy",
+        fillgradient: {
+          type: 'vertical',
+          colorscale: [[0,'rgba(31,119,180,0.5)'], [1,'rgba(31,119,180,0)']],
+          start: endVal,
+          stop: startVal/2
+        },
+        x: xArray,
+        y: yArray,
+        mode:"lines"
+      }];
+
+      // Define Layout
+      const layout = {
+        xaxis: {showgrid: false},
+        yaxis: {range: [startVal, endVal], showgrid: false},
+        plot_bgcolor:"transparent",
+        paper_bgcolor:'transparent',
+        font: {color: 'grey'},
+        hovermode: 'x'
+      };
+
+      // Display using Plotly
+      Plotly.newPlot("equityChart", data, layout);
     }
   </script>`
   html += "</body></html>"

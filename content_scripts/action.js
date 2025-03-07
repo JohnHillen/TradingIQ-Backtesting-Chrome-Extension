@@ -52,6 +52,7 @@ action.testStrategy = async (request) => {
         await page.waitForTimeout(1000)
 
         let testReport = []
+        let equityList = []
         let header = []
         let symbol = null
         let error = null
@@ -145,6 +146,7 @@ action.testStrategy = async (request) => {
             }
 
             if (action.workerStatus) {
+                console.log('testReport.length', testReport.length, 'testResult:', testResult, 'strategyParams:', strategyParams)
                 if (testReport.length === 0 && (!testResult.data || !strategyParams)) {
                     console.log('No test result or strategy params found. Stop testing')
                     error = error ? error : 'Test results could not be found. Please try again again.'
@@ -155,6 +157,11 @@ action.testStrategy = async (request) => {
                     symbol = strategyParams.Symbol.replace(':', '-')
                 }
                 delete strategyParams['Symbol']
+
+                if (strategyParams.EquityList) {
+                    equityList.push(strategyParams.EquityList)
+                    delete strategyParams['EquityList']
+                }
 
                 if (testReport.length === 0) {
                     header = createReportHeader(bestStrategyNumbers, testResult, strategyParams)
@@ -176,7 +183,7 @@ action.testStrategy = async (request) => {
         }
         if (rfHtml) {
             console.log('create HTML report')
-            const data = file.createHTML(iqIndicator, testReport)
+            const data = file.createHTML(iqIndicator, testReport, equityList)
             file.saveAs(data, `${iqIndicator}.html`)
         }
         if (rfCsv) {
