@@ -8,6 +8,9 @@ const action = {
     isDeepTest: false,
     deepFrom: null,
     deepTo: null,
+    cycleTf: null,
+    indicatorLegendStatus: null,
+    indicatorError: null,
     timeout: 60000
 }
 
@@ -16,6 +19,7 @@ const STATUS_MSG = 'Do not change the window/tab.<br>If the Tradingview page is 
 action.testStrategy = async (request) => {
     console.log('action.testStrategy')
     action.bestStrategyNumberCount = 0
+
     try {
         action.timeout = request.options.timeout * 1000 //convert to ms
         let retry = request.options.retry
@@ -30,6 +34,7 @@ action.testStrategy = async (request) => {
 
         ui.statusMessage(STATUS_MSG)
 
+        await initLegendObserver(iqIndicator)
         await util.openDataWindow()
         await util.openStrategyTab()
 
@@ -56,6 +61,7 @@ action.testStrategy = async (request) => {
         let header = []
         let symbol = null
         let error = null
+        let failedTests = []
         let cyclesLength = cycles.length
         let currentCycle = 0
         for (const cycle of cycles) {
@@ -63,6 +69,8 @@ action.testStrategy = async (request) => {
                 console.log('Stopped by User')
                 break
             }
+
+            action.indicatorError = null
 
             const symbolExchange = cycle.exchange
             if (symbolExchange !== 'NA') {
@@ -73,7 +81,7 @@ action.testStrategy = async (request) => {
                 }
             }
 
-            const cycleTf = cycle.tf === CURRENT_TF ? await tvChart.getCurrentTimeFrame() : cycle.tf
+            action.cycleTf = cycle.tf === CURRENT_TF ? await tvChart.getCurrentTimeFrame() : cycle.tf
             ui.statusMessage(STATUS_MSG, `Backtest ${++currentCycle} / ${cyclesLength}`)
             if (cycle.tf !== CURRENT_TF) {
                 await tvChart.changeTimeFrame(cycle.tf)
@@ -89,18 +97,10 @@ action.testStrategy = async (request) => {
                 let startDate = document.querySelector(SEL.strategyDeepTestStartDate)
                 let endDate = document.querySelector(SEL.strategyDeepTestEndDate)
                 if (startDate.value !== action.deepFrom) {
-                    let msg = await tv.setDeepDateValues(startDate, action.deepFrom)
-                    if (msg !== null) {
-                        await ui.showPopup(msg)
-                        return
-                    }
+                    await tv.setDeepDateValues(startDate, action.deepFrom)
                 }
                 if (endDate.value !== action.deepTo) {
-                    let msg = await tv.setDeepDateValues(endDate, action.deepTo)
-                    if (msg !== null) {
-                        await ui.showPopup(msg)
-                        return
-                    }
+                    await tv.setDeepDateValues(endDate, action.deepTo)
                 }
                 let msg = await tv.generateDeepTestReport();
                 console.log('Deep Test Result:', msg)
@@ -110,22 +110,39 @@ action.testStrategy = async (request) => {
             let testResults = {}
             testResults.isDeepTest = action.isDeepTest
 
-            console.log('previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
-            let bestStrategyNumbers = await processCycle(iqIndicator, iqWidget, retry, cycle)
-            if (Object.keys(bestStrategyNumbers).length === 0 && testReport.length === 0 && action.workerStatus) {
-                await ui.showPopup('No best strategy numbers found after 5 attempts. Please try again later.')
-                return
+            let tickerName = await tvChart.getTicker()
+            console.log('tickerName:', tickerName, 'cycleTf:', action.cycleTf)
+            symbol = await util.getTickerExchange()
+
+            let bestStrategyNumbers = []
+            let testResult = null
+            let strategyParams = null
+
+            //for ReversalIQ on BTC 5m, 15m, 30m and ETH 15m, 30m there are no strategy numbers
+            if (iqIndicator === REVERSAL && (tickerName.includes('BTC') && (action.cycleTf === '5m' || action.cycleTf === '15m' || action.cycleTf === '30m')) ||
+                (tickerName.includes('ETH') && (action.cycleTf === '15m' || action.cycleTf === '30m'))) {
+                bestStrategyNumbers['Best Long Strategy Number'] = 0
+                bestStrategyNumbers['Best Short Strategy Number'] = 0
+                console.log('ReversalIQ on BTC 5m,15m,30m and ETH 15m, 30m there are no strategy numbers: ', bestStrategyNumbers)
+            } else {
+                console.log('previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
+                bestStrategyNumbers = await processCycle(iqIndicator, iqWidget, retry, cycle, tickerName)
+                if (Object.keys(bestStrategyNumbers).length === 0) {
+                    let failedCycle = { tf: action.cycleTf, bestStrategyNumbers: bestStrategyNumbers, testResult: testResult, strategyParams: strategyParams, symbolExchange: symbolExchange === 'NA' ? symbol : symbolExchange }
+                    console.log('=======> No test result or strategy params found:', failedCycle)
+                    failedTests.push(failedCycle)
+                    continue
+                }
             }
             if (Object.keys(bestStrategyNumbers).length > 0) {
                 action.previousBestStrategyNumbers = bestStrategyNumbers
             }
-            if (action.bestStrategyNumberCount === 0) {
+            if (action.bestStrategyNumberCount === 0 && Object.keys(bestStrategyNumbers).length > 0) {
                 action.bestStrategyNumberCount = Object.keys(bestStrategyNumbers).length
             }
 
-            let testResult = null
-            let strategyParams = null
             console.log('bestStrategyNumbers detected:', bestStrategyNumbers, 'Get performance values')
+            await page.waitForTimeout(1500)
             for (let i = 1; i <= retry; i++) {
                 if (action.workerStatus === null) {
                     console.log('Stopped by User')
@@ -147,34 +164,33 @@ action.testStrategy = async (request) => {
 
             if (action.workerStatus) {
                 console.log('testReport.length', testReport.length, 'testResult:', testResult, 'strategyParams:', strategyParams)
-                if (testReport.length === 0 && (!testResult.data || !strategyParams)) {
-                    console.log('No test result or strategy params found. Stop testing')
-                    error = error ? error : 'Test results could not be found. Please try again again.'
-                    break
-                }
-
-                if (strategyParams.Symbol) {
-                    symbol = strategyParams.Symbol.replace(':', '-')
+                if (!testResult.data || !strategyParams) {
+                    let failedCycle = { tf: action.cycleTf, bestStrategyNumbers: bestStrategyNumbers, testResult: testResult, strategyParams: strategyParams, symbolExchange: symbolExchange === 'NA' ? symbol : symbolExchange }
+                    console.log('=======> No test result or strategy params found:', failedCycle)
+                    failedTests.push(failedCycle)
+                    continue
                 }
                 delete strategyParams['Symbol']
 
                 if (strategyParams.EquityList) {
                     equityList.push(strategyParams.EquityList)
                     delete strategyParams['EquityList']
+                } else {
+                    equityList.push([100])
                 }
 
-                if (testReport.length === 0) {
+                if (testReport.length === 0 && testResult.data && strategyParams) {
                     header = createReportHeader(bestStrategyNumbers, testResult, strategyParams)
                     testReport.push(header)
                 }
 
-                testReport.push(createReport(cycleTf, bestStrategyNumbers, testResult, strategyParams, symbolExchange === 'NA' ? symbol : symbolExchange))
+                testReport.push(createReport(action.cycleTf, bestStrategyNumbers, testResult, strategyParams, symbolExchange === 'NA' ? symbol : symbolExchange))
             }
         }
 
-        if (error) {
-            await ui.showPopup(error)
-            return
+        for (let failedCycle of failedTests) {
+            equityList.push([100])
+            testReport.push(createReport(failedCycle.tf, failedCycle.bestStrategyNumbers, failedCycle.testResult, failedCycle.strategyParams, failedCycle.symbolExchange))
         }
 
         ui.statusMessageRemove()
@@ -210,14 +226,17 @@ async function processCycle(strategyName, iqWidget, retryCount, cycle) {
     await tvChart.changeTimeFrame(cycleTf)
     await page.waitForTimeout(500)
 
-    await page.waitForTimeout(100)
+    let bestStrategyNumbers = []
+
     for (let i = 1; i <= retryCount; i++) {
         if (action.workerStatus === null) {
             break
         }
 
+        action.indicatorError = null
+
         console.log(i + '. try to get best strategy numbers for tf: ', cycleTf)
-        let bestStrategyNumbers = await detectBestStrategyNumbers(strategyName, iqWidget, cycle)
+        bestStrategyNumbers = await detectBestStrategyNumbers(strategyName, iqWidget, cycle)
         console.log(i + '. detected best strategy numbers: ', bestStrategyNumbers)
         if (Object.keys(bestStrategyNumbers).length === 0) {
             //we will switch back and forth between previous and current timeframe. Sometimes it helps to get the values
@@ -230,7 +249,7 @@ async function processCycle(strategyName, iqWidget, retryCount, cycle) {
             return bestStrategyNumbers
         }
     }
-    return {}
+    return []
 }
 
 function createReportHeader(bestStrategyNumbers, testResult, strategyParams) {
@@ -267,19 +286,18 @@ function createReport(tf, bestStrategyNumbers, testResult, strategyParams, symbo
         }
     }
 
-    if (testResult.data !== null) {
-        for (let i = 0; i < action.testResultNumberCount; i++) {
-            if (i < Object.keys(testResult.data).length) {
-                let key = Object.keys(testResult.data)[i]
-                report.push(testResult.data[key])
-            } else {
-                report.push('NA')
-            }
+    for (let i = 0; i < action.testResultNumberCount; i++) {
+        if (testResult && testResult.data && i < Object.keys(testResult.data).length) {
+            let key = Object.keys(testResult.data)[i]
+            report.push(testResult.data[key])
+        } else {
+            report.push('NA')
         }
     }
 
+
     for (let i = 0; i < action.strategyParamsNumberCount; i++) {
-        if (i < Object.keys(strategyParams).length) {
+        if (strategyParams && i < Object.keys(strategyParams).length) {
             let key = Object.keys(strategyParams)[i]
 
             let val = strategyParams[key]
@@ -442,7 +460,7 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
         await page.waitForTimeout(500)
         iqValues = iqWidget.getElementsByClassName('item-_gbYDtbd')
         isProcessError = await page.waitForSelector(SEL.strategyReportWarningHint, 100)
-        isProcessError = isProcessError || document.querySelector(SEL.strategyReportError)
+        isProcessError = isProcessError || document.querySelector(SEL.strategyReportError) || action.indicatorError
 
         await util.switchToStrategySummaryTab()
         isProcessEnd = document.querySelector(SEL.strategyReportReady)
@@ -497,3 +515,57 @@ function getStrategyNumbers(iqValues, isNova) {
     return props;
 }
 
+async function initLegendObserver(iqIndicator) {
+    if (action.indicatorLegendStatus) {
+        console.log('initLegendObserver already initialized')
+        return;
+    }
+    console.log('initLegendObserver')
+
+    let legendContainer = document.querySelector(SEL.legendContainer)
+    console.log('legendContainer:', legendContainer)
+
+    let legendSources = document.querySelectorAll(SEL.legendSources)
+    if (legendSources.length === 0) {
+        console.log('No legend sources found')
+        return
+    }
+
+    let indicatorLegendItem = null
+    for (let legendSource of legendSources) {
+        if (legendSource.innerText && legendSource.innerText.includes(iqIndicator)) {
+            indicatorLegendItem = legendSource
+            break
+        }
+    }
+    if (!indicatorLegendItem) {
+        console.log('No indicator legend item found')
+        return
+    }
+
+    console.log('indicatorLegendItem:', indicatorLegendItem)
+
+    action.indicatorLegendStatus = indicatorLegendItem.querySelector(SEL.legendStatus)
+    if (!action.indicatorLegendStatus) {
+        console.log('No legend status found')
+        return
+    }
+
+    const legendStatusObserver = new MutationObserver(() => {
+        if (action.indicatorLegendStatus.querySelector('div[class*="dataProblemLow"]')) {
+            console.log('Data problem detected: Low data quality');
+            action.indicatorError = 'Runtime error';
+        } else {
+            action.indicatorError = null;
+        }
+    });
+
+    legendStatusObserver.observe(action.indicatorLegendStatus, {
+        childList: true,
+        subtree: true,
+        attributes: false,
+        characterData: false
+    });
+
+    console.log('initLegendObserver initialized')
+}

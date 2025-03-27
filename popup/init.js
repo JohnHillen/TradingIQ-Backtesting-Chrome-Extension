@@ -52,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
       debounceTimeout = setTimeout(calcNumberOfBacktests, 350);
     }
   });
+
+  let dateTo = document.getElementById('iq_deep_to');
+  dateTo.max = new Date().toISOString().split('T')[0];
 });
 
 function checkIsTVChart() {

@@ -111,4 +111,9 @@ const SEL = {
     chartTimeframeMenuTypeItemsWeeks: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(4)',
     chartTimeframeMenuTypeItemsMonth: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(5)',
     chartTimeframeMenuTypeItemsRange: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(6)',
+
+    legendContainer: 'div[class^="legend-"][data-name="legend"]',
+    legendSources: 'div[class^="legend-"][data-name="legend"] > div[class^="sourcesWrapper-"] > div[class^="sources-"] > div[class^="item-"][data-name="legend-source-item"]',
+    legendSourceTitle: 'div[class^="noWrapWrapper-"] > div[class^="titlesWrapper-"] > div[data-name="legend-source-description"]',
+    legendStatus: 'div[class^="noWrapWrapper-"] > div[class^="statusesWrapper-"] > div[data-name="legend-source-item-status"]',
 }

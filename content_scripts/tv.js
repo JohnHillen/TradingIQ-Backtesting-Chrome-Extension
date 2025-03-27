@@ -270,14 +270,19 @@ tv.switchToStrategyTab = async () => {
 
 tv.parseReportTable = async (baseCurrency = null) => {
   await util.openStrategyTab()
+  await page.waitForTimeout(1000)
 
   let currency = baseCurrency
   const strategyHeaders = []
   const selHeader = SEL.strategyReportHeader
   const selRow = SEL.strategyReportRow
-  await page.waitForSelector(selHeader, 2500)
-
+  await page.waitForSelector(selHeader, 10000)
   let allHeadersEl = document.querySelectorAll(selHeader)
+  if (!allHeadersEl || allHeadersEl.length === 0) {
+    await page.waitForSelector(selHeader, 10000)
+    allHeadersEl = document.querySelectorAll(selHeader)
+  }
+
   if (!allHeadersEl || !(allHeadersEl.length === 4 || allHeadersEl.length === 5)) { // 5 - Extra column for full screen
     if (!tv.isParsed)
       throw new Error('Can\'t get performance headers.')
@@ -292,8 +297,12 @@ tv.parseReportTable = async (baseCurrency = null) => {
   }
 
   const report = {}
-  await page.waitForSelector(selRow, 2500)
+  await page.waitForSelector(selRow, 10000)
   let allReportRowsEl = document.querySelectorAll(selRow)
+  if (!allReportRowsEl || allReportRowsEl.length === 0) {
+    await page.waitForSelector(selHeader, 10000)
+    allReportRowsEl = document.querySelectorAll(selRow)
+  }
   if (!allReportRowsEl || allReportRowsEl.length === 0) {
     if (!tv.isParsed)
       throw new Error('Can\'t get performance rows.')
@@ -402,7 +411,7 @@ tv.getPerformance = async (testResults) => {
       }
     }
     isProcessEnd = await page.waitForSelector(SEL.strategyReportReady, 500)
-    console.log('Waiting for report data isProcessError', isProcessError, 'isProcessEnd', isProcessEnd)
+    console.log('Waiting for report data isProcessError msg: ' + isProcessError.msg + ', canBeFixed: ' + isProcessError.canBeFixed + ', isProcessEnd: ' + isProcessEnd)
     if (isProcessError.msg || isProcessEnd) {
       console.log('break by isProcessError', isProcessError, 'isProcessEnd', isProcessEnd)
       break
@@ -413,6 +422,7 @@ tv.getPerformance = async (testResults) => {
 
   if ((!isProcessError || !isProcessError.msg) && isProcessEnd) {
     await util.switchToStrategySummaryTab()
+    await page.waitForTimeout(1000)
     let result = await tv.parseReportTable()
     reportData = result.data
     baseCurrency = result.baseCurrency
@@ -437,6 +447,10 @@ async function getBacktestingErrors() {
   if (action.workerStatus === null) {
     console.log('Worker is stopped')
     return { msg: 'Stopped by user', canBeFixed: false }
+  }
+
+  if (action.indicatorError) {
+    return { msg: action.indicatorError, canBeFixed: true }
   }
 
   let errorMsg = null
@@ -472,7 +486,7 @@ async function tryToFixBacktestingError(error) {
   if (!error.canBeFixed) {
     return false
   }
-
+/*
   if (action.isDeepTest) {
     let deepFrom = new Date(action.deepFrom)
     deepFrom.setDate(deepFrom.getDate() + 1);
@@ -480,22 +494,17 @@ async function tryToFixBacktestingError(error) {
     let startDate = document.querySelector(SEL.strategyDeepTestStartDate)
     await tv.setDeepDateValues(startDate, deepFrom)
     await page.waitForTimeout(550)
-    let msg = await tv.setDeepDateValues(startDate, action.deepFrom)
-    if (msg) {
-      await ui.showPopup(msg)
-      return false
-    }
+    await tv.setDeepDateValues(startDate, action.deepFrom)
     await page.waitForTimeout(550)
     await tv.generateDeepTestReport();
   }
-  else {
-    console.log('No test result or strategy params found. Retry:', i, 'strategyParams:', strategyParams, 'testResult:', testResult)
-    let tf1 = "1m" === cycleTf ? "2m" : "1m"
+  else {*/
+    let tf1 = "1m" === action.cycleTf ? "2m" : "1m"
     await tvChart.changeTimeFrame(tf1)
     await page.waitForTimeout(2000)
-    await tvChart.changeTimeFrame(cycleTf)
+    await tvChart.changeTimeFrame(action.cycleTf)
     await page.waitForTimeout(2000)
-  }
+  //}
   return true
 }
 
@@ -622,6 +631,8 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
   return equityData
 }
 
+
+// ================================ TODO: set automatilcally the date range if out of range ================================
 tv.setDeepDateValues = async (dateElement, dateValue) => {
   const date = new Date(dateValue)
   let year = date.getFullYear()
@@ -637,22 +648,28 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   page.mouseClickSelector(SEL.datePickerSwitchToYears)
   await page.waitForTimeout(52)
 
+  let outOfRange = false
   let buttons = document.querySelectorAll(SEL.datePickerDecadesButtons)
   for (let button of buttons) {
-    if (button.innerText === year.toString()) {
+    if (outOfRange || button.innerText === year.toString()) {
       if (button.disabled) {
-        return "Deep Backtesting year is out of range: " + year + ' (' + dateValue + ')';
+        console.log('Deep Backtesting year is out of range: ' + year + ' (' + dateValue + ')')
+        outOfRange = true
+        continue
       }
       page.mouseClick(button)
       await page.waitForTimeout(52)
       break
     }
   }
+  outOfRange = false
   buttons = document.querySelectorAll(SEL.datePickerMonthButtons)
   for (i = 0; i < 12; i++) {
-    if (i === month) {
+    if (outOfRange || i === month) {
       if (buttons[i].disabled) {
-        return "Deep Backtesting month is out of range: " + MONTHS[month] + ' (' + dateValue + ')';
+        console.log('Deep Backtesting month is out of range: ' + MONTHS[month] + ' (' + dateValue + ')');
+        outOfRange = true
+        continue
       }
       page.mouseClick(buttons[i])
       await page.waitForTimeout(52)
@@ -660,18 +677,20 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
     }
   }
 
+  outOfRange = false
   buttons = document.querySelectorAll(SEL.datePickerDaysButtons)
   for (let button of buttons) {
-    if (button.innerText === day.toString()) {
+    if (outOfRange || button.innerText === day.toString()) {
       if (button.disabled) {
-        return "Deep Backtesting day is out of range: " + day + ' (' + dateValue + ')';
+        console.log('Deep Backtesting day is out of range: ' + day + ' (' + dateValue + ')');
+        outOfRange = true
+        continue
       }
       page.mouseClick(button)
       await page.waitForTimeout(52)
       break
     }
   }
-  return null
 }
 
 tv.loadCurrentBestStrategyNumbers = async () => {

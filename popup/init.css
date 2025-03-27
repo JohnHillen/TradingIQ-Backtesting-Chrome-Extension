@@ -75,6 +75,14 @@ h6,
     /* Standard syntax */
 }
 
+.tooltip {
+    position:absolute;
+    left:0;
+    top:20px;
+    width:270px;
+    z-index: 100;
+}
+
 .disabled {
     pointer-events: none;
     opacity: 0.4;

@@ -247,7 +247,7 @@ file.createHTML = (strategy, testResults, equityList) => {
         </svg>
       </button>
     </div>
-<div class="w3-card-4" style="overflow-x:auto;max-height: 60vh;">`
+<div class="w3-card-4" style="overflow-x:auto;max-height: 50vh;">`
   let thTemplate = '<th class="rotate" onclick="sortTable(#INDEX#)"><div><span title="#TITLE#">#VAL#</span></div></th>\n'
   let tdTemplate = '<td>#VAL#</td>\n'
   html += '<table  id="resultTable" class="w3-table w3-striped w3-hoverable">\n'
@@ -296,7 +296,7 @@ file.createHTML = (strategy, testResults, equityList) => {
       <header class="w3-container">
         <h3>Equity Chart</h3>
       </header>
-      <div id="equityChart" style="width:100%;max-width:100%"></div>
+      <div id="equityChart" style="width:100%;max-width:100%;max-height: 40vh;"></div>
     </div>
   </div>`
 

@@ -49,7 +49,7 @@ tvChart.changeTimeFrame = async (setTF) => {
   }
 
   // Search timeframe among timeframes menu items
-  const timeFrameMenuEl = await document.querySelector(SEL.chartTimeframeMenuOrSingle)
+  const timeFrameMenuEl = await page.waitForSelector(SEL.chartTimeframeMenuOrSingle)
   if (!timeFrameMenuEl)
     throw new Error('There is no timeframe selection menu element on the page')
   page.mouseClick(timeFrameMenuEl)
@@ -107,6 +107,7 @@ tvChart.changeTimeFrame = async (setTF) => {
   page.mouseClickSelector(SEL.chartTimeframeAddCustomDialogAddBtn)
   await page.waitForTimeout(1000)
   foundTF = await tvChart.selectTimeFrameMenuItem(strategyTF)
+  await page.waitForTimeout(1000)
   curTimeFrameText = await tvChart.getCurrentTimeFrame()
   if (!foundTF)
     throw new Error(`Failed to add a timeframe "${strategyTF}" to the list`)
