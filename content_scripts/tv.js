@@ -6,6 +6,14 @@ const tv = {
 }
 tv.isParsed = false
 
+tv.reset = () => {
+  tv.reportNode = null
+  tv.tickerTextPrev = null
+  tv.timeFrameTextPrev = null
+  tv.isReportChanged = false
+  tv.isParsed = false
+}
+
 tv.setStrategyProps = async (name, props) => {
   console.log('setStrategyProps', name, props, action.isDeepTest)
   const indicatorTitleEl = await tv.checkAndOpenStrategy(name, false)
@@ -486,25 +494,13 @@ async function tryToFixBacktestingError(error) {
   if (!error.canBeFixed) {
     return false
   }
-/*
-  if (action.isDeepTest) {
-    let deepFrom = new Date(action.deepFrom)
-    deepFrom.setDate(deepFrom.getDate() + 1);
 
-    let startDate = document.querySelector(SEL.strategyDeepTestStartDate)
-    await tv.setDeepDateValues(startDate, deepFrom)
-    await page.waitForTimeout(550)
-    await tv.setDeepDateValues(startDate, action.deepFrom)
-    await page.waitForTimeout(550)
-    await tv.generateDeepTestReport();
-  }
-  else {*/
-    let tf1 = "1m" === action.cycleTf ? "2m" : "1m"
-    await tvChart.changeTimeFrame(tf1)
-    await page.waitForTimeout(2000)
-    await tvChart.changeTimeFrame(action.cycleTf)
-    await page.waitForTimeout(2000)
-  //}
+  let tf1 = "1m" === action.cycleTf ? "2m" : "1m"
+  await tvChart.changeTimeFrame(tf1)
+  await page.waitForTimeout(2000)
+  await tvChart.changeTimeFrame(action.cycleTf)
+  await page.waitForTimeout(2000)
+
   return true
 }
 
@@ -631,8 +627,6 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
   return equityData
 }
 
-
-// ================================ TODO: set automatilcally the date range if out of range ================================
 tv.setDeepDateValues = async (dateElement, dateValue) => {
   const date = new Date(dateValue)
   let year = date.getFullYear()
@@ -766,25 +760,25 @@ tv.getStrategyParams = async () => {
 
 tv.setSymbolExchange = async (symbolExchange) => {
   console.log('setSymbolExchange', symbolExchange)
-  const symbolInfoEl = await page.waitForSelector(SEL.symbolSearchBtn, 100)
+  const symbolInfoEl = await page.waitForSelector(SEL.symbolSearchBtn, 1000)
   if (!symbolInfoEl) {
     return 'Symbol search button not found'
   }
 
   await page.waitForMouseClickSelector(SEL.symbolSearchBtn)
-  const symbolInfoDialogEl = await page.waitForSelector(SEL.symbolSearchDialog, 100)
+  const symbolInfoDialogEl = await page.waitForSelector(SEL.symbolSearchDialog, 1000)
   if (!symbolInfoDialogEl) {
     return 'Symbol search dialog not found'
   }
 
-  const symbolInputEl = await page.waitForSelector(SEL.symbolSearchInput, 100)
+  const symbolInputEl = await page.waitForSelector(SEL.symbolSearchInput, 1000)
   if (!symbolInputEl) {
     return 'Symbol search input not found'
   }
   page.setInputElementValue(symbolInputEl, symbolExchange)
-  await page.waitForTimeout(150)
+  await page.waitForTimeout(500)
 
-  const searchSymbolListEl = await page.waitForSelector(SEL.symbolSearchList, 100)
+  const searchSymbolListEl = await page.waitForSelector(SEL.symbolSearchList, 1000)
   if (!searchSymbolListEl) {
     return 'Symbol search list not found'
   }
@@ -792,8 +786,18 @@ tv.setSymbolExchange = async (symbolExchange) => {
   if (!symbolEl) {
     return 'Symbol search first item not found'
   }
+  let symbolTextEl = symbolEl.querySelector('div[class^="symbolTitle"]').innerText;
+  console.log('symbolTextEl', symbolTextEl)
+
+  let symbolText = symbolExchange.split(':')[1]
+  if (symbolText !== symbolTextEl) {
+    console.log('unexpected symbol text expected:', symbolText, 'actual:', symbolTextEl)
+    return 'Symbol search first item not found'
+  }
+
   page.mouseClick(symbolEl)
   await page.waitForTimeout(150)
+
   return null
 }
 

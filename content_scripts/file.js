@@ -26,6 +26,8 @@ file.createHTML = (strategy, testResults, equityList) => {
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <head>
 <title id="tiqTitle" data-iqindicator="${strategy}">${strategy}</title>
+<!-- Includes all JS & CSS for the JavaScript Data Grid -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <style>
     html {
       height: 100%;
@@ -51,26 +53,6 @@ file.createHTML = (strategy, testResults, equityList) => {
       cursor: pointer;
     }
 
-    #resultTable th {
-      position: sticky;
-      z-index: 1;
-      top: 0;
-    }
-
-    #resultTable thead {
-      position: sticky;
-      z-index: 1;
-      top: 0;
-    }
-
-    #resultTable thead {
-      background-color: #e8e8e8;
-    }
-
-    .dark-mode #resultTable thead {
-      background-color: #313131;
-    }
-
     #services-table td:hover {
       background-color: #00000050;
     }
@@ -79,38 +61,23 @@ file.createHTML = (strategy, testResults, equityList) => {
       background-color: #ffffff30;
     }
 
-    #resultTable tbody td {
-      text-wrap-mode: nowrap;
+    .ag-select-list {
+      background-color: #e8e8e8;
     }
 
-    .dark-mode #resultTable tbody tr:nth-child(even) {
-      background-color: #38384d;
+    .ag-header-cell-label .ag-header-cell-text {
+      white-space: break-spaces !important;
     }
 
-    th {
-      cursor: pointer;
+    .dark-mode .ag-select-list {
+      background-color: #313131;
     }
-
-    th.rotate {
-      /* Something you can count on */
-      height: 180px;
-      white-space: nowrap;
-    }
-
-    th.rotate>div {
-      transform:
-        /* Magic Numbers */
-        translate(25px, 51px)
-        /* 45 is really 360 - 45 */
-        rotate(315deg);
-      width: 90px;
-      margin-left: -40px;
-      margin-top: 50px;
-    }
-
-    th.rotate>div>span {
-      /*border-bottom: 1px solid #ccc;*/
-      padding: 5px 10px;
+    .ag-header-cell-label .ag-header-cell-text {
+      word-wrap:break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .highlight {
@@ -119,14 +86,6 @@ file.createHTML = (strategy, testResults, equityList) => {
 
     .dark-mode .highlight {
       background-color: #36454F;
-    }
-
-    .w3-hoverable tbody tr:hover {
-      background-color: #e0ffff
-    }
-
-    .dark-mode .w3-hoverable tbody tr:hover {
-      background-color: #36454F!important;
     }
 
     .dark-mode .w3-button {
@@ -155,11 +114,6 @@ file.createHTML = (strategy, testResults, equityList) => {
 
     .column-button {
       padding: 8px;
-    }
-
-    #column-table td {
-      width: 200px;
-      text-align: left;
     }
 
     .prevent-select {
@@ -247,22 +201,20 @@ file.createHTML = (strategy, testResults, equityList) => {
         </svg>
       </button>
     </div>
-<div class="w3-card-4" style="overflow-x:auto;max-height: 50vh;">`
-  let thTemplate = '<th class="rotate" onclick="sortTable(#INDEX#)"><div><span title="#TITLE#">#VAL#</span></div></th>\n'
-  let tdTemplate = '<td>#VAL#</td>\n'
-  html += '<table  id="resultTable" class="w3-table w3-striped w3-hoverable">\n'
-  for (i = 0; i < testResults.length; i++) {
-    if (i === 0) {
-      html += "<thead>"
-    }
-    html += i === 0 ? '<tr>\n' : `<tr onmouseover='drawChart([${equityList[i-1].join(',')}])'>\n`
-    html += testResults[i].map((val, index) => i === 0 ? thTemplate.replace('#INDEX#', index).replaceAll('#TITLE#', val).replaceAll('#VAL#', getThValue(val)) : tdTemplate.replace('#VAL#', val)).join('')
-    html += "</tr>\n"
-    if (i === 0) {
-      html += "</thead>\n<tbody>"
-    }
-  }
-  html += "</tbody></table></div>\n</div>\n"
+    <div class="w3-container w3-padding" style="overflow-x:auto;max-height: 40vh;height: 40vh;">
+      <div id="myGrid" class="w3-card-4 w3-round-large" style="overflow-x:auto;height: 100%;"></div>
+    </div>`
+
+
+  html += `
+  <div class="w3-container w3-padding">
+    <div class="w3-card-4">
+      <header class="w3-container">
+        <h3>Equity Chart</h3>
+      </header>
+      <div id="equityChart" style="width:100%;max-width:100%;max-height: 40vh;"></div>
+    </div>
+  </div>`
 
   html += `
   <div id="filterColumnModal" class="w3-modal">
@@ -271,7 +223,7 @@ file.createHTML = (strategy, testResults, equityList) => {
         <div class="w3-cell" style="position: relative;width: 250px;">
           <input class="w3-input w3-cell" id="modalFilter" style="width: 250px; outline-width: 0;background-color: transparent;" type="text" placeholder="filter..."
             oninput="toggleClearButton()" />
-          <span id="clearButton" class="prevent-select w3-circle w3-button w3-light-grey" onclick="clearFilter()"
+          <span id="clearButton" class="prevent-select w3-circle w3-button w3-aqua" onclick="clearFilter()"
             style="width: 20px;height: 20px;padding: 0; position: absolute; right: 0px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none;">&times;</span>
         </div>
         <button onclick="selectAll()" type="button" class="w3-button w3-round w3-cell" style="margin-left: 5px;background-color: #00ffff;">(De)Select all</button>
@@ -285,46 +237,182 @@ file.createHTML = (strategy, testResults, equityList) => {
     html += `<tr><td class="column-button w3-round selected" onclick="modalSelectedColumn(this)">${testResults[0][i]}</td></tr>`
   }
 
-  html += `</tbody>
+  html += `
+  </tbody>
           </table>
         </section>
       </div>
     </div>
-  </div>
-  <div class="w3-container w3-padding">
-    <div class="w3-card-4">
-      <header class="w3-container">
-        <h3>Equity Chart</h3>
-      </header>
-      <div id="equityChart" style="width:100%;max-width:100%;max-height: 40vh;"></div>
-    </div>
   </div>`
 
   html += `
-    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js"></script>
-    <script>
-    const cells = document.getElementById('resultTable').querySelectorAll('td,th');
-    for (let cell of cells) {
-      cell.addEventListener('mouseover', function () {
-        const columnCells = document.querySelectorAll(\`td:nth-child(\${cell.cellIndex + 1}),th:nth-child(\${cell.cellIndex + 1})\`);
-        for (let c of columnCells) {
-          if (c.tagName === "TH") {
-            c.querySelector("span").classList.add('highlight', 'w3-round-xxlarge')
-          } else {
-            c.classList.add('highlight');
+  <script src="https://cdn.plot.ly/plotly-3.0.0.min.js"></script>
+  <!-- Includes all JS & CSS for the JavaScript Data Grid -->
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <script>
+    class BooleanRenderer {
+      eGui;
+
+      // Optional: Params for rendering. The same params that are passed to the cellRenderer function.
+      init(params) {
+        const label = document.createElement("label");
+        label.innerHTML = params.value ? "Yes" : "No";
+
+        this.eGui = document.createElement("span");
+        this.eGui.setAttribute(
+          "style",
+          "display: flex; justify-content: center; height: 100%; align-items: center",
+        );
+        this.eGui.appendChild(label);
+      }
+
+      // Required: Return the DOM element of the component, this is what the grid puts into the cell
+      getGui() {
+        return this.eGui;
+      }
+
+      // Required: Get the cell to refresh.
+      refresh(params) {
+        return false;
+      }
+    }
+
+    const myTheme = agGrid.themeQuartz
+      .withParams(
+        {
+          inputBackgroundColor: "#e8e8e8",
+          menuBackgroundColor: "#e8e8e8",
+          backgroundColor: "#FFFFFF00",
+          foregroundColor: "black",
+          browserColorScheme: "light",
+        },
+        "light-aqua",
+      )
+      .withParams(
+        {
+          inputBackgroundColor: "#313131",
+          menuBackgroundColor: "#313131",
+          backgroundColor: "#FFFFFF00",
+          foregroundColor: "#00ffff",
+          browserColorScheme: "dark",
+        },
+        "dark-aqua",
+      );`;
+
+  html += `
+    let rowData = [];`
+
+  let colTypes = []
+  for (i = 1; i < testResults.length; i++) {
+    let rowData = testResults[i].map((val, index) => {
+      if (i === 1) {
+        colTypes.push(typeof val === 'boolean' ? 'bool' : 'text');
+      }
+      return `col${index}: ${JSON.stringify(val)}`;
+    }).join(', ')
+    html += `
+    rowData.push({ equityIndex: ${i - 1}, ${rowData} })`
+  }
+
+
+  html += `
+    let equityList = [];`
+  for (i = 0; i < equityList.length; i++) {
+    html += `
+    equityList.push(${JSON.stringify(equityList[i])})`
+  }
+  html += `\n`
+
+  const columnDefTemplate = `{ headerName: '#TITLE#', field: "col#INDEX#" #CELL_RENDERER#}`
+  html += `
+  const columnDefs = [`
+  html += testResults[0].map((val, index) => columnDefTemplate.replace('#INDEX#', index).replaceAll('#TITLE#', val).replaceAll('#CELL_RENDERER#', (colTypes[index] === 'bool' ? ', cellRenderer: BooleanRenderer' : ''))).join(',')
+  html += ']\n'
+
+  html += `
+    const defaultColDef = {
+      filter: true,
+      initialWidth: 120,
+      minWidth: 100,
+      wrapHeaderText: true,
+      autoHeaderHeight: true
+    };
+
+    let currentEquityIndex = -1;
+
+    const gridOptions = {
+      theme: myTheme,
+      columnDefs,
+      rowData,
+      defaultColDef,
+      onCellMouseOver: (event) => {
+        if (event.data.equityIndex !== undefined && event.data.equityIndex !== currentEquityIndex) {
+          currentEquityIndex = event.data.equityIndex;
+          drawChart(equityList[event.data.equityIndex]);
+        }
+      }
+    };
+
+    const gridApi = agGrid.createGrid(
+      document.querySelector("#myGrid"),
+      gridOptions,
+    );
+
+    function setDarkMode(enabled) {
+      document.body.dataset.agThemeMode = enabled ? "dark-aqua" : "light-aqua";
+    }
+
+    function toggleTheme() {
+      var element = document.body;
+      element.classList.toggle("dark-mode");
+      if (element.classList.contains("dark-mode")) {
+        localStorage.setItem('tiqMode', 'dark')
+        document.getElementById("darkModeBtn").style.display = "none";
+        document.getElementById("lightModeBtn").style.display = "";
+        setDarkMode(true);
+      } else {
+        localStorage.setItem('tiqMode', 'light')
+        document.getElementById("darkModeBtn").style.display = "";
+        document.getElementById("lightModeBtn").style.display = "none";
+        setDarkMode(false);
+      }
+    }
+    document.onreadystatechange = function () {
+      if (document.readyState == "complete") {
+        init();
+      }
+    }
+
+    function init() {
+      var mode = localStorage.getItem('tiqMode');
+      console.log('init', mode)
+      if (mode === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById("darkModeBtn").style.display = "none";
+        document.getElementById("lightModeBtn").style.display = "";
+        console.log('init dark')
+        setDarkMode(true);
+      }
+      else {
+        document.getElementById("darkModeBtn").style.display = "";
+        document.getElementById("lightModeBtn").style.display = "none";
+        console.log('init light')
+        setDarkMode(false);
+      }
+
+      let iqIndicator = document.getElementById('tiqTitle').getAttribute('data-iqindicator');
+      let selectedRows = JSON.parse(localStorage.getItem('tiqSelectedColumns-' + iqIndicator));
+      if (selectedRows) {
+        const columns = document.querySelectorAll('#filterColumnTable .column-button');
+        for (let column of columns) {
+          if (!selectedRows.includes(column.parentElement.rowIndex)) {
+            column.classList.toggle('selected');
           }
         }
-      });
-      cell.addEventListener('mouseout', function () {
-        const columnCells = document.querySelectorAll(\`td:nth-child(\${cell.cellIndex + 1}),th:nth-child(\${cell.cellIndex + 1})\`);
-        for (let c of columnCells) {
-          if (c.tagName === "TH") {
-            c.querySelector("span").classList.remove('highlight', 'w3-round-xxlarge')
-          } else {
-            c.classList.remove('highlight');
-          }
-        }
-      });
+        let invisibleColumns = columnDefs.filter((column, index) => !selectedRows.includes(index)).map(column => column.field);
+        gridApi.setColumnsVisible(invisibleColumns, false);
+        gridApi.autoSizeColumns(columnDefs.map((column) => column.field), true);
+      }
     }
 
     function toggleClearButton() {
@@ -348,14 +436,7 @@ file.createHTML = (strategy, testResults, equityList) => {
       element.classList.toggle('selected');
       let index = element.parentNode.rowIndex;
 
-      const columns = document.querySelectorAll(\`#resultTable td:nth-child(\${index + 1}), #resultTable th:nth-child(\${index + 1})\`);
-      for (let column of columns) {
-        if (element.classList.contains('selected')) {
-          column.style.display = "";
-        } else {
-          column.style.display = "none";
-        }
-      }
+      gridApi.setColumnsVisible([columnDefs[index].field], element.classList.contains('selected'));
     }
 
     function openServiceModal() {
@@ -365,15 +446,17 @@ file.createHTML = (strategy, testResults, equityList) => {
     function selectAll() {
       const rows = document.querySelectorAll('#filterColumnTable tr:not([style*="display: none"])');
       let deselectAll = rows[0].querySelector('.column-button').classList.contains('selected');
+
       for (let row of rows) {
         const column = row.querySelector('.column-button');
         if (!deselectAll) {
-          column.classList.remove('selected');
-        } else {
           column.classList.add('selected');
+        } else {
+          column.classList.remove('selected');
         }
-        modalSelectedColumn(column);
       }
+
+      gridApi.setColumnsVisible(columnDefs.map(column => column.field), !deselectAll);
     }
 
     function modalClose() {
@@ -391,97 +474,6 @@ file.createHTML = (strategy, testResults, equityList) => {
       document.getElementById('filterColumnModal').style.display = 'none';
     }
 
-    function sortTable(n) {
-      var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-      table = document.getElementById("resultTable");
-      switching = true;
-      //Set the sorting direction to ascending:
-      dir = "asc";
-      /*Make a loop that will continue until
-      no switching has been done:*/
-      while (switching) {
-        //start by saying: no switching is done:
-        switching = false;
-        rows = table.rows;
-        /*Loop through all table rows (except the
-        first, which contains table headers):*/
-        for (i = 1; i < (rows.length - 1); i++) {
-          //start by saying there should be no switching:
-          shouldSwitch = false;
-          /*Get the two elements you want to compare,
-          one from current row and one from the next:*/
-          x = rows[i].getElementsByTagName("TD")[n];
-          y = rows[i + 1].getElementsByTagName("TD")[n];
-          /*check if the two rows should switch place,
-          based on the direction, asc or desc:*/
-          if (dir == "asc") {
-            if (isNumeric(x.innerHTML) && isNumeric(y.innerHTML)) {
-              if (parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) {
-                //if so, mark as a switch and break the loop:
-                shouldSwitch = true;
-                break;
-              }
-            } else if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-              //if so, mark as a switch and break the loop:
-              shouldSwitch = true;
-              break;
-            }
-          } else if (dir == "desc") {
-            if (isNumeric(x.innerHTML) && isNumeric(y.innerHTML)) {
-              if (parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) {
-                //if so, mark as a switch and break the loop:
-                shouldSwitch = true;
-                break;
-              }
-            } else if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-              //if so, mark as a switch and break the loop:
-              shouldSwitch = true;
-              break;
-            }
-          }
-        }
-        if (shouldSwitch) {
-          /*If a switch has been marked, make the switch
-          and mark that a switch has been done:*/
-          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-          switching = true;
-          //Each time a switch is done, increase this count by 1:
-          switchcount++;
-        } else {
-          /*If no switching has been done AND the direction is "asc",
-          set the direction to "desc" and run the while loop again.*/
-          if (switchcount == 0 && dir == "asc") {
-            dir = "desc";
-            switching = true;
-          }
-        }
-      }
-    }
-
-    function isNumeric(str) {
-      if (typeof str != "string") return false
-      return !isNaN(str) && !isNaN(parseFloat(str))
-    }
-
-    function toggleTheme() {
-      var element = document.body;
-      element.classList.toggle("dark-mode");
-      if (element.classList.contains("dark-mode")) {
-        localStorage.setItem('tiqMode', 'dark')
-        document.getElementById("darkModeBtn").style.display = "none";
-        document.getElementById("lightModeBtn").style.display = "";
-      } else {
-        localStorage.setItem('tiqMode', 'light')
-        document.getElementById("darkModeBtn").style.display = "";
-        document.getElementById("lightModeBtn").style.display = "none";
-      }
-    }
-    document.onreadystatechange = function () {
-      if (document.readyState == "complete") {
-        init();
-      }
-    }
-
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function (event) {
       if (event.target == document.getElementById('filterColumnModal')) {
@@ -489,52 +481,18 @@ file.createHTML = (strategy, testResults, equityList) => {
       }
     }
 
-    function init() {
-      var mode = localStorage.getItem('tiqMode');
-      console.log('init', mode)
-      if (mode === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.getElementById("darkModeBtn").style.display = "none";
-        document.getElementById("lightModeBtn").style.display = "";
-        console.log('init dark')
-      }
-      else {
-        document.getElementById("darkModeBtn").style.display = "";
-        document.getElementById("lightModeBtn").style.display = "none";
-        console.log('init light')
-      }
-
-      let iqIndicator = document.getElementById('tiqTitle').getAttribute('data-iqindicator');
-      let selectedRows = JSON.parse(localStorage.getItem('tiqSelectedColumns-'+iqIndicator));
-      if (selectedRows) {
-        const columns = document.querySelectorAll('#filterColumnTable .column-button');
-        const resultThColumns = document.querySelectorAll('#resultTable th');
-        const resultRows = document.querySelectorAll('#resultTable tbody tr');
-        for (let column of columns) {
-          if (!selectedRows.includes(column.parentElement.rowIndex)) {
-            column.classList.toggle('selected');
-            console.log('column.parentElement.rowIndex', column.parentElement.rowIndex);
-            for (let row of resultRows) {
-              row.cells[column.parentElement.rowIndex].style.display = "none";
-            }
-            resultThColumns[column.parentElement.rowIndex].style.display = "none";
-          }
+    document.getElementById('modalFilter').addEventListener('input', function () {
+      var filter = this.value.toLowerCase();
+      var rows = document.getElementById("filterColumnTable").querySelectorAll("tr");
+      for (var i = 0; i < rows.length; i++) {
+        var txtValue = rows[i].textContent || rows[i].innerText;
+        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+          rows[i].style.display = "";
+        } else {
+          rows[i].style.display = "none";
         }
       }
-
-      document.getElementById('modalFilter').addEventListener('input', function () {
-        var filter = this.value.toLowerCase();
-        var rows = document.getElementById("filterColumnTable").querySelectorAll("tr");
-        for (var i = 0; i < rows.length; i++) {
-          var txtValue = rows[i].textContent || rows[i].innerText;
-          if (txtValue.toLowerCase().indexOf(filter) > -1) {
-            rows[i].style.display = "";
-          } else {
-            rows[i].style.display = "none";
-          }
-        }
-      });
-    }
+    });
 
     function drawChart(values) {
       const yArray = values;
@@ -547,39 +505,28 @@ file.createHTML = (strategy, testResults, equityList) => {
         fill: "tozeroy",
         fillgradient: {
           type: 'vertical',
-          colorscale: [[0,'rgba(31,119,180,0.5)'], [1,'rgba(31,119,180,0)']],
+          colorscale: [[0, 'rgba(31,119,180,0.5)'], [1, 'rgba(31,119,180,0)']],
           start: endVal,
-          stop: startVal/2
+          stop: startVal / 2
         },
         x: xArray,
         y: yArray,
-        mode:"lines"
+        mode: "lines"
       }];
 
       // Define Layout
       const layout = {
-        xaxis: {showgrid: false},
-        yaxis: {range: [startVal, endVal], showgrid: false},
-        plot_bgcolor:"transparent",
-        paper_bgcolor:'transparent',
-        font: {color: 'grey'},
+        xaxis: { showgrid: false },
+        yaxis: { range: [startVal, endVal], showgrid: false },
+        plot_bgcolor: "transparent",
+        paper_bgcolor: 'transparent',
+        font: { color: 'grey' },
         hovermode: 'x'
       };
 
       // Display using Plotly
       Plotly.newPlot("equityChart", data, layout);
     }
-  </script>`
-  html += "</body></html>"
+  </script></body></html>`
   return html
-}
-
-function getThValue(val) {
-  if (val.length > 26) {
-    let index = val.lastIndexOf(' ', 26);
-    if (index !== -1) {
-      val = val.substring(0, index) + '<br>    ' + val.substring(index + 1);
-    }
-  }
-  return val;
 }
