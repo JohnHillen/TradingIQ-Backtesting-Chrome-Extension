@@ -387,7 +387,7 @@ tv.generateDeepTestReport = async () => {
   const generateBtnEl = await page.waitForSelector(SEL.strategyDeepTestGenerateBtn)
   if (generateBtnEl) {
     page.mouseClick(generateBtnEl)
-    await page.waitForTimeout(65)
+    await page.waitForTimeout(150)
   } else if (page.$(SEL.strategyDeepTestGenerateBtnDisabled)) {
     return 'Deep backtesting process is not started'
   } else {

@@ -14,7 +14,12 @@ const action = {
     timeout: 60000
 }
 
-const STATUS_MSG = 'Do not change the window/tab.<br>If the Tradingview page is not in the foreground, the extension will not work.'
+const STATUS_MSG = `
+Do not change the window/tab.<br>
+If the Tradingview page is not in the foreground, the extension will not work.<br>
+
+</i>
+`;
 
 function resetAction() {
     action.bestStrategyNumberCount = 0
@@ -160,6 +165,7 @@ action.testStrategy = async (request) => {
                 bestStrategyNumbers['Best Long Strategy Number'] = 0
                 bestStrategyNumbers['Best Short Strategy Number'] = 0
                 console.log('ReversalIQ on BTC 5m,15m,30m and ETH 15m, 30m there are no strategy numbers: ', bestStrategyNumbers)
+                await tv.setStrategyInputs(iqIndicator, cycle)
             } else {
                 console.log('previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
                 bestStrategyNumbers = await processCycle(iqIndicator, iqWidget, retry, cycle, tickerName)
