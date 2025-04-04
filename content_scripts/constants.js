@@ -3,7 +3,8 @@ const REVERSAL = 'Reversal IQ Backtester [Trading IQ]'
 const COUNTER_STRIKE = 'Counter Strike Backtester [Trading IQ]'
 const NOVA = 'Nova IQ Backtester [Trading IQ]'
 const RAZOR = 'Razor IQ Backtester [TradingIQ]'
-const SUPPORTED_STRATEGIES = [IMPULS, REVERSAL, COUNTER_STRIKE, NOVA, RAZOR];
+const WICK_SLICER = 'Wick Slicer IQ Backtester [TradingIQ]'
+const SUPPORTED_STRATEGIES = [IMPULS, REVERSAL, COUNTER_STRIKE, NOVA, RAZOR, WICK_SLICER];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const CURRENT_TF = 'CURRENT_TF';
 const HEADER_SINGLE = ['buy & hold return', 'max equity run-up', 'max equity drawdown', 'sharpe ratio', 'sortino ratio', 'open p&l'];
@@ -33,7 +34,8 @@ const constants = {
     'counterIq_not_trade_low_vola': 'Do Not Trade Low Volatility',
     'counterIq_not_trade_very_high_vola': 'Do Not Trade Very High Volatility',
 
-    'novaIq_min_atr_sl_tp': 'Minimum ATR Profit Target And Stop Loss',
+    'novaIq_min_atr_profit': 'Minimum ATR Profit Target',
+    'novaIq_min_atr_stop': 'Minimum ATR Stop Loss',
     'novaIq_trade_long': 'Trade Long',
     'novaIq_trade_reversions': 'Trade Nova IQ Reversions',
     'novaIq_trade_short': 'Trade Short',
@@ -43,7 +45,8 @@ const constants = {
     'reversalIq_optimize': 'Run Optimize',
     'reversalIq_ai_direction': 'AI Direction',
     'reversalIq_limit_order_at_entry': 'Place Limit Orders Immediately At Entry',
-    'reversalIq_min_atr_sl_tp': 'Minimum ATR TP/SL',
+    'reversalIq_min_atr_profit': 'Minimum ATR TP',
+    'reversalIq_min_atr_stop': 'Minimum ATR SL',
     'reversalIq_not_trade_avg_vola': 'Do Not Trade Average Volatility',
     'reversalIq_not_trade_high_vola': 'Do Not Trade High Volatility',
     'reversalIq_not_trade_low_vola': 'Do Not Trade Low Volatility',
@@ -54,6 +57,11 @@ const constants = {
     'razorIq_trade_short': 'Trade Short',
     'razorIq_limit_order_sl': 'Limit Order Stop Loss (Longs Only)',
     'razorIq_slAndTp': 'Minimum ATR TP/SL - Shorts Only (Does Not Affect Longs)',
+
+    'wickSlicerIq_aggressive_ai': 'Aggressive AI',
+    'wickSlicerIq_trade_long': 'Trade Longs',
+    'wickSlicerIq_trade_short': 'Trade Shorts',
+    'wickSlicerIq_dont_trade_opening_candle': 'Don\'t Trade Opening Candle',
 
     'sp_ordersize_type': 'Order size type', //TODO
     'sp_after_order_is_filled': 'After order is filled',

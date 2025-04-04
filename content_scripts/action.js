@@ -159,22 +159,13 @@ action.testStrategy = async (request) => {
             let testResult = null
             let strategyParams = null
 
-            //for ReversalIQ on BTC 5m, 15m, 30m and ETH 15m, 30m there are no strategy numbers
-            if (iqIndicator === REVERSAL && (tickerName.includes('BTC') && (action.cycleTf === '5m' || action.cycleTf === '15m' || action.cycleTf === '30m')) ||
-                (tickerName.includes('ETH') && (action.cycleTf === '15m' || action.cycleTf === '30m'))) {
-                bestStrategyNumbers['Best Long Strategy Number'] = 0
-                bestStrategyNumbers['Best Short Strategy Number'] = 0
-                console.log('ReversalIQ on BTC 5m,15m,30m and ETH 15m, 30m there are no strategy numbers: ', bestStrategyNumbers)
-                await tv.setStrategyInputs(iqIndicator, cycle)
-            } else {
-                console.log('previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
-                bestStrategyNumbers = await processCycle(iqIndicator, iqWidget, retry, cycle, tickerName)
-                if (Object.keys(bestStrategyNumbers).length === 0) {
-                    let failedCycle = { tf: action.cycleTf, bestStrategyNumbers: bestStrategyNumbers, testResult: testResult, strategyParams: strategyParams, symbolExchange: symbolExchange === 'NA' ? symbol : symbolExchange }
-                    console.log('=======> No test result or strategy params found:', failedCycle)
-                    failedTests.push(failedCycle)
-                    continue
-                }
+            console.log('previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
+            bestStrategyNumbers = await processCycle(iqIndicator, iqWidget, retry, cycle, tickerName)
+            if (Object.keys(bestStrategyNumbers).length === 0) {
+                let failedCycle = { tf: action.cycleTf, bestStrategyNumbers: bestStrategyNumbers, testResult: testResult, strategyParams: strategyParams, symbolExchange: symbolExchange === 'NA' ? symbol : symbolExchange }
+                console.log('=======> No test result or strategy params found:', failedCycle)
+                failedTests.push(failedCycle)
+                continue
             }
             if (Object.keys(bestStrategyNumbers).length > 0) {
                 action.previousBestStrategyNumbers.push(bestStrategyNumbers)
@@ -431,13 +422,12 @@ async function enableStrategy(strategyName) {
         }
         maxTime = Date.now() + 30000
         let found = false
-        let isCounterStrike = COUNTER_STRIKE.includes(strategyName)
         while (true) {
             await page.waitForTimeout(500)
             indicatorList = document.querySelectorAll(SEL.indicatorsDialogContentList)
             if (indicatorList) {
                 for (let item of indicatorList) {
-                    if (item.innerText.includes(isCounterStrike ? 'Counter Strike IQ Back' : strategyName)) {
+                    if (item.innerText.includes(strategyName)) {
                         item.focus()
                         page.mouseClick(item)
                         found = true
