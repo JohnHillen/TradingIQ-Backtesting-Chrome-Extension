@@ -269,7 +269,7 @@ async function processCycle(strategyName, iqWidget, retryCount, cycle) {
         action.indicatorError = null
 
         console.log(i + '. try to get best strategy numbers for tf: ', cycleTf)
-        bestStrategyNumbers = await detectBestStrategyNumbers(strategyName, iqWidget, cycle)
+        bestStrategyNumbers = await detectIqParameter(strategyName, iqWidget, cycle)
         console.log(i + '. detected best strategy numbers: ', bestStrategyNumbers)
         if (Object.keys(bestStrategyNumbers).length === 0) {
             //we will switch back and forth between previous and current timeframe. Sometimes it helps to get the values
@@ -464,15 +464,15 @@ async function enableStrategy(strategyName) {
     return iqWidgetEl
 }
 
-async function detectBestStrategyNumbers(name, iqWidget, cycle) {
-    console.log('DetectBestStrategyNumbers:', name)
-    console.log('DetectBestStrategyNumbers: previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
+async function detectIqParameter(name, iqWidget, cycle) {
+    console.log('DetectIqParameter:', name)
+    console.log('DetectIqParameter: previousBestStrategyNumbers:', action.previousBestStrategyNumbers)
     await util.openDataWindow()
     await util.openStrategyTab()
 
     let iqValues = []
 
-    console.log('DetectBestStrategyNumbers: Set indicator parameter:', cycle)
+    console.log('DetectIqParameter: Set indicator parameter:', cycle)
     await tv.setStrategyInputs(name, cycle)
     if (action.isDeepTest) {
         await page.waitForTimeout(250)
@@ -481,10 +481,11 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
 
     let props = []
     let isNova = name === NOVA
+    let isCS = name === COUNTER_STRIKE
     let maxTime = Date.now() + action.timeout
     let propSanityCounter = 0
     while (Date.now() < maxTime) {
-        console.log('DetectBestStrategyNumbers: waiting for ' + name + ' values')
+        console.log('DetectIqParameter: waiting for ' + name + ' values')
 
         if (action.workerStatus === null) {
             break
@@ -498,7 +499,7 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
         isProcessError = isProcessError || document.querySelector(SEL.strategyReportError) || action.indicatorError
 
         if (isProcessError) {
-            console.log('DetectBestStrategyNumbers: Process is error:', isProcessError)
+            console.log('DetectIqParameter: Process is error:', isProcessError)
             props = []
             break
         }
@@ -506,7 +507,7 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
         await util.switchToStrategySummaryTab()
         isProcessEnd = document.querySelector(SEL.strategyReportReady)
         if (!isProcessEnd) {
-            console.log('DetectBestStrategyNumbers: Waiting for strategy report to be ready')
+            console.log('DetectIqParameter: Waiting for strategy report to be ready')
             continue;
         }
 
@@ -519,12 +520,12 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
         let propsLength = Object.keys(props).length
         if (JSON.stringify(strategyNumbers) !== JSON.stringify(props)) {
             props = strategyNumbers
-            console.log('DetectBestStrategyNumbers: New strategy numbers:', props)
+            console.log('DetectIqParameter: New strategy numbers:', props)
             continue;
         }
 
         if (propSanityCounter++ <= 3) {
-            console.log('DetectBestStrategyNumbers: Waiting for strategy report to be ready propSanityCounter:', propSanityCounter)
+            console.log('DetectIqParameter: Waiting for strategy report to be ready propSanityCounter:', propSanityCounter)
             continue;
         }
 
@@ -533,9 +534,14 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
             continue
         }
         if (isProcessError || (propsLength > 0 && !containsPreviousBestStrategyNumbers(props))) {
-            console.log('DetectBestStrategyNumbers: Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
-            console.log('DetectBestStrategyNumbers: Previous best strategy numbers:', action.previousBestStrategyNumbers)
-            console.log('DetectBestStrategyNumbers: New best strategy numbers:', props)
+            console.log('DetectIqParameter: Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
+            console.log('DetectIqParameter: Previous best strategy numbers:', action.previousBestStrategyNumbers)
+            console.log('DetectIqParameter: New best strategy numbers:', props)
+            if (isCS) {
+                let csProps = getCSStopStypes(iqValues);
+                console.log('DetectIqParameter: CS Stop Types:', csProps)
+                Object.assign(props, csProps)
+            }
             break
         }
 
@@ -549,17 +555,22 @@ async function detectBestStrategyNumbers(name, iqWidget, cycle) {
     }
 
     if (Object.keys(props).length === 0) {
-        console.log('DetectBestStrategyNumbers: No values found for ' + name + ' in the Data Window.')
+        console.log('DetectIqParameter: No values found for ' + name + ' in the Data Window.')
         return props
     }
 
-    console.log('DetectBestStrategyNumbers: Set best strategy numbers:', props)
+    console.log('DetectIqParameter: Set best strategy numbers:', props)
     await tv.setStrategyInputs(name, props)
+
+    if (isCS) {
+        delete props['Stop Type Long'];
+        delete props['Stop Type Short'];
+    }
 
     if (action.isDeepTest) {
         await page.waitForTimeout(1000)
         let resultMsg = await tv.generateDeepTestReport()
-        console.log('DetectBestStrategyNumbers: Deep Test Result::', resultMsg)
+        console.log('DetectIqParameter: Deep Test Result::', resultMsg)
     }
 
     return props
@@ -580,6 +591,30 @@ function getStrategyNumbers(iqValues, isNova) {
                 let bestShort = parseInt(values[1].replace(/,/g, ''), 10);
                 let propName = !isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Short Strategy Reversion Number' : 'Best Short Strategy Trend Number');
                 props[propName] = isNaN(bestShort) ? 0 : bestShort;
+            }
+        } else {
+            console.warn('Unexpected iqValue format:', value.innerText);
+        }
+    }
+    return props;
+}
+
+function getCSStopStypes(iqValues) {
+    console.log('getStrategyNumbers iqValues:', Array.from(iqValues).map(el => el.outerHTML));
+    let props = {};
+    for (let value of iqValues) {
+        let values = value.innerText.split('\n');
+        console.log('getStrategyNumbers values:', values)
+        if (values.length >= 2) {
+            // 1 == Trailing Stop, -1 == Fixed Stop
+            if (values[0].includes('Stop Type Long')) {
+                let longType = parseFloat(values[1].replace(/,/g, '').replace('−', '-'), 10);
+                let propName = 'Stop Type Long';
+                props[propName] = isNaN(longType) ? 0 : longType === 1 ? 'Trailing Stop' : 'Fixed Stop';
+            } else if (values[0].includes('Stop Type Short')) {
+                let shortType = parseFloat(values[1].replace(/,/g, '').replace('−', '-'), 10);
+                let propName = 'Stop Type Short';
+                props[propName] = isNaN(shortType) ? 0 : shortType === 1 ? 'Trailing Stop' : 'Fixed Stop';
             }
         } else {
             console.warn('Unexpected iqValue format:', value.innerText);
