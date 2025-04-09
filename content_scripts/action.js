@@ -11,7 +11,8 @@ const action = {
     cycleTf: null,
     indicatorLegendStatus: null,
     indicatorError: null,
-    timeout: 60000
+    timeout: 60000,
+    fileName: null
 }
 
 const STATUS_MSG = `
@@ -27,31 +28,49 @@ function resetAction() {
     action.currentBestStrategyNumbers = []
     action.testResultNumberCount = 0
     action.strategyParamsNumberCount = 0
+    action.htmlEquityChartOnOff = false
     action.isDeepTest = false
     action.deepFrom = null
     action.deepTo = null
     action.cycleTf = null
     action.indicatorLegendStatus = null
     action.indicatorError = null
-    action.timeout = 60000
+    action.timeout = 60000,
+        action.fileName = null
 }
 
 action.testStrategy = async (request) => {
     console.log('action.testStrategy: ', request)
     resetAction()
     tv.reset()
+    let header = []
+    let testReport = []
+    let equityList = []
+    let failedTests = []
+    let iqIndicator = ''
+    let rfHtml = false
+    let rfCsv = false
+    let symbol = null
+    let cyclesLength = 0
+    let currentCycle = 0
 
     try {
         action.timeout = request.options.timeout * 1000 //convert to ms
         let retry = request.options.retry
         let cycles = request.options.cycles
+        cyclesLength = cycles.length
         let strategyProperties = request.options.strategyProperties
-        let iqIndicator = request.options.iqIndicator
-        let rfHtml = request.options.reportFormat.html
-        let rfCsv = request.options.reportFormat.csv
+        iqIndicator = request.options.iqIndicator
+        rfHtml = request.options.reportResultOptions.html
+        rfCsv = request.options.reportResultOptions.csv
+        htmlEquityChartOnOff = request.options.reportResultOptions.htmlEquityChartOnOff
         action.isDeepTest = request.options.deeptest
         action.deepFrom = request.options.deepfrom
         action.deepTo = request.options.deepto
+        action.fileName = request.options.fileName
+        if (!action.fileName || action.fileName === '') {
+            action.fileName = iqIndicator.trim()
+        }
 
         ui.statusMessage(STATUS_MSG)
 
@@ -77,14 +96,6 @@ action.testStrategy = async (request) => {
         console.log('iqIndicator:', (!iqIndicator ? 'null' : iqIndicator), 'iqWidget:', iqWidget)
         await page.waitForTimeout(1000)
 
-        let testReport = []
-        let equityList = []
-        let header = []
-        let symbol = null
-        let error = null
-        let failedTests = []
-        let cyclesLength = cycles.length
-        let currentCycle = 0
         for (const cycle of cycles) {
             if (!action.workerStatus) {
                 console.log('Stopped by User')
@@ -181,17 +192,19 @@ action.testStrategy = async (request) => {
                     console.log('Stopped by User')
                     break
                 }
+                try {
+                    testResult = await tv.getPerformance(testResults)
+                    if (testResult.error && testResult.error.msg) {
+                        console.log('Error getting performance:', testResult.error.msg)
+                    }
 
-                testResult = await tv.getPerformance(testResults)
-                if (testResult.error && testResult.error.msg) {
-                    error = testResult.error.msg
-                    break
-                }
+                    strategyParams = await tv.getStrategyPropertyData(iqIndicator)
 
-                strategyParams = await tv.getStrategyPropertyData(iqIndicator)
-
-                if (testResult.data !== null || strategyParams !== null) {
-                    break
+                    if (testResult.data && strategyParams) {
+                        break
+                    }
+                } catch (err) {
+                    console.error('Error getting performance:', err)
                 }
             }
 
@@ -212,9 +225,8 @@ action.testStrategy = async (request) => {
                     equityList.push([100])
                 }
 
-                if (testReport.length === 0 && testResult.data && strategyParams) {
+                if (header.length === 0 && testResult.data && strategyParams) {
                     header = createReportHeader(bestStrategyNumbers, testResult, strategyParams)
-                    testReport.push(header)
                 }
 
                 testReport.push(createReport(action.cycleTf, bestStrategyNumbers, testResult, strategyParams, symbolExchange === 'NA' ? symbol : symbolExchange))
@@ -227,22 +239,25 @@ action.testStrategy = async (request) => {
         }
 
         ui.statusMessageRemove()
+    } catch (err) {
+        console.error(err)
+        await ui.showPopup(`${err}`)
+    }
+    finally {
         if (!testReport || testReport.length === 0) {
+            console.log('No test report found: ', testReport)
             return
         }
         if (rfHtml) {
             console.log('create HTML report')
-            const data = file.createHTML(iqIndicator, testReport, equityList)
-            file.saveAs(data, `${iqIndicator}.html`)
+            const data = file.createHTML(iqIndicator, header, testReport, equityList)
+            file.saveAs(data, `${action.fileName}.html`)
         }
         if (rfCsv) {
             console.log('create CSV report')
-            const data = file.createCSV(iqIndicator, testReport)
-            file.saveAs(data, `${iqIndicator}.csv`)
+            const data = file.createCSV(iqIndicator, header, testReport)
+            file.saveAs(data, `${action.fileName}.csv`)
         }
-    } catch (err) {
-        console.error(err)
-        await ui.showPopup(`${err}`)
     }
 }
 
@@ -529,11 +544,7 @@ async function detectIqParameter(name, iqWidget, cycle) {
             continue;
         }
 
-        // In case the Indicator settings changes, the best strategy numbers in the data window section are not reset.
-        if (!isProcessError && containsPreviousBestStrategyNumbers(props)) {
-            continue
-        }
-        if (isProcessError || (propsLength > 0 && !containsPreviousBestStrategyNumbers(props))) {
+        if (isProcessError || propsLength > 0) {
             console.log('DetectIqParameter: Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
             console.log('DetectIqParameter: Previous best strategy numbers:', action.previousBestStrategyNumbers)
             console.log('DetectIqParameter: New best strategy numbers:', props)

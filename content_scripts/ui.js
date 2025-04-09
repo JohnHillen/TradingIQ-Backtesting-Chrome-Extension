@@ -22,6 +22,33 @@ top:0px;
 left:0px;
 z-index:10000;`
 
+ui.makeMovable = (element) => {
+  let isMouseDown = false;
+  let offsetX, offsetY;
+
+  element.addEventListener('mousedown', (e) => {
+    isMouseDown = true;
+    offsetX = e.clientX - element.offsetLeft;
+    offsetY = e.clientY - element.offsetTop;
+    element.style.position = 'absolute';
+    element.style.cursor = 'move';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (isMouseDown) {
+      element.style.left = `${e.clientX - offsetX}px`;
+      element.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    element.style.cursor = 'default';
+  });
+};
+
+// Example usage: Call ui.makeMovable on the popup element after it's created
+
 ui.alertPopup = async (msgText) => {
   return new Promise(resolve => {
     function removeAlertPopup() {
@@ -116,6 +143,7 @@ ui.statusMessage = (msgText, processInfo = '', extraHeader = null) => {
     //msgStyleEl.innerHTML = ui.styleValStausMessage
     msgEl = mObj.appendChild(document.createElement('div'))
     msgEl.id = 'tiqStatusMsg'
+    ui.makeMovable(mObj)
   } else {
     msgEl = document.getElementById('tiqStatusMsg')
   }

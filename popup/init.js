@@ -53,9 +53,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+
+  document.getElementById('customFileName').addEventListener('input', function () {
+    const illegalChars = /[\/\\?*:|<>]/g;
+    if (illegalChars.test(this.value)) {
+      this.value = this.value.replace(illegalChars, '');
+      showHint(this.parentNode, 'customFileName', 'The following characters are not allowed: / \\ ? * : | < >');
+    }
+
+    initFileName();
+  });
+
   let dateTo = document.getElementById('iq_deep_to');
   dateTo.max = new Date().toISOString().split('T')[0];
 });
+
+function showHint(parentNode, elementId, text, autoHide = true) {
+  console.log('showHint')
+  const hint = document.createElement('div');
+  hint.id = elementId + '_hint';
+  hint.className = 'hint';
+  hint.style.color = 'red';
+  hint.innerText = text;
+  parentNode.appendChild(hint);
+
+  if (autoHide) {
+    setTimeout(() => {
+      hint.remove();
+    }, 6000);
+  }
+}
 
 function checkIsTVChart() {
   console.log('checkIsTVChart')
@@ -75,6 +102,7 @@ function checkIsTVChart() {
         document.getElementById("settingBtn").addEventListener('click', function () { showSettings() })
         document.getElementById('iqIndicator').addEventListener("change", event => {
           currentIqId = customSelect.indicatorChange(event.target)
+          initFileName()
         });
         document.getElementById('iq_enable_exchanges').addEventListener('click', function () {
           document.getElementById('exchanges').disabled = !document.getElementById('iq_enable_exchanges').checked
@@ -322,7 +350,10 @@ function getIqParameter() {
     if (!element.id.includes(currentIqId)) {
       continue
     }
-    else if (element.tagName.toLowerCase() === 'input' && element.type === 'checkbox') {
+    if (ignoreParameter(element.id)) {
+      continue
+    }
+    if (element.tagName.toLowerCase() === 'input' && element.type === 'checkbox') {
       iqParrameter[element.id] = { value: element.checked, error: null };
     }
     else if (element.tagName.toLowerCase() === 'input' && element.value.length > 0) {
@@ -335,6 +366,16 @@ function getIqParameter() {
     }
   }
   return iqParrameter
+}
+
+function ignoreParameter(elementId) {
+  switch (elementId) {
+    case 'counterIq_ema_length':
+      return document.getElementById('counterIq_use_ema_filter').value === '1'; // 1 is False
+    case 'impulsIq_rr':
+      return document.getElementById('impulsIq_rr_on_off').value === '1'; // 1 is False
+  }
+  return false;
 }
 
 function loadSettings() {
@@ -376,6 +417,7 @@ function loadSettings() {
       disable('iq_deep_to')
     }
 
+    initFileName();
     calcNumberOfBacktests()
     customSelect.init()
 
@@ -452,6 +494,7 @@ function getTestOptions() {
   options.strategyProperties = getStrategyProperties()
   options.deeptest = document.getElementById('iq_deep_enabled').checked
   options.resetAtStart = document.getElementById('iq_reset_at_start').checked
+  options.fileName = initFileName()
   if (options.deeptest) {
     options.deepfrom = document.getElementById('iq_deep_from').value
     options.deepto = document.getElementById('iq_deep_to').value
@@ -465,10 +508,49 @@ function getTestOptions() {
   if (!options.retry) {
     options.retry = 5
   }
-  let rfHtml = document.getElementById('reportFormatHtml').checked
-  let rfCsv = document.getElementById('reportFormatCsv').checked
-  options.reportFormat = { 'html': rfHtml, 'csv': rfCsv }
+  let rfHtml = document.getElementById('reportResultOptionsHtml').checked
+  let rfCsv = document.getElementById('reportResultOptionsCsv').checked
+  let htmlEquityChart = document.getElementById('htmlEquityChartOnOff').checked
+  options.reportResultOptions = { 'html': rfHtml, 'csv': rfCsv, 'htmlEquityChart': htmlEquityChart }
   return options
+}
+
+function initFileName() {
+  let fileName = document.getElementById('customFileName').value.trim()
+  let dateTime = new Date().toISOString()
+  let strategyName = SUPPORTED_STRATEGIES[document.getElementById('iqIndicator').value].split('Backtester')[0].trim().replace(/\s+/g, '-');
+  if (fileName.length === 0) {
+    dateTime = dateTime.split('.')[0].replace(/[:.]/g, '-');
+    fileName = strategyName + '_' + dateTime;
+  } else {
+    fileName = fileName.replace('{indicator}', strategyName);
+    fileName = fileName.replace('{indicator-short}', SHORT_INDIICATORS[document.getElementById('iqIndicator').value]);
+    const date = dateTime.split('T')[0];
+    fileName = fileName.replace('{date}', date);
+    const time = dateTime.split('T')[1].split('.')[0].replace(/[:.]/g, '-');
+    fileName = fileName.replace('{time}', time);
+
+    if (fileName.endsWith('.csv')) {
+      fileName = fileName.substring(0, fileName.length - 4);
+    } else if (fileName.endsWith('.html')) {
+      fileName = fileName.substring(0, fileName.length - 5);
+    }
+    const illegalChars = /[\/\\?*:|<>]/g;
+    fileName = fileName.replace(illegalChars, '');
+    fileName = fileName.replace(/\s+/g, '-'); // Replace spaces with hyphens
+
+    const platform = navigator.userAgentData.platform.toLowerCase;
+    const hintElem = document.getElementById('customFileName_hint')
+    if (fileName.length > 255 && platform && (platform.startsWith('mac') || platform.startsWith('ios') || platform.startsWith('linux'))) {
+      if (!hintElem) {
+        showHint(document.getElementById('customFileName').parentNode, 'customFileName', 'The length of the file name is greater than 255, this may not be supported by your platform.', false);
+      }
+    } else if (hintElem) {
+      hintElem.remove();
+    }
+  }
+  document.getElementById('customFileName-Preview').innerText = 'Preview: ' + fileName;
+  return fileName
 }
 
 function startTest() {
@@ -480,7 +562,14 @@ function startTest() {
     const message = { action: 'testStrategy', options: msgOptions }
     chrome.tabs.sendMessage(tabs[0].id, message, function (response) {
       if (response === undefined) {
-        alert('Please reload the page and try again.')
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'custom-alert';
+        alertDiv.innerText = 'Please reload the tradingview page and try again.';
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 5000);
       } else {
         window.close()
       }

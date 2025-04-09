@@ -429,22 +429,25 @@ tv.getPerformance = async (testResults) => {
   await page.waitForTimeout(250)
 
   if ((!isProcessError || !isProcessError.msg) && isProcessEnd) {
-    await util.switchToStrategySummaryTab()
-    await page.waitForTimeout(1000)
-    let result = await tv.parseReportTable()
-    reportData = result.data
-    baseCurrency = result.baseCurrency
-    await util.switchToStrategyTradesAnalysisTab()
-    result = await tv.parseReportTable(baseCurrency)
-    for (let key in result.data) {
-      reportData[key] = result.data[key]
+    try {
+      await util.switchToStrategySummaryTab()
+      let result = await tv.parseReportTable()
+      reportData = result.data
+      baseCurrency = result.baseCurrency
+      await util.switchToStrategyTradesAnalysisTab()
+      result = await tv.parseReportTable(baseCurrency)
+      for (let key in result.data) {
+        reportData[key] = result.data[key]
+      }
+      await util.switchToStrategyRatioTab()
+      result = await tv.parseReportTable(baseCurrency)
+      for (let key in result.data) {
+        reportData[key] = result.data[key]
+      }
+      console.log('Report data ready:', reportData)
+    } catch (e) {
+      console.error('getPerformance error:', e)
     }
-    await util.switchToStrategyRatioTab()
-    result = await tv.parseReportTable(baseCurrency)
-    for (let key in result.data) {
-      reportData[key] = result.data[key]
-    }
-    console.log('Report data ready:', reportData)
   }
 
   console.log('isProcessError', isProcessError, 'isProcessEnd', isProcessEnd, 'message', message, 'reportData', reportData)
@@ -554,8 +557,12 @@ tv.getStrategyPropertyData = async (name) => {
       }
       result['Backtesting range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
 
-      let equityData = await getEqutiyData(table, cumulativeProfitIndex, maxTradeId)
-      result['EquityList'] = equityData
+      if (action.htmlEquityChartOnOff) {
+        let equityData = await getEqutiyData(table, cumulativeProfitIndex, maxTradeId)
+        result['EquityList'] = equityData
+      } else {
+        result['EquityList'] = null
+      }
     }
 
     console.log('getStrategyPropertyDataNew get strategy symbol info')
@@ -614,7 +621,6 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
         return equityData
       }
       profit = profit.replace(/−/, '-')
-      console.log('getEqutiyData tradeId:', id, 'profit:', profit)
       currentEquity += parseFloat(profit)
       currentEquity = parseFloat(currentEquity.toFixed(2))
       equityData.push(currentEquity)

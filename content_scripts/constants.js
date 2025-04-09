@@ -5,6 +5,7 @@ const NOVA = 'Nova IQ Backtester [Trading IQ]'
 const RAZOR = 'Razor IQ Backtester [TradingIQ]'
 const WICK_SLICER = 'Wick Slicer IQ Backtester [TradingIQ]'
 const SUPPORTED_STRATEGIES = [IMPULS, REVERSAL, COUNTER_STRIKE, NOVA, RAZOR, WICK_SLICER];
+const SHORT_INDIICATORS = ['IP', 'RV', 'CS', 'NV', 'RZ', 'WI'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const CURRENT_TF = 'CURRENT_TF';
 const HEADER_SINGLE = ['buy & hold return', 'max equity run-up', 'max equity drawdown', 'sharpe ratio', 'sortino ratio', 'open p&l'];

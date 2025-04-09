@@ -52,11 +52,14 @@ tvChart.changeTimeFrame = async (setTF) => {
   const timeFrameMenuEl = await page.waitForSelector(SEL.chartTimeframeMenuOrSingle)
   if (!timeFrameMenuEl)
     throw new Error('There is no timeframe selection menu element on the page')
+
+  await page.waitForTimeout(200)
   page.mouseClick(timeFrameMenuEl)
   const menuTFItem = await page.waitForSelector(SEL.chartTimeframeMenuItem, 1500)
   if (!menuTFItem)
     throw new Error('There is no item in timeframe menu on the page')
 
+  await page.waitForTimeout(200)
   let foundTF = await tvChart.selectTimeFrameMenuItem(strategyTF)
   if (foundTF) {
     curTimeFrameText = await tvChart.getCurrentTimeFrame()

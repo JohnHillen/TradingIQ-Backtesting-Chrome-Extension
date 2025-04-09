@@ -9,17 +9,21 @@ file.saveAs = (text, filename) => {
     aData.parentNode.removeChild(aData);
 }
 
-file.createCSV = (strategy, testResults) => {
+file.createCSV = (strategy, header, testResults) => {
   let csv = ""
+  csv += 'IQ Indicator;'
+  csv += header.map(val => JSON.stringify(val)).join(';').replaceAll('"', '')
+  csv += "\n"
+
   for (i = 0; i < testResults.length; i++) {
-    csv += i === 0 ? ("IQ Indicator;") : (strategy + ";")
+    csv += `${strategy};`
     csv += testResults[i].map(val => JSON.stringify(val)).join(';').replaceAll('"', '')
     csv += "\n"
   }
   return csv
 }
 
-file.createHTML = (strategy, testResults, equityList) => {
+file.createHTML = (strategy, header, testResults, equityList) => {
   let html = `<!DOCTYPE html>
 <html>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
@@ -155,66 +159,139 @@ file.createHTML = (strategy, testResults, equityList) => {
     .dark-mode ::-webkit-scrollbar-thumb:hover {
       background: #00ffffe0;
     }
+
+    /* Toggle Switch Button*/
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 30px;
+      height: 17px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 13px;
+      width: 13px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      -webkit-transform: translateX(13px);
+      -ms-transform: translateX(13px);
+      transform: translateX(13px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
 </style>
 </head>
 <body class="w3-small">
   <div class="w3-container w3-padding">
-    <div class="w3-cell w3-container">
-      <h5>${strategy}</h5>
-    </div>
-    <div id="darkModeBtn" class="w3-cell w3-container" onclick="toggleTheme()" style="display:none">
-      <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 4px 0 0 0">
-        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="24" height="24" />
-          <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M8.23129 2.24048C9.24338 1.78695 10.1202 2.81145 9.80357 3.70098C8.72924 6.71928 9.38932 10.1474 11.6193 12.3765C13.8606 14.617 17.3114 15.2755 20.3395 14.1819C21.2206 13.8637 22.2173 14.7319 21.7817 15.7199C21.7688 15.7491 21.7558 15.7782 21.7427 15.8074C20.9674 17.5266 19.7272 19.1434 18.1227 20.2274C16.4125 21.3828 14.3957 22.0001 12.3316 22.0001H12.3306C9.93035 21.9975 7.6057 21.1603 5.75517 19.6321C3.90463 18.1039 2.64345 15.9797 2.18793 13.6237C1.73241 11.2677 2.11094 8.82672 3.2586 6.71917C4.34658 4.72121 6.17608 3.16858 8.20153 2.25386L8.23129 2.24048Z"
-            fill="#323232" />
-        </svg>
-      </button>
-    </div>
-    <div id="lightModeBtn" class="w3-cell w3-container" onclick="toggleTheme()" style="display:none">
-      <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 4px 0 0 0;background-color: #00ffff;">
-        <svg width="24px" height="24px" viewBox="0 0 35 35" fill="#000000" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.5,25.88a8.38,8.38,0,1,1,8.38-8.38A8.389,8.389,0,0,1,17.5,25.88Zm0-14.26a5.88,5.88,0,1,0,5.88,5.88A5.887,5.887,0,0,0,17.5,11.62Z" />
-          <path d="M17.5,5.471h-.034A1.251,1.251,0,0,1,16.25,4.187l.075-2.721A1.267,1.267,0,0,1,17.609.25a1.251,1.251,0,0,1,1.215,1.284l-.075,2.721A1.249,1.249,0,0,1,17.5,5.471Z" />
-          <path d="M26.893,9.364a1.25,1.25,0,0,1-.859-2.158l1.978-1.871A1.25,1.25,0,0,1,29.73,7.151L27.752,9.022A1.242,1.242,0,0,1,26.893,9.364Z" />
-          <path d="M33.5,18.837h-.036l-2.722-.077a1.249,1.249,0,0,1-1.213-1.284,1.211,1.211,0,0,1,1.285-1.214l2.721.077a1.25,1.25,0,0,1-.035,2.5Z" />
-          <path d="M28.748,30.13a1.248,1.248,0,0,1-.909-.392L25.97,27.759a1.25,1.25,0,1,1,1.817-1.717l1.869,1.98a1.249,1.249,0,0,1-.908,2.108Z" />
-          <path d="M17.4,34.75h-.037a1.249,1.249,0,0,1-1.213-1.285l.079-2.721a1.25,1.25,0,0,1,2.5.072l-.079,2.721A1.249,1.249,0,0,1,17.4,34.75Z" />
-          <path d="M6.112,29.989a1.249,1.249,0,0,1-.857-2.159l1.98-1.867A1.25,1.25,0,1,1,8.95,27.781L6.969,29.648A1.242,1.242,0,0,1,6.112,29.989Z" />
-          <path d="M4.221,18.72H4.184l-2.721-.081A1.25,1.25,0,0,1,.251,17.352,1.237,1.237,0,0,1,1.537,16.14l2.721.081a1.25,1.25,0,0,1-.037,2.5Z" />
-          <path d="M8.135,9.335a1.248,1.248,0,0,1-.91-.393L5.359,6.961a1.25,1.25,0,1,1,1.82-1.715L9.046,7.228a1.251,1.251,0,0,1-.911,2.107Z" />
-        </svg>
-      </button>
-    </div>
-    <div class="w3-cell w3-container">
+    <div id="toolbar" style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center;">
+        <h5>${strategy}</h5>
+      </div>
+      <div id="darkModeBtn" onclick="toggleTheme()">
+        <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 4px 0 0 0">
+          <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" />
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M8.23129 2.24048C9.24338 1.78695 10.1202 2.81145 9.80357 3.70098C8.72924 6.71928 9.38932 10.1474 11.6193 12.3765C13.8606 14.617 17.3114 15.2755 20.3395 14.1819C21.2206 13.8637 22.2173 14.7319 21.7817 15.7199C21.7688 15.7491 21.7558 15.7782 21.7427 15.8074C20.9674 17.5266 19.7272 19.1434 18.1227 20.2274C16.4125 21.3828 14.3957 22.0001 12.3316 22.0001H12.3306C9.93035 21.9975 7.6057 21.1603 5.75517 19.6321C3.90463 18.1039 2.64345 15.9797 2.18793 13.6237C1.73241 11.2677 2.11094 8.82672 3.2586 6.71917C4.34658 4.72121 6.17608 3.16858 8.20153 2.25386L8.23129 2.24048Z"
+              fill="#323232" />
+          </svg>
+        </button>
+      </div>
+      <div id="lightModeBtn" onclick="toggleTheme()">
+        <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 4px 0 0 0;background-color: #00ffff;">
+          <svg width="24px" height="24px" viewBox="0 0 35 35" fill="#000000" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.5,25.88a8.38,8.38,0,1,1,8.38-8.38A8.389,8.389,0,0,1,17.5,25.88Zm0-14.26a5.88,5.88,0,1,0,5.88,5.88A5.887,5.887,0,0,0,17.5,11.62Z" />
+            <path d="M17.5,5.471h-.034A1.251,1.251,0,0,1,16.25,4.187l.075-2.721A1.267,1.267,0,0,1,17.609.25a1.251,1.251,0,0,1,1.215,1.284l-.075,2.721A1.249,1.249,0,0,1,17.5,5.471Z" />
+            <path d="M26.893,9.364a1.25,1.25,0,0,1-.859-2.158l1.978-1.871A1.25,1.25,0,0,1,29.73,7.151L27.752,9.022A1.242,1.242,0,0,1,26.893,9.364Z" />
+            <path d="M33.5,18.837h-.036l-2.722-.077a1.249,1.249,0,0,1-1.213-1.284,1.211,1.211,0,0,1,1.285-1.214l2.721.077a1.25,1.25,0,0,1-.035,2.5Z" />
+            <path d="M28.748,30.13a1.248,1.248,0,0,1-.909-.392L25.97,27.759a1.25,1.25,0,1,1,1.817-1.717l1.869,1.98a1.249,1.249,0,0,1-.908,2.108Z" />
+            <path d="M17.4,34.75h-.037a1.249,1.249,0,0,1-1.213-1.285l.079-2.721a1.25,1.25,0,0,1,2.5.072l-.079,2.721A1.249,1.249,0,0,1,17.4,34.75Z" />
+            <path d="M6.112,29.989a1.249,1.249,0,0,1-.857-2.159l1.98-1.867A1.25,1.25,0,1,1,8.95,27.781L6.969,29.648A1.242,1.242,0,0,1,6.112,29.989Z" />
+            <path d="M4.221,18.72H4.184l-2.721-.081A1.25,1.25,0,0,1,.251,17.352,1.237,1.237,0,0,1,1.537,16.14l2.721.081a1.25,1.25,0,0,1-.037,2.5Z" />
+            <path d="M8.135,9.335a1.248,1.248,0,0,1-.91-.393L5.359,6.961a1.25,1.25,0,1,1,1.82-1.715L9.046,7.228a1.251,1.251,0,0,1-.911,2.107Z" />
+          </svg>
+        </button>
+      </div>
       <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 10px 0 0 8px;" onclick="openServiceModal()">
         <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
-            <path d="M0 3H16V1H0V3Z" fill="#000000"></path>
-            <path d="M2 7H14V5H2V7Z" fill="#000000"></path>
-            <path d="M4 11H12V9H4V11Z" fill="#000000"></path>
-            <path d="M10 15H6V13H10V15Z" fill="#000000"></path>
-          </g>
+          <path d="M0 3H16V1H0V3Z" fill="#000000"></path>
+          <path d="M2 7H14V5H2V7Z" fill="#000000"></path>
+          <path d="M4 11H12V9H4V11Z" fill="#000000"></path>
+          <path d="M10 15H6V13H10V15Z" fill="#000000"></path>
         </svg>
       </button>
-    </div>
-    <div class="w3-container w3-padding" style="overflow-x:auto;max-height: 40vh;height: 40vh;">
-      <div id="myGrid" class="w3-card-4 w3-round-large" style="overflow-x:auto;height: 100%;"></div>
-    </div>`
-
+      <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 0px 8px 0 0px; display: none" onclick="openMergeDialog()">
+        <svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32px" height="32px" viewBox="-4 -4 35.20 35.20"
+          xml:space="preserve" fill="#000000" stroke="#000000" stroke-width="0.06">
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.32"></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M25,4v4.101c0,2.137-0.832,4.146-2.343,5.657l-3.9,3.899c-0.477,0.477-0.858,1.023-1.146,1.612 c-0.232-0.764-0.573-1.49-1.003-2.168c0.225-0.299,0.465-0.589,0.734-0.858l3.9-3.899C22.376,11.21,23,9.703,23,8.101V4H25z M17,25.586v-3.687c0-2.137-0.832-4.146-2.343-5.657l-3.9-3.899C9.624,11.21,9,9.703,9,8.101V4H7v4.101 c0,2.137,0.832,4.146,2.343,5.657l3.9,3.899C14.376,18.79,15,20.297,15,21.899v3.687l-2.293-2.293l-1.414,1.414L16,29.414 l4.707-4.707l-1.414-1.414L17,25.586z">
+            </path>
+          </g>
+        </svg>
+      </button>`
+  html += !action.htmlEquityChartOnOff ? '' : `
+      <label class="switch" style="display: flex; align-items: center;">
+        <input id="equityChartOnOff" type="checkbox" checked>
+        <span class="slider round"></span>
+      </label>
+      <label>Show Equity Chart</label>`
 
   html += `
-  <div class="w3-container w3-padding">
-    <div class="w3-card-4">
-      <header class="w3-container">
-        <h3>Equity Chart</h3>
-      </header>
-      <div id="equityChart" style="width:100%;max-width:100%;max-height: 40vh;"></div>
     </div>
-  </div>`
+    <div class="w3-container w3-padding" style="display: flex; flex-direction: column; max-height: 90vh; height: 90vh;">
+      <div id="gridDiv" class="w3-card-4 w3-round-large" style="flex: 1; overflow-x: auto; height: 50%; margin-bottom: 10px;">
+        <div id="myGrid" style="height: 100%;"></div>
+      </div>
+      <div id="equityChartDiv" class="w3-card-4 w3-round-large" style="flex: 1; overflow-x: auto; height: 50%;display: ${action.htmlEquityChartOnOff ? 'block' : 'none'}">
+        <header class="w3-container" style="position: fixed;">
+          <h3>Equity Chart</h3>
+        </header>
+        <div id="equityChart" style="width: 100%; height: 100%;"></div>
+      </div>
+    </div>`
 
   html += `
   <div id="filterColumnModal" class="w3-modal">
@@ -233,7 +310,7 @@ file.createHTML = (strategy, testResults, equityList) => {
         <section>
           <table id="services-table" class="w3-padding" style="width: 100%;">
             <tbody>`
-  for (i = 0; i < testResults[0].length; i++) {
+  for (i = 0; i < header.length; i++) {
     html += `<tr><td class="column-button w3-round selected" onclick="modalSelectedColumn(this)">${testResults[0][i]}</td></tr>`
   }
 
@@ -326,7 +403,7 @@ file.createHTML = (strategy, testResults, equityList) => {
   const columnDefTemplate = `{ headerName: '#TITLE#', field: "col#INDEX#" #CELL_RENDERER#}`
   html += `
   const columnDefs = [`
-  html += testResults[0].map((val, index) => columnDefTemplate.replace('#INDEX#', index).replaceAll('#TITLE#', val).replaceAll('#CELL_RENDERER#', (colTypes[index] === 'bool' ? ', cellRenderer: BooleanRenderer' : ''))).join(',')
+  html += header.map((val, index) => columnDefTemplate.replace('#INDEX#', index).replaceAll('#TITLE#', val).replaceAll('#CELL_RENDERER#', (colTypes[index] === 'bool' ? ', cellRenderer: BooleanRenderer' : ''))).join(',')
   html += ']\n'
 
   html += `
@@ -346,9 +423,11 @@ file.createHTML = (strategy, testResults, equityList) => {
       rowData,
       defaultColDef,
       onCellMouseOver: (event) => {
-        if (event.data.equityIndex !== undefined && event.data.equityIndex !== currentEquityIndex) {
+        if (event.data.equityIndex !== undefined && event.data.equityIndex !== currentEquityIndex && equityList.length > event.data.equityIndex) {
           currentEquityIndex = event.data.equityIndex;
           drawChart(equityList[event.data.equityIndex]);
+        } else {
+          drawChart([100]);
         }
       }
     };
@@ -414,6 +493,15 @@ file.createHTML = (strategy, testResults, equityList) => {
         gridApi.autoSizeColumns(columnDefs.map((column) => column.field), true);
       }
     }
+
+    document.getElementById('equityChartOnOff').addEventListener('change', function () {
+      const chartContainer = document.getElementById('equityChartDiv');
+      if (this.checked) {
+        chartContainer.style.display = 'block';
+      } else {
+        chartContainer.style.display = 'none';
+      }
+    });
 
     function toggleClearButton() {
       const filterInput = document.getElementById('modalFilter');

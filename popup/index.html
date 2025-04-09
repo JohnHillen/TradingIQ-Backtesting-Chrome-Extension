@@ -997,6 +997,29 @@
                         </div>
                     </div>
                 </div>
+                <div class="w3-section">
+                    <div class="w3-container prevent-select" style="padding: 0px 0px 3px 0px;">
+                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;padding-right: 10px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-10;top:20px;width:550px;z-index: 100;">If not set a default name will be used.<br>
+                                The default name is the name of the strategy with the date and time of the backtest.<br>
+                                The following characters are not allowed: <b>/ \ : * ? " < > |</b><br>
+                                You can use the following placeholder:<br>
+                                <b>{indicator}</b> - name of the strategy eg. Counter Strike<br>
+                                <b>{indicator-short}</b> - short name of the strategy (CS, NV, RV, IP, RZ)<br>
+                                <b>{date}</b> - date of the backtest<br>
+                                <b>{time}</b> - time of the backtest<br>
+                                <b>Note: </b>Please be aware that on some systems (Mac, Linux, ...) the file name may be limited to 255 characters.<br>
+                            </span>
+                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h6 class="w3-cell w3-cell-middle" style="white-space:nowrap;">Result filename for html/csv report</h6>
+                    </div>
+                    <input data-name="iqSettings" class="w3-input" id="customFileName" type="text" placeholder="eg. {indicator-short}_SOL-30m_{date}" title="List of timeframes">
+                    <div id="customFileName-Preview" style="color:#00ffffA0"></div>
+                </div>
                 <div>
                     <button id="testStrategy" class="w3-btn w3-block w3-round w3-aqua"><b>Start</b> (Number of
                         backtests: <span id="numberOfBacktests">1</span>)</button>
@@ -1034,23 +1057,33 @@
                 </div>
                 <div class="w3-cell-row">
                     <div class="w3-cell w3-cell-middle" style="width: 35%;">
-                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Report
-                            Format</label>
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Report Format</label>
                     </div>
                     <div class="w3-cell">
                         <div class="w3-cell">
                             <label class="container">HTML
-                                <input data-name="strategySettings" id="reportFormatHtml" type="checkbox" checked="checked">
+                                <input data-name="strategySettings" id="reportResultOptionsHtml" type="checkbox" checked="checked">
                                 <span class="checkmark"></span>
                             </label>
                         </div>
 
                         <div class="w3-cell" style="padding: 0 8px;">
                             <label class="container">CSV
-                                <input data-name="strategySettings" id="reportFormatCsv" type="checkbox">
+                                <input data-name="strategySettings" id="reportResultOptionsCsv" type="checkbox">
                                 <span class="checkmark"></span>
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Html Equity Chart</label>
+                    </div>
+                    <div class="w3-cell">
+                        <label class="container">ON/OFF
+                            <input data-name="strategySettings" id="htmlEquityChartOnOff" type="checkbox" checked="checked">
+                            <span class="checkmark"></span>
+                        </label>
                     </div>
                 </div>
                 <div class="w3-cell-row">
