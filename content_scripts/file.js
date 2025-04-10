@@ -311,7 +311,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
           <table id="services-table" class="w3-padding" style="width: 100%;">
             <tbody>`
   for (i = 0; i < header.length; i++) {
-    html += `<tr><td class="column-button w3-round selected" onclick="modalSelectedColumn(this)">${testResults[0][i]}</td></tr>`
+    html += `<tr><td class="column-button w3-round selected" onclick="modalSelectedColumn(this)">${header[i]}</td></tr>`
   }
 
   html += `
@@ -380,7 +380,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
     let rowData = [];`
 
   let colTypes = []
-  for (i = 1; i < testResults.length; i++) {
+  for (i = 0; i < testResults.length; i++) {
     let rowData = testResults[i].map((val, index) => {
       if (i === 1) {
         colTypes.push(typeof val === 'boolean' ? 'bool' : 'text');
@@ -388,7 +388,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
       return `col${index}: ${JSON.stringify(val)}`;
     }).join(', ')
     html += `
-    rowData.push({ equityIndex: ${i - 1}, ${rowData} })`
+    rowData.push({ equityIndex: ${i}, ${rowData} })`
   }
 
 
@@ -494,6 +494,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
       }
     }
 
+    ${!action.htmlEquityChartOnOff ? '' : `
     document.getElementById('equityChartOnOff').addEventListener('change', function () {
       const chartContainer = document.getElementById('equityChartDiv');
       if (this.checked) {
@@ -502,6 +503,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
         chartContainer.style.display = 'none';
       }
     });
+    `}
 
     function toggleClearButton() {
       const filterInput = document.getElementById('modalFilter');

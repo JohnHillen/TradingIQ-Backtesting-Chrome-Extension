@@ -7,6 +7,7 @@ const SEL = {
     indicatorDropdown: '#header-toolbar-indicators button',
     indicatorsDialogInput: 'div[data-name="indicators-dialog"] input[data-role="search"]',
     indicatorsDialogContent: 'div[data-name="indicators-dialog"] div[data-role="dialog-content"]',
+    indicatorsDialogContentListContainer: 'div[data-name="indicators-dialog"] div[data-role="dialog-content"] div[class^="listContainer-"]',
     indicatorsDialogContentList: 'div[data-name="indicators-dialog"] div[data-role="dialog-content"] div[data-role="list-item"]',
     indicatorsDialogSideBarTabs: 'div[data-name="indicators-dialog"] div[data-role="dialog-sidebar"] div[class^="tab"]',
     indicatorsDialogCloseBtn: 'div[data-name="indicators-dialog"] button[data-name="close"]',

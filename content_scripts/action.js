@@ -63,7 +63,7 @@ action.testStrategy = async (request) => {
         iqIndicator = request.options.iqIndicator
         rfHtml = request.options.reportResultOptions.html
         rfCsv = request.options.reportResultOptions.csv
-        htmlEquityChartOnOff = request.options.reportResultOptions.htmlEquityChartOnOff
+        action.htmlEquityChartOnOff = request.options.reportResultOptions.htmlEquityChart
         action.isDeepTest = request.options.deeptest
         action.deepFrom = request.options.deepfrom
         action.deepTo = request.options.deepto
@@ -453,6 +453,15 @@ async function enableStrategy(strategyName) {
             if (action.workerStatus === null || found || Date.now() > maxTime) {
                 break
             }
+            if (indicatorList && indicatorList.length > 0) {
+                // Select the container element
+                const container = document.querySelector(SEL.indicatorsDialogContentListContainer);
+
+                // Scroll down by 300px
+                if (container) {
+                    container.scrollBy(0, 300);
+                }
+            }
         }
 
         if (!found) {
@@ -591,8 +600,17 @@ function getStrategyNumbers(iqValues, isNova) {
     console.log('getStrategyNumbers iqValues:', Array.from(iqValues).map(el => el.outerHTML));
     let props = {};
     for (let value of iqValues) {
+        if (value.innerText.endsWith('∅')) {
+            continue;
+        }
         let values = value.innerText.split('\n');
         console.log('getStrategyNumbers values:', values)
+        // For some reason the \n is not always there, so we need to check for it.
+        // What we expect is that the value ends with a number eg.: 'Best Long Strategy Number (Trend)205.000'
+        if (values.length === 1) {
+            const match = value.innerText.match(/^([^\d]*)(\d.*)$/);
+            values = match ? [match[1], match[2]] : [value.innerText];
+        }
         if (values.length >= 2) {
             if (values[0].includes('Long Strategy')) {
                 let bestLong = parseInt(values[1].replace(/,/g, ''), 10);
