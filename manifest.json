@@ -1,6 +1,6 @@
 {
   "name": "Trading IQ assistant",
-  "version": "3.0",
+  "version": "3.1",
   "description": "An assistant for backtesting Trading IQ strategies",
   "author": "John Hillen (JohnHillen)",
   "manifest_version": 3,
