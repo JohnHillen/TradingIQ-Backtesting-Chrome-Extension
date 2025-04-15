@@ -382,7 +382,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
   let colTypes = []
   for (i = 0; i < testResults.length; i++) {
     let rowData = testResults[i].map((val, index) => {
-      if (i === 1) {
+      if (i === 0) {
         colTypes.push(typeof val === 'boolean' ? 'bool' : 'text');
       }
       return `col${index}: ${JSON.stringify(val)}`;
@@ -423,7 +423,12 @@ file.createHTML = (strategy, header, testResults, equityList) => {
       rowData,
       defaultColDef,
       onCellMouseOver: (event) => {
-        if (event.data.equityIndex !== undefined && event.data.equityIndex !== currentEquityIndex && equityList.length > event.data.equityIndex) {
+        console.log('onCellMouseOver', event.data.equityIndex, 'currentEquityIndex', currentEquityIndex);
+
+        if (event.data.equityIndex === currentEquityIndex || event.data.equityIndex === undefined || event.data.equityIndex === null) {
+          return
+        }
+        if (equityList.length > event.data.equityIndex) {
           currentEquityIndex = event.data.equityIndex;
           drawChart(equityList[event.data.equityIndex]);
         } else {
@@ -469,13 +474,11 @@ file.createHTML = (strategy, header, testResults, equityList) => {
         document.body.classList.add('dark-mode');
         document.getElementById("darkModeBtn").style.display = "none";
         document.getElementById("lightModeBtn").style.display = "";
-        console.log('init dark')
         setDarkMode(true);
       }
       else {
         document.getElementById("darkModeBtn").style.display = "";
         document.getElementById("lightModeBtn").style.display = "none";
-        console.log('init light')
         setDarkMode(false);
       }
 

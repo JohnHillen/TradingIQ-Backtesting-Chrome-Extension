@@ -53,6 +53,7 @@ const constants = {
     'reversalIq_not_trade_low_vola': 'Do Not Trade Low Volatility',
     'reversalIq_not_trade_very_high_vola': 'Do Not Trade Very High Volatility',
     'reversalIq_optimize_ai_agg': 'Optimization AI Aggressiveness',
+    'reversalIq_calculated_bars': 'Calculated bars',
 
     'razorIq_trade_long': 'Trade Long',
     'razorIq_trade_short': 'Trade Short',
