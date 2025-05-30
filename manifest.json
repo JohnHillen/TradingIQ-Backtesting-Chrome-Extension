@@ -1,6 +1,6 @@
 {
   "name": "Trading IQ assistant",
-  "version": "3.2",
+  "version": "3.3",
   "description": "An assistant for backtesting Trading IQ strategies",
   "author": "John Hillen (JohnHillen)",
   "manifest_version": 3,
@@ -30,9 +30,9 @@
   "content_scripts": [
     {
       "matches": ["https://*.tradingview.com/chart/*"],
-      "js": ["content_scripts/selector.js", "content_scripts/constants.js", "content_scripts/page.js",
+      "js": ["content_scripts/global.js","content_scripts/selector.js", "content_scripts/constants.js", "content_scripts/page.js",
       "content_scripts/ui.js", "content_scripts/tv.js",
-      "content_scripts/tvChart.js", "content_scripts/file.js",
+      "content_scripts/tvChart.js", "content_scripts/file.js", "content_scripts/iqUtil.js", "content_scripts/reportUtil.js",
       "content_scripts/action.js", "content_scripts/util.js", "content_scripts/controller.js"],
       "run_at": "document_end"
     }

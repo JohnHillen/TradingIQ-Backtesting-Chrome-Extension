@@ -231,18 +231,11 @@ function calcNumberOfBacktests() {
     }
   }
 
-  let tfList = document.getElementById('tfList').value;
-  tfList = util.normalize(tfList);
-  tfList = util.parseTfList(tfList)
+  initFileName()
+  let tfList = parseTfList();
   if (tfList.error) {
-    document.getElementById('warningDiv').style.display = 'block';
-    document.getElementById('warningMsg').innerText = tfList.error;
-    document.getElementById('testStrategy').disabled = true;
     return
   }
-
-  document.getElementById('warningDiv').style.display = 'none';
-  document.getElementById('testStrategy').disabled = false;
 
   tfList = tfList.data.toString();
   let commaCount = (tfList.match(/,/g) || []).length + 1;
@@ -263,15 +256,7 @@ function calcNumberOfBacktests() {
   document.getElementById('numberOfBacktests').innerText = numberOfBacktests == 0 ? 1 : numberOfBacktests;
 }
 
-function getStrategyCycles() {
-  let exchangeEl = document.getElementById('exchanges');
-  let exchanges = ['NA'];
-  if (exchangeEl.disabled === false) {
-    exchanges = exchangeEl.value;
-    exchanges = util.normalize(exchanges);
-    exchanges = exchanges.length === 0 ? ['NA'] : exchanges.split(',');
-  }
-
+function parseTfList() {
   let tfList = document.getElementById('tfList').value;
   tfList = util.normalize(tfList);
   tfList = util.parseTfList(tfList)
@@ -280,10 +265,29 @@ function getStrategyCycles() {
     document.getElementById('warningDiv').style.display = 'block';
     document.getElementById('warningMsg').innerText = tfList.error;
     document.getElementById('testStrategy').disabled = true;
-    return
+    return tfList
   }
+
+  document.getElementById('warningDiv').style.display = 'none';
+  document.getElementById('testStrategy').disabled = false;
   if (tfList.data.length === 0) {
     tfList.data = ['CURRENT_TF']
+  }
+  return tfList
+}
+
+function getStrategyCycles() {
+  let exchangeEl = document.getElementById('exchanges');
+  let exchanges = ['NA'];
+  if (exchangeEl.disabled === false) {
+    exchanges = exchangeEl.value;
+    exchanges = util.normalizeExchange(exchanges);
+    exchanges = exchanges.length === 0 ? ['NA'] : exchanges.split(',');
+  }
+
+  let tfList = parseTfList();
+  if (tfList.error) {
+    return
   }
   let iqParameters = getIqParameter();
   let cycles = [];
@@ -311,7 +315,12 @@ function getStrategyCycles() {
             if (key === 'impulsIq_rr') {
               let rrVal = newCombination[constants['impulsIq_rr']];
               newCombination[constants['impulsIq_rr']] = { adaptive: true, value1: rrVal, value2: value };
-            } else {
+            }
+            else if (key === 'novaIq_trade_trends_reversions') {
+              newCombination[constants['novaIq_trade_trends']] = value.includes('&') ? true : value === 'Trends';
+              newCombination[constants['novaIq_trade_reversions']] = value.includes('&') ? true : value === 'Reversions';
+            }
+            else {
               newCombination[constants[key]] = parseValue(value);
             }
             tempCombinations.push(newCombination);
@@ -488,12 +497,25 @@ function getStrategyProperties() {
   return strategyProperties
 }
 
+function getPfFilter() {
+  let checked = document.getElementById('iq_enable_pf_filter').checked
+  let filter = {}
+  filter.long = !checked ? 0 : document.getElementById('iq_pf_long').valueAsNumber
+  filter.short = !checked ? 0 : document.getElementById('iq_pf_short').valueAsNumber
+  filter.operator = document.getElementById('iq_pf_operator').selectedIndex
+  filter.enabled = checked
+  return filter
+}
+
 function getTestOptions() {
   const options = {}
   options.iqIndicator = SUPPORTED_STRATEGIES[document.getElementById('iqIndicator').value]
   options.strategyProperties = getStrategyProperties()
   options.deeptest = document.getElementById('iq_deep_enabled').checked
   options.resetAtStart = document.getElementById('iq_reset_at_start').checked
+  options.isNovaTrendSelected = document.getElementById('novaIq_trade_trends_reversions').selectedIndex !== 2 // 1 = Trends, 2 = Reversions
+  options.isNovaReversionSelected = document.getElementById('novaIq_trade_trends_reversions').selectedIndex !== 1 // 1 = Trends, 2 = Reversions
+  options.pfFilter = getPfFilter()
   options.fileName = initFileName()
   if (options.deeptest) {
     options.deepfrom = document.getElementById('iq_deep_from').value
@@ -525,6 +547,15 @@ function initFileName() {
   } else {
     fileName = fileName.replace('{indicator}', strategyName);
     fileName = fileName.replace('{indicator-short}', SHORT_INDIICATORS[document.getElementById('iqIndicator').value]);
+    let tfList = parseTfList();
+    if (tfList.error) {
+      return
+    }
+    if (tfList.data.length === 1) {
+      fileName = fileName.replace('{tf}', tfList.data[0]);
+    } else {
+      fileName = fileName.replace('{tf}', `${tfList.data[0]}-${tfList.data[tfList.data.length - 1]}`);
+    }
     const date = dateTime.split('T')[0];
     fileName = fileName.replace('{date}', date);
     const time = dateTime.split('T')[1].split('.')[0].replace(/[:.]/g, '-');
@@ -547,6 +578,13 @@ function initFileName() {
       }
     } else if (hintElem) {
       hintElem.remove();
+    }
+
+    // EXCHANGES
+    if (fileName.includes('{exchanges}')) {
+      let exchangeEl = document.getElementById('exchanges');
+      let exchangeStr = util.getExchangeString(exchangeEl);
+      fileName = fileName.replace('{exchanges}', exchangeStr);
     }
   }
   document.getElementById('customFileName-Preview').innerText = 'Preview: ' + fileName;

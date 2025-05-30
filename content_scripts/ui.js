@@ -32,6 +32,7 @@ ui.makeMovable = (element) => {
     offsetY = e.clientY - element.offsetTop;
     element.style.position = 'absolute';
     element.style.cursor = 'move';
+    e.preventDefault(); // Prevent default behavior to avoid issues
   });
 
   document.addEventListener('mousemove', (e) => {
@@ -99,6 +100,7 @@ ui.autoCloseAlert = (msg, duration = 3000) => {
     altEl.parentNode.removeChild(altEl)
   }, duration)
   document.body.appendChild(altEl)
+  ui.makeMovable(altEl)
 }
 
 ui.styleValStausMessage = `
@@ -139,11 +141,8 @@ ui.statusMessage = (msgText, processInfo = '', extraHeader = null) => {
     mObj.id = 'tiqStatus'
     mObj.setAttribute('style', ui.styleValWindowShadow)
     mObj.style.height = document.documentElement.scrollHeight + 'px'
-    //const msgStyleEl = mObj.appendChild(document.createElement('style'))
-    //msgStyleEl.innerHTML = ui.styleValStausMessage
     msgEl = mObj.appendChild(document.createElement('div'))
     msgEl.id = 'tiqStatusMsg'
-    ui.makeMovable(mObj)
   } else {
     msgEl = document.getElementById('tiqStatusMsg')
   }
@@ -161,7 +160,7 @@ ui.statusMessage = (msgText, processInfo = '', extraHeader = null) => {
           <p id="tiqBoxMsg">${msgText}</p>
         </div>
         <div class="w3-padding w3-center">
-          <p id="tiqProcessInfo">${processInfo}</p>
+          <p id="tiqProcessInfo"><i>${processInfo}</i></p>
         </div>
         <div class="w3-padding">
             <button id="tiqBoxClose" class="w3-btn w3-block w3-round w3-aqua">Stop</button>
@@ -181,7 +180,7 @@ ui.statusMessage = (msgText, processInfo = '', extraHeader = null) => {
       console.log('Stop clicked')
       btnClose.textContent = 'Stopping...'
       btnClose.disabled = true
-      action.workerStatus = null
+     global.workerStatus = null
     }
   }
 }

@@ -10,17 +10,17 @@
     async function (request, sender, sendResponse) {
       console.log('onMessage', request)
       if (sender.tab || !request.hasOwnProperty('action') || !request.action) {
-        console.log('Not for action message received:', request)
+        console.log('Not for global.message received:', request)
         return sendResponse({ received: true })
       }
-      if (action.workerStatus !== null) {
-        const msg = `Test already started.<br>Please waiting for end previous work. Status: ${action.workerStatus}`
+      if (global.workerStatus !== null) {
+        const msg = `Test already started.<br>Please waiting for end previous work. Status: ${global.workerStatus}`
         console.log(msg)
         ui.autoCloseAlert(msg)
         return sendResponse({ received: true })
       }
 
-      action.workerStatus = request.action
+     global.workerStatus = request.action
       console.log('handle: ', request)
       sendResponse({ received: true })
       try {
@@ -36,7 +36,7 @@
         console.error(err)
         await ui.showPopup(`An error has occurred.\n\nReload the page and try again:\n${err.message}`)
       }
-      action.workerStatus = null
+     global.workerStatus = null
       ui.statusMessageRemove()
     }
   );

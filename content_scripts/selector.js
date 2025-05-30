@@ -30,7 +30,8 @@ const SEL = {
     symbolSearchAllBtn: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] #symbol-search-tabs button[tabIndex="0"]',
     symbolSearchInput: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] input[data-role="search"][class^="search-"]',
     symbolSearchList: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] div[class^="listContainer-"]',
-    symbolSearchFirstItem: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] div[class^="listContainer-"] div[class^="itemRow"]:nth-child(1)',
+    symbolSearchFirstItem: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] div[class^="listContainer-"] div[class^="itemRow"] div[class^="itemInfoCell-"]',
+    symbolSearchFirstItemExchange: '#overlap-manager-root div[data-name="symbol-search-items-dialog"] div[class^="listContainer-"] div[class^="itemRow"] div[class^="exchangeCell-"]',
 
     backtestingWarningContainer: '#bottom-area div[class^="backtesting"] div[class^="backtestingWarningContainer"]',
     backtestingWarningContainerInformerBody: '#bottom-area div[class^="backtesting"] div[class^="backtestingWarningContainer"] div[class^="informerBody"]',

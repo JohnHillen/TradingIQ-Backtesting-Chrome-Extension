@@ -9,27 +9,27 @@ file.saveAs = (text, filename) => {
     aData.parentNode.removeChild(aData);
 }
 
-file.createCSV = (strategy, header, testResults) => {
+file.createCSV = (header, testResults) => {
   let csv = ""
   csv += 'IQ Indicator;'
   csv += header.map(val => JSON.stringify(val)).join(';').replaceAll('"', '')
   csv += "\n"
 
   for (i = 0; i < testResults.length; i++) {
-    csv += `${strategy};`
+    csv += `${global.iqIndicator};`
     csv += testResults[i].map(val => JSON.stringify(val)).join(';').replaceAll('"', '')
     csv += "\n"
   }
   return csv
 }
 
-file.createHTML = (strategy, header, testResults, equityList) => {
+file.createHTML = (header, testResults, equityList) => {
   let html = `<!DOCTYPE html>
 <html>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <head>
-<title id="tiqTitle" data-iqindicator="${strategy}">${strategy}</title>
+<title id="tiqTitle" data-iqindicator="${global.iqIndicator}">${global.iqIndicator}</title>
 <!-- Includes all JS & CSS for the JavaScript Data Grid -->
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <style>
@@ -226,7 +226,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
   <div class="w3-container w3-padding">
     <div id="toolbar" style="display: flex; align-items: center; gap: 10px;">
       <div style="display: flex; align-items: center;">
-        <h5>${strategy}</h5>
+        <h5>${global.iqIndicator}</h5>
       </div>
       <div id="darkModeBtn" onclick="toggleTheme()">
         <button class="w3-button w3-circle w3-card" style="width:36px;height:36px;padding: 4px 0 0 0">
@@ -272,7 +272,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
           </g>
         </svg>
       </button>`
-  html += !action.htmlEquityChartOnOff ? '' : `
+  html += !global.htmlEquityChartOnOff ? '' : `
       <label class="switch" style="display: flex; align-items: center;">
         <input id="equityChartOnOff" type="checkbox" checked>
         <span class="slider round"></span>
@@ -285,7 +285,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
       <div id="gridDiv" class="w3-card-4 w3-round-large" style="flex: 1; overflow-x: auto; height: 50%; margin-bottom: 10px;">
         <div id="myGrid" style="height: 100%;"></div>
       </div>
-      <div id="equityChartDiv" class="w3-card-4 w3-round-large" style="flex: 1; overflow-x: auto; height: 50%;display: ${action.htmlEquityChartOnOff ? 'block' : 'none'}">
+      <div id="equityChartDiv" class="w3-card-4 w3-round-large" style="flex: 1; overflow-x: auto; height: 50%;display: ${global.htmlEquityChartOnOff ? 'block' : 'none'}">
         <header class="w3-container" style="position: fixed;">
           <h3>Equity Chart</h3>
         </header>
@@ -417,8 +417,15 @@ file.createHTML = (strategy, header, testResults, equityList) => {
 
     let currentEquityIndex = -1;
 
+    const rowSelectionDef = {
+        mode: 'singleRow',
+        checkboxes: false,
+        enableClickSelection: true,
+    }
+
     const gridOptions = {
       theme: myTheme,
+      rowSelection: rowSelectionDef,
       columnDefs,
       rowData,
       defaultColDef,
@@ -497,7 +504,7 @@ file.createHTML = (strategy, header, testResults, equityList) => {
       }
     }
 
-    ${!action.htmlEquityChartOnOff ? '' : `
+    ${!global.htmlEquityChartOnOff ? '' : `
     document.getElementById('equityChartOnOff').addEventListener('change', function () {
       const chartContainer = document.getElementById('equityChartDiv');
       if (this.checked) {

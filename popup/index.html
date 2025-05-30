@@ -730,23 +730,19 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w3-cell-row w3-section">
+                    <div class="w3-cell-row">
                         <div class="w3-cell w3-cell-middle" style="width: 35%;">
-                            <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Trade nova IQ</label>
+                            <label class="w3-small">Trade Trend/Rerversions</label>
                         </div>
                         <div class="w3-cell">
-                            <div class="w3-cell" style="width: 100px;">
-                                <label class="container">Reversions
-                                    <input data-name="iqSettings" id="novaIq_trade_reversions" type="checkbox" checked="checked">
-                                    <span class="checkmark"></span>
-                                </label>
-                            </div>
-
-                            <div class="w3-cell" style="padding: 0 8px;">
-                                <label class="container">Trends
-                                    <input data-name="iqSettings" id="novaIq_trade_trends" type="checkbox" checked="checked">
-                                    <span class="checkmark"></span>
-                                </label>
+                            <div class="custom-select" style="color:#00ffff;">
+                                <select data-name="iqSettings" id="novaIq_trade_trends_reversions" style="margin-top: 3px;">
+                                    <option value="0">Trends & Reversions</option>
+                                    <option value="1">Trends</option>
+                                    <option value="2">Reversions</option>
+                                    <option value="3">Trends, Reversions</option>
+                                    <option value="4">Trends, Reversions, Trends & Reversions</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -953,11 +949,12 @@
                             </label>
                         </div>
                         <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;padding-left: 10px;">
-                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4 tooltip">Comma seperated
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4 tooltip" style="position:absolute;left:0;top:20px;width:300px;z-index: 100;">Comma seperated
                                 Symbol and Exchange.
                                 If the not specified, the extension will use the default symbol and exchange from TradingView.<br>
                                 e.g.<br>
                                 BITGET:BTCUSD,BINANCE:BTCUSD,BINANCE:SOLUSD...<br><br>
+                                Multiple symbols for the same exchange can be combine like: BITGET:BTCUSD,ETHUSD.<br>
                                 There is verification for the correct format of the symbol and exchange. If the format is incorrect, the backtest may not start.<br>
                                 And the extension will always select the first exchange in the list.<br>
                             </span>
@@ -966,9 +963,62 @@
                                 </path>
                             </svg>
                         </div>
-                        <!--h6 class="w3-cell w3-cell-middle" style="white-space:nowrap;">Exchanges</h6-->
                     </div>
                     <input data-name="iqSettings" class="w3-input" id="exchanges" type="text" placeholder="BINANCE:BTCUSD,BITGET:BTCUSD,..." title="List of Exchanges">
+                </div>
+                <div class="w3-section w3-cell-row">
+                    <div class="w3-cell" style="width: 155px;">
+                        <label class="container" style="width: 155px;">IQ Profit Factor Filter
+                            <input data-name="iqSettings" id="iq_enable_pf_filter" type="checkbox">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                        <span class="w3-text w3-aqua w3-padding w3-round w3-card-4 tooltip" style="width: 300px;">If enabled a backtest cycle will be skipped if the IQ profit factor is below the
+                            specified value.<br>
+                            This will be speed up the backtest.<br>
+                            Note that the IQ profit factor is not the same as the profit factor of the strategy, because the IQ profit factor does not take into account the slippage and
+                            commission.<br>
+                            If a IQ profit factor is not specified it will not have any effect on the backtest.
+                        </span>
+                        <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                            <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="w3-cell-row" style="width: 100px;padding-left: 25px;">
+                        <label class="w3-cell" style="padding-right: 10px;width: 5px;">Long</label>
+                        <div class="w3-cell" style="width: 50px;">
+                            <div class="custom-buttons-container w3-cell">
+                                <input data-name="strategySettings" id="iq_pf_long" type="number" step="0.1" style="width: 50px;" min="0"/>
+                                <div class="custom-buttons">
+                                    <button type="button" class="plus"></button>
+                                    <button type="button" class="minus"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w3-cell" style="width: 100px;">
+                        <div class="custom-select w3-cell" style="color:#00ffff;width: 60px;">
+                            <select data-name="iqSettings" id="iq_pf_operator" style="margin-top: 3px;">
+                                <option value="0">AND</option>
+                                <option value="1">OR</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="w3-cell-row" style="width: 100px;">
+                        <label class="w3-cell" style="padding-right: 10px;width: 5px;">Short</label>
+                        <div class="w3-cell" style="width: 50px;">
+                            <div class=" custom-buttons-container" lang="en">
+                                <input data-name="strategySettings" id="iq_pf_short" type="number" step="0.1" style="width: 50px;" min="0" />
+                                <div class="custom-buttons">
+                                    <button type="button" class="plus"></button>
+                                    <button type="button" class="minus"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="w3-section w3-cell-row">
                     <div class="w3-cell" style="width: 35%;">
@@ -1008,12 +1058,15 @@
                 <div class="w3-section">
                     <div class="w3-container prevent-select" style="padding: 0px 0px 3px 0px;">
                         <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;padding-right: 10px;">
-                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-10;top:20px;width:550px;z-index: 100;">If not set a default name will be used.<br>
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-10;top:20px;width:550px;z-index: 100;">If not set a default name will be
+                                used.<br>
                                 The default name is the name of the strategy with the date and time of the backtest.<br>
-                                The following characters are not allowed: <b>/ \ : * ? " < > |</b><br>
+                                The following characters are not allowed: <b>/ \ : * ? " <> |</b><br>
                                 You can use the following placeholder:<br>
                                 <b>{indicator}</b> - name of the strategy eg. Counter Strike<br>
                                 <b>{indicator-short}</b> - short name of the strategy (CS, NV, RV, IP, RZ)<br>
+                                <b>{tf}</b> - single timeframe or first-last eg. 5m-4h<br>
+                                <b>{exchanges}</b> - name of the exchange and symbol eg. BITGET(BTCUSD)<br>
                                 <b>{date}</b> - date of the backtest<br>
                                 <b>{time}</b> - time of the backtest<br>
                                 <b>Note: </b>Please be aware that on some systems (Mac, Linux, ...) the file name may be limited to 255 characters.<br>

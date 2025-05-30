@@ -73,7 +73,7 @@ util.equals = (x, y) => {
 async function switchToStrategyTab(sel1, sel2, tabName) {
     await util.openStrategyTab()
 
-    if (action.isDeepTest) {
+    if (global.isDeepTest) {
         await tv.generateDeepTestReport()
     }
 
@@ -86,7 +86,7 @@ async function switchToStrategyTab(sel1, sel2, tabName) {
         await page.waitForTimeout(80)
     }
     const isActive = await page.waitForSelector(sel2, 1000)
-    if (!isActive && !action.isDeepTest) {
+    if (!isActive && !global.isDeepTest) {
         console.log(`The "${tabName}" tab is not active after click`)
     }
 }
@@ -117,7 +117,37 @@ util.normalize = (value) => {
     let result = value.trim(); // remove leading and trailing spaces
     result = result.replace(/[\s,]+$/, ''); // remove trailing spaces and commas
     result = result.replaceAll(', ', ','); // remove spaces after commas
+
     return result;
+}
+util.normalizeExchange = (value) => {
+    if (value.length === 0) return value
+
+    let result = util.normalize(value);
+
+    let exchanges = result.split(',');
+    exchanges = prependExchangePrefix(exchanges);
+    result = exchanges.join(',');
+
+    return result;
+}
+
+util.getProfitFactorKey = (pfName) => {
+    if (pfName.includes('Long') && pfName.includes('Trend')) {
+        return NOVA_TREND_LONG_PF
+    } else if (pfName.includes('Short') && pfName.includes('Trend')) {
+        return NOVA_TREND_SHORT_PF
+    } else if (pfName.includes('Long') && pfName.includes('Reversion')) {
+        return NOVA_REVERSION_LONG_PF
+    } else if (pfName.includes('Short') && pfName.includes('Reversion')) {
+        return NOVA_REVERSION_SHORT_PF
+    } else if (pfName.includes('Long')) {
+        return LONG_PF
+    } else if (pfName.includes('Short')) {
+        return SHORT_PF
+    }
+    console.warn('Unknown profit factor name:', pfName)
+    return pfName
 }
 
 util.parseTfList = (listOfTF) => {
@@ -276,4 +306,61 @@ util.parseSelectValue = (elem) => {
     if (propValue) {
         return propValue
     }
+}
+
+function prependExchangePrefix(exchanges) {
+    let lastExchangePrefix = null;
+    // Keep track of the last exchange prefix
+    // and prepend it to exchanges that don't have a prefix
+    // This is to handle cases like "BITGET:BTCUSD, ETHUSD" where ETHUSD should be BITGET:USD
+    exchanges = exchanges.map(exchange => {
+        if (exchange.includes(':')) {
+            lastExchangePrefix = exchange.split(':')[0];
+            return exchange;
+        } else if (lastExchangePrefix) {
+            return `${lastExchangePrefix}:${exchange}`;
+        }
+        return exchange;
+    });
+    exchanges = exchanges.map(exchange => exchange.trim().toUpperCase());
+    exchanges = [...new Set(exchanges)]; // Remove duplicates
+    exchanges = exchanges.filter(exchange => exchange.length > 0); // Remove empty strings
+    exchanges.sort(); // Sort exchanges alphabetically
+    return exchanges;
+}
+
+util.getExchangeString = (exchangeEl) => {
+    if (exchangeEl.disabled === false) {
+        let exchanges = exchangeEl.value;
+        exchanges = util.normalize(exchanges);
+        if (exchanges.length === 0) {
+            return 'EXCHANGE';
+        }
+
+        exchanges = exchanges.length === 0 ? ['EXCHANGE'] : exchanges.split(',');
+        exchanges = prependExchangePrefix(exchanges);
+
+        let exchangeMap = {};
+        exchanges.forEach(exchange => {
+            let [key, value] = exchange.split(':');
+            if (key && value) {
+                if (!exchangeMap[key]) {
+                    exchangeMap[key] = [];
+                }
+                exchangeMap[key].push(value);
+            }
+        });
+        let exchangeStr = '';
+        for (let key in exchangeMap) {
+            if (exchangeMap.hasOwnProperty(key)) {
+                let values = exchangeMap[key].join('-');
+                if (exchangeStr.length > 0) {
+                    exchangeStr += '-';
+                }
+                exchangeStr += key + '(' + values + ')';
+            }
+        }
+        return exchangeStr
+    }
+    return 'EXCHANGE';
 }

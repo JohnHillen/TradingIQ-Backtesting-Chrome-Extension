@@ -14,9 +14,9 @@ tv.reset = () => {
   tv.isParsed = false
 }
 
-tv.setStrategyProps = async (name, props) => {
-  console.log('setStrategyProps', name, props, action.isDeepTest)
-  const indicatorTitleEl = await tv.checkAndOpenStrategy(name, false)
+tv.setStrategyProps = async (props) => {
+  console.log('setStrategyProps', global.iqIndicator, props, global.isDeepTest)
+  const indicatorTitleEl = await tv.checkAndOpenStrategy(false)
   if (!indicatorTitleEl)
     return null
   const strategyProperties = document.querySelectorAll(SEL.indicatorPropertyContent)
@@ -90,9 +90,9 @@ async function setSelectBySelector(strategyProperties, selector) {
   await page.waitForTimeout(140)
   await page.waitForMouseClickSelector(selector, 156)
 }
-tv.resetStrategyInputs = async (name) => {
-  console.log('resetStrategyInputs', name)
-  const indicatorTitleEl = await tv.checkAndOpenStrategy(name, true)
+tv.resetStrategyInputs = async () => {
+  console.log('resetStrategyInputs', global.iqIndicator)
+  const indicatorTitleEl = await tv.checkAndOpenStrategy(true)
   if (!indicatorTitleEl)
     return
 
@@ -105,9 +105,9 @@ tv.resetStrategyInputs = async (name) => {
     document.querySelector(SEL.okBtn).click()
 }
 
-tv.setStrategyInputs = async (name, propVal) => {
-  console.log('setStrategyInputs', name, propVal)
-  const indicatorTitleEl = await tv.checkAndOpenStrategy(name, true)
+tv.setStrategyInputs = async (propVal) => {
+  console.log('setStrategyInputs', global.iqIndicator, propVal)
+  const indicatorTitleEl = await tv.checkAndOpenStrategy(true)
   if (!indicatorTitleEl)
     return null
   const indicProperties = document.querySelectorAll(SEL.indicatorPropertyContent)
@@ -203,9 +203,9 @@ tv.openCurrentStrategy = async (isInputTab) => {
   return true
 }
 
-tv.checkAndOpenStrategy = async (name, isInputTab) => {
+tv.checkAndOpenStrategy = async (isInputTab) => {
   let indicatorTitleEl = document.querySelector(SEL.indicatorTitle)
-  if (!indicatorTitleEl || indicatorTitleEl.innerText !== name) {
+  if (!indicatorTitleEl || indicatorTitleEl.innerText !== global.iqIndicator) {
     try {
       await tv.switchToStrategyTab()
     } catch (e) {
@@ -215,8 +215,8 @@ tv.checkAndOpenStrategy = async (name, isInputTab) => {
     if (!await tv.openCurrentStrategy(isInputTab))
       return null
     indicatorTitleEl = await page.waitForSelector(SEL.indicatorTitle, 2000)
-    if (!indicatorTitleEl || indicatorTitleEl.innerText !== name) {
-      await ui.showPopup(`The ${name} strategy parameters could not opened. ${indicatorTitleEl.innerText ? 'Opened "' + indicatorTitleEl.innerText + '".' : ''} Reload the page, leave one strategy on the chart and try again.`)
+    if (!indicatorTitleEl || indicatorTitleEl.innerText !== global.iqIndicator) {
+      await ui.showPopup(`The ${global.iqIndicator} strategy parameters could not opened. ${indicatorTitleEl.innerText ? 'Opened "' + indicatorTitleEl.innerText + '".' : ''} Reload the page, leave one strategy on the chart and try again.`)
       return null
     }
   }
@@ -407,7 +407,7 @@ tv.getPerformance = async (testResults) => {
   }
 
   let isProcessEnd = tv.isReportChanged
-  let endTime = new Date().getTime() + action.timeout
+  let endTime = new Date().getTime() + global.timeout
   while (Date.now() < endTime) {
     isProcessError = await getBacktestingErrors()
     if (isProcessError.msg) {
@@ -455,13 +455,13 @@ tv.getPerformance = async (testResults) => {
 }
 
 async function getBacktestingErrors() {
-  if (action.workerStatus === null) {
+  if (global.workerStatus === null) {
     console.log('Worker is stopped')
     return { msg: 'Stopped by user', canBeFixed: false }
   }
 
-  if (action.indicatorError) {
-    return { msg: action.indicatorError, canBeFixed: true }
+  if (global.indicatorError) {
+    return { msg: global.indicatorError, canBeFixed: true }
   }
 
   let errorMsg = null
@@ -484,7 +484,7 @@ async function getBacktestingErrors() {
     return { msg: null, canBeFixed: true }
   }
 
-  if (errorMsg.includes('Array is too large') && action.isDeepTest) {
+  if (errorMsg.includes('Array is too large') && global.isDeepTest) {
     errorMsg += ' Try to reduce the date range for deep test.'
     canBeFixed = false
   }
@@ -498,17 +498,13 @@ async function tryToFixBacktestingError(error) {
     return false
   }
 
-  let tf1 = "1m" === action.cycleTf ? "2m" : "1m"
-  await tvChart.changeTimeFrame(tf1)
-  await page.waitForTimeout(2000)
-  await tvChart.changeTimeFrame(action.cycleTf)
-  await page.waitForTimeout(2000)
+  await tvChart.toggleTimeFrame()
 
   return true
 }
 
 tv.getStrategyPropertyData = async (name) => {
-  console.log('getStrategyPropertyData', action.isDeepTest, action.deepFrom, action.deepTo, name)
+  console.log('getStrategyPropertyData', global.isDeepTest, global.deepFrom, global.deepTo, name)
   let result = {}
   try {
     console.log('getStrategyPropertyDataNew get strategy data range')
@@ -525,7 +521,7 @@ tv.getStrategyPropertyData = async (name) => {
         dateIndex = i + 1
       } else if (allHeadersEl[i].innerText === "") {
         emptyCoulmnCounter++
-      } else if (cumulativeProfitIndex === -1 && allHeadersEl[i].innerText.toLowerCase().includes("cumulative profit")) {
+      } else if (cumulativeProfitIndex === -1 && allHeadersEl[i].innerText.toLowerCase().includes("cumulative p&l")) {
         cumulativeProfitIndex = i + 1
       }
     }
@@ -551,13 +547,13 @@ tv.getStrategyPropertyData = async (name) => {
       let fromFormatted = new Date(from).toISOString().split('T')[0]
 
       result['Trading range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
-      if (action.isDeepTest) {
-        fromFormatted = new Date(action.deepFrom).toISOString().split('T')[0]
-        toFormatted = new Date(action.deepTo).toISOString().split('T')[0]
+      if (global.isDeepTest) {
+        fromFormatted = new Date(global.deepFrom).toISOString().split('T')[0]
+        toFormatted = new Date(global.deepTo).toISOString().split('T')[0]
       }
       result['Backtesting range (yyyy-mm-dd)'] = fromFormatted + ' - ' + toFormatted
 
-      if (action.htmlEquityChartOnOff) {
+      if (global.htmlEquityChartOnOff) {
         let equityData = await getEqutiyData(table, cumulativeProfitIndex, maxTradeId)
         result['EquityList'] = equityData
       } else {
@@ -593,6 +589,7 @@ tv.getStrategyPropertyData = async (name) => {
 }
 
 async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
+  console.log('getEqutiyData', cumulativeProfitIndex, maxTradeId)
   if (!table) {
     return null
   }
@@ -627,7 +624,7 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
     }
 
     table.scrollTop -= 500;
-    await page.waitForTimeout(20)
+    await page.waitForTimeout(15)
 
   }
   return equityData
@@ -698,7 +695,7 @@ tv.loadCurrentBestStrategyNumbers = async () => {
   let strategyParams = await tv.getStrategyParams();
   for (let key in strategyParams) {
     if (key.toLocaleLowerCase().includes('strategy number')) {
-      action.currentBestStrategyNumbers[key] = strategyParams[key]
+      global.currentBestStrategyNumbers[key] = strategyParams[key]
     }
   }
 }
@@ -777,12 +774,14 @@ tv.setSymbolExchange = async (symbolExchange) => {
     return 'Symbol search dialog not found'
   }
 
+  await page.waitForTimeout(500)
   const symbolInputEl = await page.waitForSelector(SEL.symbolSearchInput, 1000)
   if (!symbolInputEl) {
     return 'Symbol search input not found'
   }
-  page.setInputElementValue(symbolInputEl, symbolExchange)
   await page.waitForTimeout(500)
+  page.setInputElementValue(symbolInputEl, symbolExchange)
+  await page.waitForTimeout(1500)
 
   const searchSymbolListEl = await page.waitForSelector(SEL.symbolSearchList, 1000)
   if (!searchSymbolListEl) {
@@ -792,13 +791,24 @@ tv.setSymbolExchange = async (symbolExchange) => {
   if (!symbolEl) {
     return 'Symbol search first item not found'
   }
-  let symbolTextEl = symbolEl.querySelector('div[class^="symbolTitle"]').innerText;
-  console.log('symbolTextEl', symbolTextEl)
+  let firstItemExchangeEl = await page.waitForSelector(SEL.symbolSearchFirstItemExchange, 1000)
+  let firstItemSymbolEl = symbolEl.querySelector('div[class^="symbolTitle"]');
+  console.log('firstItemSymbolEl', firstItemSymbolEl)
+
+  if (!firstItemExchangeEl || !firstItemSymbolEl) {
+    return 'Symbol search first item exchange or symbol not found'
+  }
+
+  let exchangeText = symbolExchange.split(':')[0]
+  if (!firstItemExchangeEl?.innerText.toUpperCase().endsWith(exchangeText.toUpperCase())) {
+    console.log('unexpected exchange text expected:', exchangeText, 'actual:', firstItemExchangeEl?.innerText)
+    return 'unexpected exchange text expected: ' + exchangeText + ' actual: ' + firstItemExchangeEl
+  }
 
   let symbolText = symbolExchange.split(':')[1]
-  if (symbolText !== symbolTextEl) {
-    console.log('unexpected symbol text expected:', symbolText, 'actual:', symbolTextEl)
-    return 'Symbol search first item not found'
+  if (symbolText !== firstItemSymbolEl?.innerText) {
+    console.log('unexpected symbol text expected:', symbolText, 'actual:', firstItemSymbolEl?.innerText)
+    return 'unexpected symbol text expected: ' + symbolText + ' actual: ' + firstItemSymbolEl
   }
 
   page.mouseClick(symbolEl)

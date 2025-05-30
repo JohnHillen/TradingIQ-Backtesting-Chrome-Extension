@@ -11,6 +11,20 @@ const CURRENT_TF = 'CURRENT_TF';
 const HEADER_SINGLE = ['buy & hold return', 'max equity run-up', 'max equity drawdown', 'sharpe ratio', 'sortino ratio', 'open p&l'];
 const HEADER_PERCENT = ['net profit', 'gross profit', 'gross loss', 'max equity run-up', 'max equity drawdown', 'buy & hold return', 'open p&l', 'avg trade', 'avg winning trade', 'avg losing trade', 'largest winning trade', 'largest losing trade'];
 
+const NOVA_TREND_LONG_PF = 'IQ Long PF (Trend)'
+const NOVA_TREND_SHORT_PF = 'IQ Short PF (Trend)'
+const NOVA_REVERSION_LONG_PF = 'IQ Long PF (Reversion)'
+const NOVA_REVERSION_SHORT_PF = 'IQ Short PF (Reversion)'
+const LONG_PF = 'IQ Long PF'
+const SHORT_PF = 'IQ Short PF'
+
+const STATUS_MSG = `
+Do not change/move/resize the window/tab.<br>
+If the Tradingview page is not in the foreground, the extension will not work.<br>
+
+
+`;
+
 const constants = {
     'impulsIq_optimize': 'Optimize',
     'impulsIq_rr_on_off': 'Use R Multiple (R:R)', //TODO
@@ -38,8 +52,8 @@ const constants = {
     'novaIq_min_atr_profit': 'Minimum ATR Profit Target',
     'novaIq_min_atr_stop': 'Minimum ATR Stop Loss',
     'novaIq_trade_long': 'Trade Long',
-    'novaIq_trade_reversions': 'Trade Nova IQ Reversions',
     'novaIq_trade_short': 'Trade Short',
+    'novaIq_trade_reversions': 'Trade Nova IQ Reversions',
     'novaIq_trade_trends': 'Trade Nova IQ Trends',
     'novaIq_use_higher_rr': 'Use Higher RR',
 

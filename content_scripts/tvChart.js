@@ -26,7 +26,7 @@ tvChart.getCurrentTimeFrame = async () => {
 }
 
 tvChart.changeTimeFrame = async (setTF) => {
-  console.log('Change timeframe to:', setTF)
+  console.log('TVChart.changeTimeFrame: to:', setTF)
   const strategyTF = tvChart.correctTF(setTF)
 
   let curTimeFrameText = await tvChart.getCurrentTimeFrame()
@@ -118,17 +118,31 @@ tvChart.changeTimeFrame = async (setTF) => {
     throw new Error(`Failed to set the timeframe value to "${strategyTF}" after adding it to timeframe list, the current "${curTimeFrameText}"`)
 }
 
-tvChart.toggleTimeFrame = async (cycle) => {
-  const cycleTf = cycle.tf === CURRENT_TF ? tvChart.getCurrentTimeFrame() : cycle.tf
+tvChart.toggleTimeFrame = async () => {
+  const cycleTf = global.currentCycle.tf === CURRENT_TF ? await tvChart.getCurrentTimeFrame() : global.currentCycle.tf
   let tf1 = "1m" === cycleTf ? "2m" : "1m"
 
-  console.log('tvChart.toggleTimeFrame:', cycleTf, '->', tf1)
+  let deepCheckbox = await page.waitForSelector(SEL.strategyDeepTestCheckbox, 500);
+  if (global.isDeepTest && deepCheckbox.checked) {
+    console.log('TVChart.toggleTimeFrame disable deep test')
+    page.mouseClick(deepCheckbox)
+    await page.waitForTimeout(750);
+  }
+
+  console.log('TVChart.toggleTimeFrame:', cycleTf, '->', tf1)
   await tvChart.changeTimeFrame(tf1)
   await page.waitForTimeout(500)
 
-  console.log('tvChart.toggleTimeFrame:', tf1, '->', cycleTf)
+  console.log('TVChart.toggleTimeFrame:', tf1, '->', cycleTf)
   await tvChart.changeTimeFrame(cycleTf)
   await page.waitForTimeout(500)
+
+  deepCheckbox = await page.waitForSelector(SEL.strategyDeepTestCheckbox, 500);
+  if (global.isDeepTest && !deepCheckbox.checked) {
+    console.log('TVChart.toggleTimeFrame enable deep test')
+    page.mouseClick(deepCheckbox)
+    await page.waitForTimeout(750);
+  }
 }
 
 tvChart.selectTimeFrameMenuItem = async (alertTF) => {
@@ -151,3 +165,125 @@ tvChart.selectTimeFrameMenuItem = async (alertTF) => {
 
 tvChart.isTFDataMinutes = (tf) => !['S', 'D', 'M', 'W', 'R'].includes(tf[tf.length - 1])
 tvChart.correctTF = (tf) => ['D', 'M', 'W'].includes(tf) ? `1${tf}` : tf
+
+tvChart.getStrategyFromDataWindow = async (strategyName) => {
+  // Enable the strategy
+  let dataWindowWidgetEl = document.querySelector(SEL.dataWindowWidget)
+  let headers = dataWindowWidgetEl.querySelectorAll('span[class^="headerTitle-"]')
+  let iqWidgetEl = null
+  let firstEl = true
+  for (let header of headers) {
+    console.log('TVChart.getStrategyFromDataWindow: process header:', header.innerText)
+    if (firstEl) {
+      firstEl = false
+      // Ticker - TF - Exchange eg: SOLUSDT.P · 5 · BITGET
+      continue
+    }
+    if (header.innerText) {
+      let iqWidget = header.parentElement.parentElement
+      if (header.innerText.includes(strategyName) || strategyName === null) {
+        strategyName = header.innerText
+        iqWidgetEl = iqWidget
+        if (iqWidget.className.includes('hidden-_gbYDtbd')) {
+          page.mouseClick(header.parentElement.getElementsByTagName('button')[0])
+          await page.waitForTimeout(20)
+        }
+      } else if (!iqWidget.className.includes('hidden-_gbYDtbd')) {
+        page.mouseClick(header.parentElement.getElementsByTagName('button')[0])
+        await page.waitForTimeout(20)
+      }
+    }
+  }
+  console.log('TVChart.getStrategyFromDataWindow: iqWidgetEl:', iqWidgetEl)
+  return iqWidgetEl
+}
+
+//Enables the strategy if strategyName === null enable first one in the DataWindow-Widget and disabled all other Trading IQ strategies
+//If strategyName is not found, add strategy to the DataWindow-Widget
+tvChart.enableStrategy = async (strategyName) => {
+  let iqWidgetEl = await tvChart.getStrategyFromDataWindow(strategyName)
+
+  //If iqWidget is still null, add strategy to the DataWindow-Widget
+  if (iqWidgetEl === null) {
+    console.log('TVChart.enableStrategy: Add strategy to the DataWindow-Widget')
+    page.mouseClickSelector(SEL.indicatorDropdown)
+    let sideBarTabs = []
+    let maxTime = Date.now() + 30000
+    while (true) {
+      await page.waitForTimeout(500)
+      sideBarTabs = [...document.querySelectorAll(SEL.indicatorsDialogSideBarTabs)]
+      let filteredMap = sideBarTabs.map(div => div.innerText).filter(txt => txt.includes('Invite-only'))
+      if (global.workerStatus === null || Date.now() > maxTime || filteredMap.length > 0) {
+        break
+      }
+    }
+
+    if (!sideBarTabs) {
+      return null
+    }
+
+    let inviteOnlyTab = sideBarTabs[sideBarTabs.length - 1]
+    if (!inviteOnlyTab) {
+      return null
+    }
+    if (!inviteOnlyTab.classList.contains('active')) {
+      page.mouseClick(inviteOnlyTab)
+      await page.waitForTimeout(150)
+    }
+
+    let indicatorList = document.querySelectorAll(SEL.indicatorsDialogContentList)
+    if (!indicatorList) {
+      return null
+    }
+    maxTime = Date.now() + 30000
+    let found = false
+    while (true) {
+      await page.waitForTimeout(500)
+      indicatorList = document.querySelectorAll(SEL.indicatorsDialogContentList)
+      if (indicatorList) {
+        for (let item of indicatorList) {
+          if (item.innerText.includes(strategyName)) {
+            item.focus()
+            page.mouseClick(item)
+            found = true
+            break
+          }
+        }
+      }
+      if (global.workerStatus === null || found || Date.now() > maxTime) {
+        break
+      }
+      if (indicatorList && indicatorList.length > 0) {
+        // Select the container element
+        const container = document.querySelector(SEL.indicatorsDialogContentListContainer);
+
+        // Scroll down by 300px
+        if (container) {
+          container.scrollBy(0, 300);
+        }
+      }
+    }
+
+    if (!found) {
+      console.log('TVChart.enableStrategy:', strategyName, 'not found in the invite only tab', indicatorList)
+      return null
+    }
+
+    maxTime = Date.now() + 60000
+    while (true) {
+      await page.waitForTimeout(250)
+      iqWidgetEl = await tvChart.getStrategyFromDataWindow(strategyName)
+      if (global.workerStatus === null || iqWidgetEl || Date.now() > maxTime) {
+        break
+      }
+    }
+
+    let closeBtn = document.querySelector(SEL.indicatorsDialogCloseBtn)
+    if (closeBtn) {
+      page.mouseClick(closeBtn)
+      await page.waitForTimeout(150)
+    }
+  }
+
+  return iqWidgetEl
+}
