@@ -103,7 +103,7 @@ iqUtil.detectIqParameter = async (iqWidget, cycle) => {
             console.log('IQUtil.detectIqParameter: Process is finished isProcessError:', isProcessError, 'isProcessEnd:', isProcessEnd, 'iqValues:', iqValues)
             console.log('IQUtil.detectIqParameter: New best strategy numbers:', props)
             if (global.isCS) {
-                let csProps = getCSStopStypes(iqValues);
+                let csProps = iqUtil.getCSStopStypes(iqValues);
                 console.log('IQUtil.detectIqParameter: CS Stop Types:', csProps)
                 Object.assign(props, csProps)
             }
