@@ -10,6 +10,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const CURRENT_TF = 'CURRENT_TF';
 const HEADER_SINGLE = ['buy & hold return', 'max equity run-up', 'max equity drawdown', 'sharpe ratio', 'sortino ratio', 'open p&l'];
 const HEADER_PERCENT = ['net profit', 'gross profit', 'gross loss', 'max equity run-up', 'max equity drawdown', 'buy & hold return', 'open p&l', 'avg trade', 'avg winning trade', 'avg losing trade', 'largest winning trade', 'largest losing trade'];
+const TIMEFRAME_PROPERTIES = ['LTF Zig Zag', 'HTF Zig Zag'];
 
 const NOVA_TREND_LONG_PF = 'IQ Long PF (Trend)'
 const NOVA_TREND_SHORT_PF = 'IQ Short PF (Trend)'
@@ -27,12 +28,14 @@ If the Tradingview page is not in the foreground, the extension will not work.<b
 
 const constants = {
     'impulsIq_optimize': 'Optimize',
-    'impulsIq_rr_on_off': 'Use R Multiple (R:R)', //TODO
+    'impulsIq_rr_on_off': 'Use R Multiple (R:R)',
     'impulsIq_rr': 'Use R Multiple (R:R)',
     'impulsIq_slAndTd': 'Minimum Stop Loss And Trailing Target Distance',
     'impulsIq_strategyType': 'Strategy Type',
     'impulsIq_trade_long': 'Trade Long',
     'impulsIq_trade_short': 'Trade Short',
+    'impulsIq_ltf': 'LTF Zig Zag',
+    'impulsIq_htf': 'HTF Zig Zag',
 
     'counterIq_use_ema_filter': 'Use EMA Filter',
     'counterIq_ema_length': 'EMA Length',

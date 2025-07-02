@@ -92,6 +92,19 @@ h6,
     color: gray;
 }
 
+.link-toggle.active {
+  background-color: aqua;
+}
+.link-toggle.active svg path {
+  stroke: black;
+}
+.link-toggle:not(.active) {
+  background-color: transparent;
+}
+.link-toggle:not(.active) svg path {
+  stroke: aqua;
+}
+
 /* scrollbar */
 /* width */
 ::-webkit-scrollbar {

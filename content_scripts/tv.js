@@ -15,7 +15,7 @@ tv.reset = () => {
 }
 
 tv.setStrategyProps = async (props) => {
-  console.log('setStrategyProps', global.iqIndicator, props, global.isDeepTest)
+  console.log('TV.setStrategyProps', global.iqIndicator, props, global.isDeepTest)
   const indicatorTitleEl = await tv.checkAndOpenStrategy(false)
   if (!indicatorTitleEl)
     return null
@@ -91,7 +91,7 @@ async function setSelectBySelector(strategyProperties, selector) {
   await page.waitForMouseClickSelector(selector, 156)
 }
 tv.resetStrategyInputs = async () => {
-  console.log('resetStrategyInputs', global.iqIndicator)
+  console.log('TV.resetStrategyInputs', global.iqIndicator)
   const indicatorTitleEl = await tv.checkAndOpenStrategy(true)
   if (!indicatorTitleEl)
     return
@@ -106,24 +106,30 @@ tv.resetStrategyInputs = async () => {
 }
 
 tv.setStrategyInputs = async (propVal) => {
-  console.log('setStrategyInputs', global.iqIndicator, propVal)
+  console.log('TV.setStrategyInputs', global.iqIndicator, propVal)
   const indicatorTitleEl = await tv.checkAndOpenStrategy(true)
   if (!indicatorTitleEl)
     return null
   const indicProperties = document.querySelectorAll(SEL.indicatorPropertyContent)
   const propKeys = Object.keys(propVal)
   let setResultNumber = 0
-  let setPropertiesNames = {}
+  let ignoredPropKeys = ['tf', 'exchange']
+  let propKeysProcessed = []
+  if (propKeys.includes(ignoredPropKeys[0]) || propKeys.includes(ignoredPropKeys[1])) {
+    propKeysProcessed = ignoredPropKeys
+  }
+  let propKeyProcessed = false
   for (let i = 0; i < indicProperties.length; i++) {
-    const propText = indicProperties[i].innerText
+    propKeyProcessed = false
+    const propText = indicProperties[i].innerText.trim()
     if (propText && propKeys.includes(propText)) {
-      setPropertiesNames[propText] = true
       setResultNumber++
       const propClassName = indicProperties[i].getAttribute('class')
       if (propClassName.includes('first-')) {
         i++
         if (indicProperties[i].querySelector('input')) {
           page.setInputElementValue(indicProperties[i].querySelector('input'), propVal[propText])
+          propKeyProcessed = true
         } else if (indicProperties[i].querySelector('span[role="button"]')) { // List
           const buttonEl = indicProperties[i].querySelector('span[role="button"]')
           if (!buttonEl || !buttonEl.innerText)
@@ -132,8 +138,13 @@ tv.setStrategyInputs = async (propVal) => {
           await page.waitForTimeout(350)
           page.mouseClick(buttonEl)
           await page.waitForTimeout(340)
-          page.setSelByText(SEL.strategyListOptions, propVal[propText])
+          let textToSet = propVal[propText]
+          if (TIMEFRAME_PROPERTIES.includes(propText)) {
+            textToSet = util.convertToTimeframe(textToSet)
+          }
+          page.setSelByText(SEL.strategyListOptions, textToSet)
           await page.waitForTimeout(356)
+          propKeyProcessed = true
         }
       } else if (propClassName.includes('fill-')) {
         const checkboxEl = indicProperties[i].querySelector('input[type="checkbox"]')
@@ -157,14 +168,25 @@ tv.setStrategyInputs = async (propVal) => {
             page.mouseClick(checkboxEl)
             checkboxEl.checked = Boolean(propVal[propText])
           }
+          propKeyProcessed = true
         }
       }
-      setResultNumber = Object.keys(setPropertiesNames).length
-      if (propKeys.length === setResultNumber)
-        break
+    }
+    if (propKeyProcessed) {
+      propKeysProcessed.push(propText)
+    }
+    if (propKeys.length === Object.keys(propKeysProcessed).length) {
+      console.log('TV.setStrategyInputs all properties set')
+      break
     }
   }
+
+  let propKeysNotFound = propKeys.filter(key => !propKeysProcessed.includes(key) && !ignoredPropKeys.includes(key.toLowerCase()))
+  console.log('TV.setStrategyInputs propKeys.length', propKeys.length, 'propKeysNotFound:', propKeysNotFound)
   // TODO check if not equal propKeys.length === setResultNumber, because there is none of changes too. So calculation doesn't start
+  if (propKeys.length !== Object.keys(propKeysProcessed).length) {
+    throw new Error(`Not all strategy inputs were set. Set: ${Object.keys(propKeysProcessed).length}, expected: ${propKeys.length}. Not found: ${propKeysNotFound.join(', ')}`)
+  }
   if (document.querySelector(SEL.okBtn))
     document.querySelector(SEL.okBtn).click()
   return true
@@ -209,7 +231,7 @@ tv.checkAndOpenStrategy = async (isInputTab) => {
     try {
       await tv.switchToStrategyTab()
     } catch (e) {
-      console.error('tv.switchToStrategyTab error', e)
+      console.error('TV.switchToStrategyTab error', e)
       return null
     }
     if (!await tv.openCurrentStrategy(isInputTab))
@@ -255,14 +277,14 @@ tv.switchToStrategyTab = async () => {
 
   await page.waitForSelector(SEL.strategyReportObserveArea, 10000)
 
-  console.log('tv.reportNode', tv.reportNode)
+  console.log('TV.reportNode', tv.reportNode)
   if (!tv.reportNode) {
     tv.reportNode = await page.waitForSelector(SEL.strategyReportObserveArea, 10000)
     if (tv.reportNode) {
       const reportObserver = new MutationObserver(() => {
         tv.isReportChanged = true
       });
-      console.log('set reportObserver')
+      console.log('TV. set reportObserver')
       reportObserver.observe(tv.reportNode, {
         childList: true,
         subtree: true,
@@ -295,7 +317,7 @@ tv.parseReportTable = async (baseCurrency = null) => {
     if (!tv.isParsed)
       throw new Error('Can\'t get performance headers.')
     else {
-      console.error('Can\'t get performance headers.')
+      console.error('TV. Can\'t get performance headers.')
       return null
     }
   }
@@ -401,7 +423,7 @@ tv.getPerformance = async (testResults) => {
   let message = ''
   let isProcessError = null
   let baseCurrency = null
-  console.log('getPerformance isDeepTest: ', testResults.isDeepTest)
+  console.log('TV. getPerformance isDeepTest: ', testResults.isDeepTest)
   if (testResults.isDeepTest) {
     message = await tv.generateDeepTestReport() //testResults.dataLoadingTime * 2000)
   }
@@ -414,14 +436,14 @@ tv.getPerformance = async (testResults) => {
       if (await tryToFixBacktestingError(isProcessError)) {
         continue
       } else {
-        console.log('break by isProcessError', isProcessError)
+        console.log('TV. break by isProcessError', isProcessError)
         break
       }
     }
     isProcessEnd = await page.waitForSelector(SEL.strategyReportReady, 500)
-    console.log('Waiting for report data isProcessError msg: ' + isProcessError.msg + ', canBeFixed: ' + isProcessError.canBeFixed + ', isProcessEnd: ' + isProcessEnd)
+    console.log('TV. Waiting for report data isProcessError msg: ' + isProcessError.msg + ', canBeFixed: ' + isProcessError.canBeFixed + ', isProcessEnd: ' + isProcessEnd)
     if (isProcessError.msg || isProcessEnd) {
-      console.log('break by isProcessError', isProcessError, 'isProcessEnd', isProcessEnd)
+      console.log('TV. break by isProcessError', isProcessError, 'isProcessEnd', isProcessEnd)
       break
     }
   }
@@ -444,19 +466,19 @@ tv.getPerformance = async (testResults) => {
       for (let key in result.data) {
         reportData[key] = result.data[key]
       }
-      console.log('Report data ready:', reportData)
+      console.log('TV. Report data ready:', reportData)
     } catch (e) {
-      console.error('getPerformance error:', e)
+      console.error('TV.getPerformance error:', e)
     }
   }
 
-  console.log('isProcessError', isProcessError, 'isProcessEnd', isProcessEnd, 'message', message, 'reportData', reportData)
+  console.log('TV. isProcessError', isProcessError, 'isProcessEnd', isProcessEnd, 'message', message, 'reportData', reportData)
   return { error: isProcessError, message: message, data: reportData, currency: baseCurrency }
 }
 
 async function getBacktestingErrors() {
   if (global.workerStatus === null) {
-    console.log('Worker is stopped')
+    console.log('TV. Worker is stopped')
     return { msg: 'Stopped by user', canBeFixed: false }
   }
 
@@ -493,7 +515,7 @@ async function getBacktestingErrors() {
 }
 
 async function tryToFixBacktestingError(error) {
-  console.log('tryToFixBacktestingError', error)
+  console.log('TV.tryToFixBacktestingError', error)
   if (!error.canBeFixed) {
     return false
   }
@@ -504,10 +526,10 @@ async function tryToFixBacktestingError(error) {
 }
 
 tv.getStrategyPropertyData = async (name) => {
-  console.log('getStrategyPropertyData', global.isDeepTest, global.deepFrom, global.deepTo, name)
+  console.log('TV.getStrategyPropertyData', global.isDeepTest, global.deepFrom, global.deepTo, name)
   let result = {}
   try {
-    console.log('getStrategyPropertyDataNew get strategy data range')
+    console.log('TV.getStrategyPropertyDataNew get strategy data range')
     await util.switchToStrategyTradesTab()
     await page.waitForTimeout(500)
     let allHeadersEl = document.querySelectorAll(SEL.strategyReportHeader)
@@ -561,10 +583,10 @@ tv.getStrategyPropertyData = async (name) => {
       }
     }
 
-    console.log('getStrategyPropertyDataNew get strategy symbol info')
+    console.log('TV.getStrategyPropertyDataNew get strategy symbol info')
     result['Symbol'] = await util.getTickerExchange()
 
-    console.log('getStrategyPropertyDataNew get strategy inputs')
+    console.log('TV.getStrategyPropertyDataNew get strategy inputs')
     await tv.openCurrentStrategy(true)
     let inputs = await tv.getStrategyParams()
     for (let key in inputs) {
@@ -573,7 +595,7 @@ tv.getStrategyPropertyData = async (name) => {
     }
     await util.closeStrategyPropertyDialog()
 
-    console.log('getStrategyPropertyDataNew get strategy properties')
+    console.log('TV.getStrategyPropertyDataNew get strategy properties')
     await tv.openCurrentStrategy(false)
     let props = await tv.getStrategyParams()
     for (let key in props) {
@@ -582,14 +604,14 @@ tv.getStrategyPropertyData = async (name) => {
     await util.closeStrategyPropertyDialog()
 
   } catch (e) {
-    console.error('getStrategyPropertyDataNew error:', e)
+    console.error('TV.getStrategyPropertyDataNew error:', e)
     return null
   }
   return result
 }
 
 async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
-  console.log('getEqutiyData', cumulativeProfitIndex, maxTradeId)
+  console.log('TV.getEqutiyData', cumulativeProfitIndex, maxTradeId)
   if (!table) {
     return null
   }
@@ -601,7 +623,7 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
   while (tradeId < maxTradeId) {
     rows = await page.waitForSelectorAll(SEL.strategyReportRow, 100)
     if (!rows || rows.length === 0) {
-      console.log('WARNING: getEqutiyData rows not found')
+      console.log('TV. WARNING: getEqutiyData rows not found')
       return equityData
     }
 
@@ -610,20 +632,24 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
       if (id <= tradeId) {
         continue
       }
+      if (id > tradeId + 1) {
+        console.log('TV. WARNING: getEqutiyData tradeId skipped:', tradeId, 'id:', id, 'row:', rows[i]);
+      }
 
       tradeId = id
       let profit = rows[i].querySelector(`td:nth-child(${cumulativeProfitIndex}) div[class^="percentValue-"]`).innerText
       if (!profit || !profit.endsWith('%')) {
-        console.log('WARNING: getEqutiyData profit not found:', profit, 'row:', rows[i])
+        console.log('TV. WARNING: getEqutiyData profit not found:', profit, 'row:', rows[i])
         return equityData
       }
       profit = profit.replace(/−/, '-')
       currentEquity += parseFloat(profit)
       currentEquity = parseFloat(currentEquity.toFixed(2))
       equityData.push(currentEquity)
+      console.log('TV.getEqutiyData profit:', profit, 'tradeId:', tradeId, 'equity:', currentEquity, 'equityData.length:', equityData.length)
     }
 
-    table.scrollTop -= 500;
+    table.scrollTop -= 400;
     await page.waitForTimeout(15)
 
   }
@@ -650,7 +676,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   for (let button of buttons) {
     if (outOfRange || button.innerText === year.toString()) {
       if (button.disabled) {
-        console.log('Deep Backtesting year is out of range: ' + year + ' (' + dateValue + ')')
+        console.log('TV. Deep Backtesting year is out of range: ' + year + ' (' + dateValue + ')')
         outOfRange = true
         continue
       }
@@ -664,7 +690,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   for (i = 0; i < 12; i++) {
     if (outOfRange || i === month) {
       if (buttons[i].disabled) {
-        console.log('Deep Backtesting month is out of range: ' + MONTHS[month] + ' (' + dateValue + ')');
+        console.log('TV. Deep Backtesting month is out of range: ' + MONTHS[month] + ' (' + dateValue + ')');
         outOfRange = true
         continue
       }
@@ -679,7 +705,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   for (let button of buttons) {
     if (outOfRange || button.innerText === day.toString()) {
       if (button.disabled) {
-        console.log('Deep Backtesting day is out of range: ' + day + ' (' + dateValue + ')');
+        console.log('TV. Deep Backtesting day is out of range: ' + day + ' (' + dateValue + ')');
         outOfRange = true
         continue
       }
@@ -691,7 +717,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
 }
 
 tv.loadCurrentBestStrategyNumbers = async () => {
-  console.log('loadCurrentStrategy')
+  console.log('TV.loadCurrentStrategy')
   let strategyParams = await tv.getStrategyParams();
   for (let key in strategyParams) {
     if (key.toLocaleLowerCase().includes('strategy number')) {
@@ -728,7 +754,7 @@ tv.getStrategyParams = async () => {
         if (listValue)
           strategyInputs[propText] = listValue
       } else { // Undefined
-        console.log('getStrategyParams 1 skipped:', propText)
+        console.log('TV.getStrategyParams 1 skipped:', propText)
         continue
       }
     } else if (propClassName.includes('fill-') || propClassName.includes('checkboxItem-')) {
@@ -748,7 +774,7 @@ tv.getStrategyParams = async () => {
           }
         }
       } else { // Undefined type of element
-        console.log('getStrategyParams 2 skipped:', propText)
+        console.log('TV.getStrategyParams 2 skipped:', propText)
         continue
       }
     } else if (propClassName.includes('titleWrap-')) { // Titles bwtwen parameters
@@ -762,7 +788,7 @@ tv.getStrategyParams = async () => {
 }
 
 tv.setSymbolExchange = async (symbolExchange) => {
-  console.log('setSymbolExchange', symbolExchange)
+  console.log('TV.setSymbolExchange', symbolExchange)
   const symbolInfoEl = await page.waitForSelector(SEL.symbolSearchBtn, 1000)
   if (!symbolInfoEl) {
     return 'Symbol search button not found'
@@ -793,7 +819,7 @@ tv.setSymbolExchange = async (symbolExchange) => {
   }
   let firstItemExchangeEl = await page.waitForSelector(SEL.symbolSearchFirstItemExchange, 1000)
   let firstItemSymbolEl = symbolEl.querySelector('div[class^="symbolTitle"]');
-  console.log('firstItemSymbolEl', firstItemSymbolEl)
+  console.log('TV. firstItemSymbolEl', firstItemSymbolEl)
 
   if (!firstItemExchangeEl || !firstItemSymbolEl) {
     return 'Symbol search first item exchange or symbol not found'
@@ -801,13 +827,13 @@ tv.setSymbolExchange = async (symbolExchange) => {
 
   let exchangeText = symbolExchange.split(':')[0]
   if (!firstItemExchangeEl?.innerText.toUpperCase().endsWith(exchangeText.toUpperCase())) {
-    console.log('unexpected exchange text expected:', exchangeText, 'actual:', firstItemExchangeEl?.innerText)
+    console.log('TV. unexpected exchange text expected:', exchangeText, 'actual:', firstItemExchangeEl?.innerText)
     return 'unexpected exchange text expected: ' + exchangeText + ' actual: ' + firstItemExchangeEl
   }
 
   let symbolText = symbolExchange.split(':')[1]
   if (symbolText !== firstItemSymbolEl?.innerText) {
-    console.log('unexpected symbol text expected:', symbolText, 'actual:', firstItemSymbolEl?.innerText)
+    console.log('TV. unexpected symbol text expected:', symbolText, 'actual:', firstItemSymbolEl?.innerText)
     return 'unexpected symbol text expected: ' + symbolText + ' actual: ' + firstItemSymbolEl
   }
 

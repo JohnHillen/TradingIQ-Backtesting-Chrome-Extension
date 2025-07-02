@@ -23,6 +23,81 @@ util.openPineEditorTab = async () => {
     }
 }
 
+util.verifyTimeFrame = async (tfs) => {
+    if (!tfs || !tfs.length) {
+        return;
+    }
+    let timeframes = await tvChart.getAllUserTimeframes()
+    for (let tf of tfs) {
+        if (!timeframes.includes(tf)) {
+            const strategyTF = tvChart.correctTF(tf)
+            // Search timeframe among timeframes menu items
+            const timeFrameMenuEl = await page.waitForSelector(SEL.chartTimeframeMenuOrSingle)
+            if (!timeFrameMenuEl)
+                throw new Error('There is no timeframe selection menu element on the page')
+
+            await page.waitForTimeout(200)
+            if (!timeFrameMenuEl.matches('[class*="isOpened"]')) {
+                page.mouseClick(timeFrameMenuEl)
+            }
+            const menuTFItem = await page.waitForSelector(SEL.chartTimeframeMenuItem, 1500)
+            if (!menuTFItem)
+                throw new Error('There is no item in timeframe menu on the page')
+
+            await page.waitForTimeout(200)
+            let foundTF = await tvChart.selectTimeFrameMenuItem(strategyTF)
+            if (foundTF) {
+                continue;
+            }
+            await util.addTimeframe(strategyTF)
+        }
+    }
+}
+
+util.addTimeframe = async (strategyTF) => {
+    console.log('util.addTimeframe:', strategyTF)
+    // Open Add new custom Timeframe dialog
+    const timeFrameMenuAddCustomTf = await document.querySelector(SEL.chartTimeframeMenuAddCustomTf)
+    if (!timeFrameMenuAddCustomTf)
+        throw new Error('There is no timeframe selection menu element on the page')
+    page.mouseClick(timeFrameMenuAddCustomTf)
+    await page.waitForTimeout(1000)
+
+    const tfValueEl = await document.querySelector(SEL.chartTimeframeAddCustomDialogInput)
+    if (!tfValueEl)
+        throw new Error(`There is no input element to set value of timeframe`)
+    //tfValueEl.scrollIntoView()
+    page.setInputElementValue(tfValueEl, strategyTF.substr(0, strategyTF.length - 1))
+
+    page.mouseClickSelector(SEL.chartTimeframeAddCustomDialogType)
+    const isTFTypeEl = await page.waitForSelector(SEL.chartTimeframeMenuTypeItems, 1500)
+    if (!isTFTypeEl)
+        throw new Error(`The elements of the timeframe type did not appear while adding it`)
+    switch (strategyTF[strategyTF.length - 1]) {
+        case 'm':
+            page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsMin)
+            break;
+        case 'h':
+            page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsHours)
+            break;
+        case 'D':
+            page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsDays)
+            break;
+        case 'W':
+            page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsWeeks)
+            break;
+        case 'M':
+            page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsMonth)
+            break;
+        case 'r':
+            page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsRange)
+            break;
+        default:
+            return { error: 7, message: `Unknown timeframe type in "${strategyTF}"` }
+    }
+    page.mouseClickSelector(SEL.chartTimeframeAddCustomDialogAddBtn)
+}
+
 util.openDataWindow = async () => {
     let btnObjectTreeDataWindowEl = document.querySelector(SEL.dataWindowAndObjectTreeBtn)
     if (btnObjectTreeDataWindowEl.ariaPressed === "false") {
@@ -215,28 +290,30 @@ util.parseTfList = (listOfTF) => {
      */
     let tfList = listOfTF.split(',').reduce((acc, tf) => {
         tf = tf.trim();
+        if (tf === 'Chart' || tf === 'chart') {
+            acc.push('Chart');
+            return acc;
+        }
         tf = tf.replaceAll('d', 'D').replaceAll('w', 'W').replaceAll('r', 'R').replaceAll('H', 'h').replaceAll('S', 's')
 
-
-
         if (tf.length === 1 && !/[tsmhDWMR]$/.test(tf)) {
-            errorMsg = `Invalid (${tf})`;
+            errorMsg = `Invalid value "${tf}" add a valid unit (s, m, h, D, W, M, R)`;
             return acc;
         }
         else if (tf.length > 1 && !/^\d/.test(tf)) {
-            errorMsg = `Invalid (${tf})`;
+            errorMsg = `Invalid value "${tf}". Timeframe must start with a number.`;
             return acc;
         }
         else if (tf.includes(':') && !tf.includes('-')) {
-            errorMsg = `Invalid (${tf})`;
+            errorMsg = `Invalid value ":" in "${tf}". Use "-" to specify a range or remove ":" if not needed.`;
             return acc;
         }
         else if (tf.includes(':') && !/\d$/.test(tf)) {
-            errorMsg = `Invalid: (${tf})`;
+            errorMsg = `Invalid value "${tf}" add a valid unit (s, m, h, D, W, M, R)`;
             return acc;
         }
         else if ((!tf.includes(':') && !/[tsmhDWMR]$/.test(tf))) {
-            errorMsg = `Invalid:: (${tf})`;
+            errorMsg = `Invalid value "${tf}" add a valid unit (s, m, h, D, W, M, R)`;
             return acc;
         }
 
@@ -274,7 +351,7 @@ util.parseTfList = (listOfTF) => {
 
     if (errorMsg) return { error: errorMsg, data: null };
     tfList = [...new Set(tfList)];
-    const validTFs = tfList.filter(tf => /(^\d+[mhdsDWMR]$)/.test(tf));
+    const validTFs = tfList.filter(tf => /(^\d+[mhdsDWMR]$)|^Chart$/i.test(tf));
     return { error: null, data: validTFs };
 }
 
@@ -363,4 +440,26 @@ util.getExchangeString = (exchangeEl) => {
         return exchangeStr
     }
     return 'EXCHANGE';
+}
+
+util.convertToTimeframe = (tf) => {
+    if (typeof tf === 'string' && tf.toLowerCase() === 'chart') {
+        return 'Chart';
+    }
+    if (tf.endsWith('t')) {
+        return tf.replace('t', ' tick');
+    } else if (tf.endsWith('s')) {
+        return tf.replace('s', ' second');
+    } else if (tf.endsWith('m')) {
+        return tf.replace('m', ' minute');
+    } else if (tf.endsWith('h')) {
+        return tf.replace('h', ' hour');
+    } else if (tf.endsWith('D')) {
+        return tf.replace('D', ' day');
+    } else if (tf.endsWith('W')) {
+        return tf.replace('W', ' week');
+    } else if (tf.endsWith('M')) {
+        return tf.replace('M', ' month');
+    }
+    return tf;
 }

@@ -25,6 +25,41 @@ tvChart.getCurrentTimeFrame = async () => {
   return curTimeFrameText
 }
 
+
+tvChart.getAllUserTimeframes = async () => {
+  console.log('TVChart.getAllUserTimeframes')
+  const timeFrameMenuEl = await page.waitForSelector(SEL.chartTimeframeMenuOrSingle)
+  if (!timeFrameMenuEl)
+    throw new Error('There is no timeframe selection menu element on the page')
+
+  await page.waitForTimeout(200)
+  page.mouseClick(timeFrameMenuEl)
+
+  const allMenuTFItems = document.querySelectorAll(SEL.chartTimeframeMenuItem)
+  let allTimeFrames = []
+  for (let item of allMenuTFItems) {
+    const tfVal = item.getAttribute('data-value')
+    let tfNormValue = tfVal
+    const isMinutes = tvChart.isTFDataMinutes(tfVal)
+    tfNormValue = isMinutes && parseInt(tfVal) % 60 === 0 ? `${parseInt(tfVal) / 60}h` : isMinutes ? `${tfVal}m` : tfNormValue // If hours
+    if (tfVal[tfVal.length - 1] === 'S')
+      tfNormValue = `${tfVal.substr(0, tfVal.length - 1)}s`
+    if (tfVal[tfVal.length - 1] === 'T')
+      tfNormValue = `${tfVal.substr(0, tfVal.length - 2)}tick`
+    allTimeFrames.push(tfNormValue)
+  }
+  if (allTimeFrames.length === 0)
+    throw new Error('There is no timeframes on the chart. Open correct page please')
+
+  await page.waitForTimeout(200)
+  page.mouseClick(timeFrameMenuEl)
+
+  console.log('TVChart.getAllUserTimeframes: allTimeFrames:', allTimeFrames)
+
+  return allTimeFrames
+}
+
+
 tvChart.changeTimeFrame = async (setTF) => {
   console.log('TVChart.changeTimeFrame: to:', setTF)
   const strategyTF = tvChart.correctTF(setTF)
@@ -68,46 +103,9 @@ tvChart.changeTimeFrame = async (setTF) => {
     return //`Timeframe changed to ${alertTF}`
   }
 
-  // Open Add new custom Timeframe dialog
-  const timeFrameMenuAddCustomTf = await document.querySelector(SEL.chartTimeframeMenuAddCustomTf)
-  if (!timeFrameMenuAddCustomTf)
-    throw new Error('There is no timeframe selection menu element on the page')
-  page.mouseClick(timeFrameMenuAddCustomTf)
-  await page.waitForTimeout(1000)
+  //Add timeframe to the list
+  await util.addTimeframe(strategyTF);
 
-  const tfValueEl = await document.querySelector(SEL.chartTimeframeAddCustomDialogInput)
-  if (!tfValueEl)
-    throw new Error(`There is no input element to set value of timeframe`)
-  //tfValueEl.scrollIntoView()
-  page.setInputElementValue(tfValueEl, strategyTF.substr(0, strategyTF.length - 1))
-
-  page.mouseClickSelector(SEL.chartTimeframeAddCustomDialogType)
-  const isTFTypeEl = await page.waitForSelector(SEL.chartTimeframeMenuTypeItems, 1500)
-  if (!isTFTypeEl)
-    throw new Error(`The elements of the timeframe type did not appear while adding it`)
-  switch (strategyTF[strategyTF.length - 1]) {
-    case 'm':
-      page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsMin)
-      break;
-    case 'h':
-      page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsHours)
-      break;
-    case 'D':
-      page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsDays)
-      break;
-    case 'W':
-      page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsWeeks)
-      break;
-    case 'M':
-      page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsMonth)
-      break;
-    case 'r':
-      page.mouseClickSelector(SEL.chartTimeframeMenuTypeItemsRange)
-      break;
-    default:
-      return { error: 7, message: `Unknown timeframe type in "${strategyTF}"` }
-  }
-  page.mouseClickSelector(SEL.chartTimeframeAddCustomDialogAddBtn)
   await page.waitForTimeout(1000)
   foundTF = await tvChart.selectTimeFrameMenuItem(strategyTF)
   await page.waitForTimeout(1000)
@@ -163,7 +161,7 @@ tvChart.selectTimeFrameMenuItem = async (alertTF) => {
   return null
 }
 
-tvChart.isTFDataMinutes = (tf) => !['S', 'D', 'M', 'W', 'R'].includes(tf[tf.length - 1])
+tvChart.isTFDataMinutes = (tf) => !['S', 'D', 'M', 'W', 'R', 'T'].includes(tf[tf.length - 1])
 tvChart.correctTF = (tf) => ['D', 'M', 'W'].includes(tf) ? `1${tf}` : tf
 
 tvChart.getStrategyFromDataWindow = async (strategyName) => {

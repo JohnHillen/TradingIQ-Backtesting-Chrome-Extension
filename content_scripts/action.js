@@ -43,6 +43,7 @@ action.testStrategy = async (request) => {
         await initLegendObserver()
         await util.openDataWindow()
         await util.openStrategyTab()
+        await util.verifyTimeFrame(request.options.requiredTimeframes)
 
         let iqWidget = await tvChart.enableStrategy(global.iqIndicator.replace('tester [Trading IQ]', '').trim())
         if (!iqWidget) {
@@ -171,8 +172,8 @@ action.testStrategy = async (request) => {
                     for (var index = 0; index < 3; index++) {
                         strategyParams = await tv.getStrategyPropertyData(global.iqIndicator)
 
-                        if (global.htmlEquityChartOnOff && (testResult.data?.['Total trades: All'] || -1) !== strategyParams?.EquityList?.length - 1) {
-                            console.log('Action.testStrategy: Unexpected equity data length: ' + strategyParams.EquityList.length + ' expected: ' + testResult.data['Total trades: All'] + '. Please check the strategy settings.')
+                        if (global.htmlEquityChartOnOff && testResult.data && strategyParams && testResult.data['Total trades: All'] + 1 !== strategyParams.EquityList?.length) {
+                            console.log('Action.testStrategy: Unexpected equity data length: ' + (strategyParams.EquityList?.length || 'null') + ' expected: ' + testResult.data['Total trades: All'] + '. Please check the strategy settings.')
                             await page.waitForTimeout(500)
                             continue;
                         }

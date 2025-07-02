@@ -1,0 +1,545 @@
+<!DOCTYPE>
+<html lang="en">
+
+<head>
+    <title>Trading IQ assistant</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="../css/customSelect.css">
+    <link rel="stylesheet" type="text/css" href="../css/customInput.css">
+    <link rel="stylesheet" type="text/css" href="../css/init.css">
+    <script src="../../content_scripts/util.js"></script>
+    <script src="../../content_scripts/constants.js"></script>
+    <script src="../js/customSelect.js"></script>
+    <script src="../js/filename.js"></script>
+    <script src="../js/backtest.js"></script>
+    <script src="../js/dom.js"></script>
+    <script src="../js/settings.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/strategy.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/init.js"></script>
+    <style>
+        th {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body class="w3-small">
+    <div id="mainDiv" class="w3-container" style="padding: 0.01em 4px">
+        <button id="settingBtn" class="w3-button w3-xlarge w3-circle" style="width: 30;height: 30;padding: 2px 0 0 0px;position: fixed;top: 8px;right:8px;z-index: 1000;">
+            <svg width="20px" height="20px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" fill="#e0e0e0" stroke="#e0e0e0">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path fill="#00ffff"
+                        d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384zm0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256z">
+                    </path>
+                </g>
+            </svg>
+        </button>
+
+        <div id="supportedPage">
+            <div id="Testing" class="w3-container tabs">
+                <div class="w3-section">
+                    <div class="w3-container prevent-select" style="padding: 0px 0px 3px 0px;">
+                        <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:20px;width:550px;z-index: 100;">
+                                <div>
+                                    <div>
+                                        <b>Best timeframes for each indicator</b>
+                                        <table class="w3-card-4 w3-small w3-padding" style="color: black;">
+                                            <tr>
+                                                <th>Reversal IQ</th>
+                                                <td>5m, 15m, 30m</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Counter Strike IQ</th>
+                                                <td>15m, 30m, 1h, 2h, 4h</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Impulse IQ</th>
+                                                <td>15m, 30m, 1h, 2h, 4h</td>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Nova IQ</b></td>
+                                                <td>1m, 5m</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <br>
+                                    <br>
+                                    <b>What to look for when backtesting?</b>
+                                    <div class="w3-container w3-padding">
+                                        <b>Profit Factor</b><br>
+                                        <label>A strategy with a 1.3 profit factor will have periods of inconsistency</label>
+                                        <table class="w3-card-4 w3-small w3-padding" style="color: black;">
+                                            <tr>
+                                                <th>1.3 - 1.4</th>
+                                                <td>Acceptable</td>
+                                            </tr>
+                                            <tr>
+                                                <th>1.4 - 1.5</th>
+                                                <td>Good</td>
+                                            </tr>
+                                            <tr>
+                                                <th>1.5 - 1.6</th>
+                                                <td>Very Good</td>
+                                            </tr>
+                                            <tr>
+                                                <th>1.6 - 2.0</th>
+                                                <td>Great</td>
+                                            </tr>
+                                            <tr>
+                                                <th>2.5+</t>
+                                                <td>Too High</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="w3-container w3-padding">
+                                        <b>Win Rate and R:R</b><br>
+                                        <table class="w3-card-4 w3-small w3-padding" style="color: black;">
+                                            <tr>
+                                                <th>0.5:1</th>
+                                                <td>82% or greater</td>
+                                            </tr>
+                                            <tr>
+                                                <th>0.75:1</th>
+                                                <td>72% or greater</td>
+                                            </tr>
+                                            <tr>
+                                                <th>1:1</th>
+                                                <td>57% or greater</td>
+                                            </tr>
+                                            <tr>
+                                                <th>2:1</th>
+                                                <td>40% or greater</td>
+                                            </tr>
+                                            <tr>
+                                                <th>3:1</th>
+                                                <td>33% or greater</td>
+                                            </tr>
+                                            <tr>
+                                                <th>4:1</th>
+                                                <td>25% or greater</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Too High</th>
+                                                <td>87% or greater</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="w3-container w3-padding">
+                                        <b>Sharpe Ratio</b><br>
+                                        <table class="w3-card-4 w3-small w3-padding w3-text-black">
+                                            <tr>
+                                                <th>0.35 or greater</th>
+                                                <td>Acceptable</td>
+                                            </tr>
+                                            <tr>
+                                                <th>0.5 or greater</th>
+                                                <td>Good</td>
+                                            </tr>
+                                            <tr>
+                                                <th>0.7 or greater</th>
+                                                <td>Great</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="w3-container w3-padding">
+                                        <b>Max Drawdown</b><br>
+                                        <label>Drawdown is <b>unavoidable</b>. Every trader has a losing streak and so does every trading algorithm.</label>
+                                        <table class="w3-card-4 w3-small w3-padding w3-text-black">
+                                            <tr>
+                                                <th>less than 20%</th>
+                                                <td>Acceptable</td>
+                                            </tr>
+                                            <tr>
+                                                <th>less than 17%</th>
+                                                <td>Good</td>
+                                            </tr>
+                                            <tr>
+                                                <th>less than 15%</th>
+                                                <td>Great</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </span>
+                            <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h6 class="w3-cell w3-cell-middle" style="white-space:nowrap;">About Trading IQ Backtesting</h6>
+                    </div>
+                </div>
+                <div class="w3-section">
+                    <div class="custom-select" style="color:#00ffff">
+                        <select data-name="iqSettings" id="iqIndicator" style="margin-top: 3px;">
+                            <option value="0" selected>Impulse IQ Backtester</option>
+                            <option value="1">Reversal IQ Backtester</option>
+                            <option value="2">Counter Strike IQ Backtester</option>
+                            <option value="3">Nova IQ Backtester</option>
+                            <option value="4">Razor IQ Backtester</option>
+                            <!--option value="5">Wick Slicer IQ Backtester</option-->
+                        </select>
+                    </div>
+                </div>
+
+                <div id="impulsIq-container"></div>
+                <div id="reversalIq-container"></div>
+                <div id="counterIq-container"></div>
+                <div id="novaIq-container"></div>
+                <div id="razorIq-container"></div>
+                <div id="wickSlicerIq-container"></div>
+
+                <div id="backtest-settings-container"></div>
+            </div>
+        </div>
+
+        <div id="disclaimer" class="w3-container w3-center" style="margin-bottom: 25px;">
+            <br>
+            <h5>Disclaimer</h5>
+            <div class="w3-container center" style="padding: 0px 0px 3px 0px;">
+                <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
+                    <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:-50px;bottom:18px;width:270px;z-index: 100;">It is possible that
+                        the
+                        extension will be detected by TradingView and the user's account will be
+                        banned.<br><br>
+                        The developer of the extension does not response for any possible consequences of its
+                        use.</span>
+                    <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18" style="z-index: 1;">
+                        <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                        </path>
+                    </svg>
+                </div>
+                <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Use at your own risk.</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="Settings" style="height: 100%; width: 100%;display:none;z-index: 200;background-color: #181818A0;position: fixed;top: 0px;left:0px;">
+        <div class="w3-card-4" style="overflow-y: scroll; height:550px; width: 550px; position: fixed;top: 25px;left:25px;background: radial-gradient(circle at top, #313131, #181818)">
+            <div class="w3-container">
+                <div class="w3-cell-row w3-section">
+                    <h5 class="w3-cell">Extension Settings</h5>
+                    <label id="version" class="w3-cell w3-small w3-right"></label>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Report Format</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="w3-cell">
+                            <label class="container">HTML
+                                <input data-name="strategySettings" id="reportResultOptionsHtml" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="w3-cell" style="padding: 0 8px;">
+                            <label class="container">CSV
+                                <input data-name="strategySettings" id="reportResultOptionsCsv" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Html Equity Chart</label>
+                    </div>
+                    <div class="w3-cell">
+                        <label class="container">ON/OFF
+                            <input data-name="strategySettings" id="htmlEquityChartOnOff" type="checkbox" checked="checked">
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-tooltip w3-small w3-cell" style="width: 22px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">This is the maximum time the extension
+                                will
+                                wait for the best strategy numbers to load.<br>
+                                On lower timeframes the time to load the best strategy numbers can increase significant.<br>
+                                If the extension runs in timeouts and is not able to load the best strategy numbers, you can increase this timeout.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Timeout
+                            (sec)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="tiq_timeout" type="number" value="60" step="10">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <div class="w3-tooltip w3-small w3-cell" style="width: 22px;">
+                            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" style="position:absolute;left:0;top:18px;width:270px;z-index: 100;">This is the
+                                number of retries the extension makes to identify the best strategy numbers after the timeout is reached.<br>
+                                The maximum amount of time the extension will attempt to recognize the best strategy numbers is calculated by multiplying the number of retries by the timeout (5 x
+                                60
+                                seconds = 300 seconds) for each cycle.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18" style="z-index: 1;">
+                                <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z">
+                                </path>
+                            </svg>
+                        </div>
+                        <label class="w3-small w3-cell w3-cell-middle" style="white-space:nowrap;">Number of Retry</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="tiq_retry" type="number" value="5">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="w3-container">
+                <h5>Strategy Properties</h5>
+            </div>
+            <div class="w3-container">
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Initial capital</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_initial_capital" type="number" value="10000" step="1000">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Base currency</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-select" style="color:#00ffff;">
+                            <select data-name="strategySettings" id="strategy_properties_base_currency" style="margin-top: 3px;">
+                                <option value="0">Default</option>
+                                <option value="1">USD</option>
+                                <option value="2">EUR</option>
+                                <option value="3">AUD</option>
+                                <option value="4">GBP</option>
+                                <option value="5">NZD</option>
+                                <option value="6">CAD</option>
+                                <option value="7">CHF</option>
+                                <option value="8">HKD</option>
+                                <option value="9">JPY</option>
+                                <option value="10">NOK</option>
+                                <option value="11">RUB</option>
+                                <option value="12">SEK</option>
+                                <option value="13">SGD</option>
+                                <option value="14">TRY</option>
+                                <option value="15">ZAR</option>
+                                <option value="16">BTC</option>
+                                <option value="17">ETH</option>
+                                <option value="18">MYR</option>
+                                <option value="19">KRW</option>
+                                <option value="20">USD</option>
+                                <option value="21">INR</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Order size</label>
+                    </div>
+                    <div class="w3-cell" style="width: 20%;">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_ordersize" type="number" value="100">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell" style="padding-left: 4px;">
+                        <div class="custom-select" style="color:#00ffff;">
+                            <select data-name="strategySettings" data-adaptive="true" id="sp_ordersize_type" style="margin-top: 3px;">
+                                <option value="0">Contracts</option>
+                                <option value="1">Base Currency</option>
+                                <option value="2" selected>% of equity</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Pyramiding</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_pyramiding" type="number" value="1">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Commission</label>
+                    </div>
+                    <div class="w3-cell" style="width: 20%;">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" type="number" value="0" id="sp_commission" step="0.01" />
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-cell" style="padding-left: 4px;">
+                        <div class="custom-select" style="color:#00ffff;">
+                            <select data-name="strategySettings" data-adaptive="true" id="sp_commission_type" style="margin-top: 3px;">
+                                <option value="0">%</option>
+                                <option value="1">USDT per contract</option>
+                                <option value="2">USDT per order</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Verify price for limit orders (ticks)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" type="number" value="0" id="sp_price_limit_orders" />
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Slippage (ticks)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_slippage" type="number" value="0">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Margin long positions (%)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_marging_long" type="number" value="0">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-small" style="white-space:nowrap;">Margin short positions (%)</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="custom-buttons-container">
+                            <input data-name="strategySettings" id="sp_marging_short" type="number" value="0">
+                            <div class="custom-buttons">
+                                <button type="button" class="plus"></button>
+                                <button type="button" class="minus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Recalculate</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">After Order os filled
+                                <input data-name="strategySettings" id="sp_after_order_is_filled" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">On every tick
+                                <input data-name="strategySettings" id="sp_on_every_tick" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="w3-cell-row">
+                    <div class="w3-cell w3-cell-middle" style="width: 35%;">
+                        <label class="w3-cell w3-cell-middle" style="white-space:nowrap;padding-right: 4px;">Fill Orders</label>
+                    </div>
+                    <div class="w3-cell">
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">Using bar magnifier
+                                <input data-name="strategySettings" id="sp_using_bar_magnifier" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">On bar close
+                                <input data-name="strategySettings" id="sp_on_bar_close" type="checkbox" checked="checked">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+
+                        <div class="" style="padding: 8px 0px;">
+                            <label class="container">Using standard OHLC
+                                <input data-name="strategySettings" id="sp_using_standard_ohlc" type="checkbox">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="unsupportedPage" class="w3-container w3-padding vertical-center" style="text-align: center;width: 100%;">
+        <label>The extension only works with the<br> <a href="https://www.tradingview.com/chart" target="_blank">English
+                version</a> of Tradingview.</label>
+    </div>
+
+</body>
+
+</html>
