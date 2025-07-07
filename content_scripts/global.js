@@ -4,6 +4,7 @@ const global = {
     currentBestStrategyNumbers: [],
     testResultNumberCount: 0,
     strategyParamsNumberCount: 0,
+    testDateRangeType: null,
     isDeepTest: false,
     deepFrom: null,
     deepTo: null,
@@ -20,7 +21,8 @@ const global = {
     isNovaReversion: null,
     isNovaTrendCycle: null,
     isNovaReversionCycle: null,
-    isCS: null
+    isCS: null,
+    isNewTestDateRangeBehavior: true,
 }
 
 global.reset = () => {
@@ -29,6 +31,7 @@ global.reset = () => {
     global.testResultNumberCount = 0
     global.strategyParamsNumberCount = 0
     global.htmlEquityChartOnOff = false
+    global.testDateRangeType = null
     global.isDeepTest = false
     global.deepFrom = null
     global.deepTo = null
@@ -46,4 +49,5 @@ global.reset = () => {
     global.isNovaTrendCycle = null
     global.isNovaReversionCycle = null
     global.isCS = null
+    global.isNewTestDateRangeBehavior = true
 }

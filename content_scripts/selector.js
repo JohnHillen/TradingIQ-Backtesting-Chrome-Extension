@@ -1,7 +1,5 @@
 
 const SEL = {
-    tvLegendIndicatorItem: 'div[data-name="legend"] div[class^="sourcesWrapper"] div[class^="sources"] div[data-name="legend-source-item"]',
-    tvLegendIndicatorItemTitle: 'div[data-name="legend-source-title"]',
     tvDialogRoot: '#overlap-manager-root',
     indicatorTitle: '#overlap-manager-root div[data-name="indicator-properties-dialog"] [class^="container"] div[class^="title"]',
     indicatorDropdown: '#header-toolbar-indicators button',
@@ -36,6 +34,7 @@ const SEL = {
     backtestingWarningContainer: '#bottom-area div[class^="backtesting"] div[class^="backtestingWarningContainer"]',
     backtestingWarningContainerInformerBody: '#bottom-area div[class^="backtesting"] div[class^="backtestingWarningContainer"] div[class^="informerBody"]',
 
+    // Old Date Picker Selectors, can be removed in future versions if we are sure all users have migrated to the new date picker
     datePickerSwitchToMonth: 'div[class^="picker-"] div[class^="calendar-"] button[aria-label^="Switch to months"]',
     datePickerSwitchToYears: 'div[class^="picker-"] div[class^="calendar-"] button[aria-label^="Switch to years"]',
     datePickerViewDecades: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-decades-"]',
@@ -44,6 +43,16 @@ const SEL = {
     datePickerMonthButtons: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-year-"] button',
     datePickerViewDays: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-month-"]',
     datePickerDaysButtons: 'div[class^="picker-"] div[class^="calendar-"] div[class^="view-month-"] button',
+
+    // New Date Picker Selectors
+    newDatePickerSwitchToMonth: '#overlap-manager-root div[class^="calendar-"] button[aria-label^="Switch to months"]',
+    newDatePickerSwitchToYears: '#overlap-manager-root div[class^="calendar-"] button[aria-label^="Switch to years"]',
+    newDatePickerViewDecades: '#overlap-manager-root div[class^="calendar-"] div[class^="view-decades-"]',
+    newDatePickerDecadesButtons: '#overlap-manager-root div[class^="calendar-"] div[class^="view-decades-"] button[class^="decade-"]',
+    newDatePickerViewMonths: '#overlap-manager-root div[class^="calendar-"] div[class^="view-year-"]',
+    newDatePickerMonthButtons: '#overlap-manager-root div[class^="calendar-"] div[class^="view-year-"] button',
+    newDatePickerViewDays: '#overlap-manager-root div[class^="calendar-"] div[class^="view-month-"]',
+    newDatePickerDaysButtons: '#overlap-manager-root div[class^="calendar-"] div[class^="view-month-"] button',
 
     dataWindowAndObjectTreeBtn: 'button[data-name="object_tree"]',
     dataWindowBtn: '#data-window',
@@ -87,6 +96,19 @@ const SEL = {
     strategyDeepTestGenerateBtn: '#bottom-area div[class^="backtesting"]  [class^="historyParams"] button[class^="generateReportBtn"]:not([disabled])',
     strategyDeepTestGenerateBtnDisabled: '#bottom-area div[class^="backtesting"]  [class^="historyParams"] button[class^="generateReportBtn"][disabled]',
 
+    testDateRangeButton: '#bottom-area div[class^="backtesting"] [class^="dateRangeMenuWrapper-"] button',
+    testDateRangeItemRangeFromChart: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Range from chart"]',
+    testDateRangeItemLast7Days: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Last 7 days"]',
+    testDateRangeItemLast30Days: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Last 30 days"]',
+    testDateRangeItemLast90Days: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Last 90 days"]',
+    testDateRangeItemLast365Days: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Last 365 days"]',
+    testDateRangeItemEntireHistory: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Entire history"]',
+    testDateRangeItemCustomRange: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Custom date range…"]',
+    testDateRangeItemResetToChartSeession: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Reset to chart session"]',
+    testDateRangeCustomStartDate: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"]> div:nth-child(1) div[class^="pickerInput-"]',
+    testDateRangeCustomEndDate: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"]> div:nth-child(2) div[class^="pickerInput"]',
+    testDateRangeCustomApplyBtn: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="footer-"] button[name="submit"]',
+
     strategyListOptions: 'div[role="listbox"] div[data-name="menu-inner"] div[role="option"] span[class^="label-"]',
     strategyDefaultElement: '#property-actions',
     strategyDefaultElementList: '#id_property-actions_listbox span[class^="label-"]',
@@ -115,7 +137,11 @@ const SEL = {
     chartTimeframeMenuTypeItemsRange: '#overlap-manager-root div[data-name="menu-inner"] > div[class^="item"]:nth-child(6)',
 
     legendContainer: 'div[class^="legend-"][data-name="legend"]',
-    legendSources: 'div[class^="legend-"][data-name="legend"] > div[class^="sourcesWrapper-"] > div[class^="sources-"] > div[class^="item-"][data-name="legend-source-item"]',
-    legendSourceTitle: 'div[class^="noWrapWrapper-"] > div[class^="titlesWrapper-"] > div[data-name="legend-source-description"]',
+    legendSources: 'div[class^="legend-"][data-name="legend"] > div[class^="sourcesWrapper-"] > div[class^="sources-"] > div[data-name="legend-source-item"]',
+    legendSourceTitle: 'div[data-name="legend-source-title"]',
     legendStatus: 'div[class^="noWrapWrapper-"] > div[class^="statusesWrapper-"] > div[data-name="legend-source-item-status"]',
+    legendStatusDataProblemLow: 'div[class*="dataProblemLow-"]',
+
+    reportOutdatedButton: '#snackbar-container button[data-overflow-tooltip-text="Update report"]',
+    updatingReportContainer: '#snackbar-container div[class^="main-"]',
 }

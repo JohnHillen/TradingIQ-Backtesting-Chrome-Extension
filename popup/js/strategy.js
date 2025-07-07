@@ -131,7 +131,16 @@ function getTestOptions() {
   const options = {}
   options.iqIndicator = SUPPORTED_STRATEGIES[document.getElementById('iqIndicator').value]
   options.strategyProperties = getStrategyProperties()
-  options.deeptest = document.getElementById('iq_deep_enabled').checked
+
+  const testDateRangeEl = document.getElementById('iq_test_date_range_type');
+  const testDateRangeValue = testDateRangeEl.value;
+  const testDateRangeText = testDateRangeEl.options[testDateRangeEl.selectedIndex].text;
+  options.testDateRangeType = testDateRangeText
+  if (testDateRangeValue === '6') {
+    options.testDateRangeFrom = document.getElementById('iq_deep_from').value
+    options.testDateRangeTo = document.getElementById('iq_deep_to').value
+  }
+
   options.resetAtStart = document.getElementById('iq_reset_at_start').checked
   options.isNovaTrendSelected = document.getElementById('novaIq_trade_trends_reversions').selectedIndex !== 2 // 1 = Trends, 2 = Reversions
   options.isNovaReversionSelected = document.getElementById('novaIq_trade_trends_reversions').selectedIndex !== 1 // 1 = Trends, 2 = Reversions

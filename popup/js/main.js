@@ -43,9 +43,10 @@ function checkIsTVChart() {
                     });
                 });
 
-                document.getElementById('iq_deep_enabled').addEventListener('click', function () {
-                    document.getElementById('iq_deep_from').disabled = !document.getElementById('iq_deep_enabled').checked
-                    document.getElementById('iq_deep_to').disabled = !document.getElementById('iq_deep_enabled').checked
+                document.getElementById('iq_test_date_range_type').addEventListener('change', function (event) {
+                    let type = event.target.value;
+                    document.getElementById('iq_deep_from').disabled = type !== '6'
+                    document.getElementById('iq_deep_to').disabled = type !== '6'
                     disable('iq_deep_from')
                     disable('iq_deep_to')
                 });
@@ -59,6 +60,12 @@ function checkIsTVChart() {
                 for (let i = 0; i < tfList.length; i++) {
                     tfList[i].innerHTML = TIMEFRAME_INPUT
                 }
+
+                let linkList = document.querySelectorAll('[data-info="link"]')
+                for (let i = 0; i < tfList.length; i++) {
+                    linkList[i].innerHTML = LINK_LTF_HTF_INFO
+                }
+
             }
         } catch (e) {
             console.error(e)
@@ -106,13 +113,32 @@ function showSettings() {
 }
 
 function attachDynamicEventListeners() {
-    document.getElementById('customFileName').addEventListener('input', function () {
+    let customFileName = document.getElementById('customFileName');
+    customFileName.addEventListener('input', function (e) {
         const illegalChars = /[\/\\?*:|<>]/g;
         if (illegalChars.test(this.value)) {
             this.value = this.value.replace(illegalChars, '');
             showHint(this.parentNode, 'customFileName', 'The following characters are not allowed: / \\ ? * : | < >');
         }
+        verifyInput(e, customFileName);
         initFileName();
+    });
+    customFileName.addEventListener('keydown', function (e) {
+        const list = document.getElementById('customFileName-autocomplete-list');
+        if (!list) return;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            moveAutocompleteSelection(1);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            moveAutocompleteSelection(-1);
+        } else if (e.key === 'Enter') {
+            if (selectAutocompleteItem(customFileName)) {
+                e.preventDefault();
+            }
+        } else if (e.key === 'Escape') {
+            removeAutocompleteList();
+        }
     });
 
     let dateTo = document.getElementById('iq_deep_to');
@@ -127,21 +153,12 @@ function showWarning(message, elementId) {
     console.log('showWarning', elementId, message)
     let element = document.getElementById(elementId);
     let warningDivId = element.dataset.warnId;
+    if (!warningDivId) warningDivId = elementId + '_warning';
     let warningDiv = document.getElementById(warningDivId);
     warningDiv.style.display = 'block';
     warningDiv.querySelector('#warningMsg').innerText = message;
     document.getElementById('testStrategy').disabled = true;
 }
-
-const WARNING_DIV_TF_LIST = 'main-tf-warning';
-const WARNING_DIV_IMPULS_IQ_LTF = 'impulsIq_ltf_warning';
-const WARNING_DIV_IMPULS_IQ_HTF = 'impulsIq_htf_warning';
-const WARNING_DIV_REVERSAL_IQ_MIN_ATR_PROFIT = 'reversalIq_min_atr_profit_warning';
-const WARNING_DIV_REVERSAL_IQ_MIN_ATR_STOP = 'reversalIq_min_atr_stop_warning';
-const WARNING_DIV_COUNTER_IQ_MIN_ATR_PROFIT = 'counterIq_min_atr_profit_warning';
-const WARNING_DIV_COUNTER_IQ_MIN_ATR_STOP = 'counterIq_min_atr_stop_warning';
-const WARNING_DIV_NOVA_IQ_MIN_ATR_PROFIT = 'novaIq_min_atr_profit_warning';
-const WARNING_DIV_NOVA_IQ_MIN_ATR_STOP = 'novaIq_min_atr_stop_warning';
 
 function hideWarning(warningDivId) {
     console.log('hideWarning', warningDivId)
@@ -151,13 +168,5 @@ function hideWarning(warningDivId) {
 
 function hideAllWarnings() {
     console.log('hideAllWarnings')
-    hideWarning(WARNING_DIV_TF_LIST);
-    hideWarning(WARNING_DIV_IMPULS_IQ_LTF);
-    hideWarning(WARNING_DIV_IMPULS_IQ_HTF);
-    hideWarning(WARNING_DIV_REVERSAL_IQ_MIN_ATR_PROFIT);
-    hideWarning(WARNING_DIV_REVERSAL_IQ_MIN_ATR_STOP);
-    hideWarning(WARNING_DIV_COUNTER_IQ_MIN_ATR_PROFIT);
-    hideWarning(WARNING_DIV_COUNTER_IQ_MIN_ATR_STOP);
-    hideWarning(WARNING_DIV_NOVA_IQ_MIN_ATR_PROFIT);
-    hideWarning(WARNING_DIV_NOVA_IQ_MIN_ATR_STOP);
+    document.querySelectorAll('[id$="_warning"]').forEach(div => hideWarning(div.id));
 }

@@ -406,6 +406,10 @@ tv.parseReportTable = async (baseCurrency = null) => {
 }
 
 tv.generateDeepTestReport = async () => {
+  console.log('TV.generateDeepTestReport', global.isNewTestDateRangeBehavior, global.isDeepTest, global.deepFrom, global.deepTo)
+  if (global.isNewTestDateRangeBehavior) {
+    return;
+  }
   const generateBtnEl = await page.waitForSelector(SEL.strategyDeepTestGenerateBtn)
   if (generateBtnEl) {
     page.mouseClick(generateBtnEl)
@@ -665,14 +669,14 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   page.mouseClick(dateElement)
   await page.waitForTimeout(56)
 
-  page.mouseClickSelector(SEL.datePickerSwitchToMonth)
+  page.mouseClickSelector(global.isNewTestDateRangeBehavior ? SEL.newDatePickerSwitchToMonth : SEL.datePickerSwitchToMonth)
   await page.waitForTimeout(59)
 
-  page.mouseClickSelector(SEL.datePickerSwitchToYears)
+  page.mouseClickSelector(global.isNewTestDateRangeBehavior ? SEL.newDatePickerSwitchToYears : SEL.datePickerSwitchToYears)
   await page.waitForTimeout(52)
 
   let outOfRange = false
-  let buttons = document.querySelectorAll(SEL.datePickerDecadesButtons)
+  let buttons = document.querySelectorAll(global.isNewTestDateRangeBehavior ? SEL.newDatePickerDecadesButtons : SEL.datePickerDecadesButtons)
   for (let button of buttons) {
     if (outOfRange || button.innerText === year.toString()) {
       if (button.disabled) {
@@ -686,7 +690,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
     }
   }
   outOfRange = false
-  buttons = document.querySelectorAll(SEL.datePickerMonthButtons)
+  buttons = document.querySelectorAll(global.isNewTestDateRangeBehavior ? SEL.newDatePickerMonthButtons : SEL.datePickerMonthButtons)
   for (i = 0; i < 12; i++) {
     if (outOfRange || i === month) {
       if (buttons[i].disabled) {
@@ -701,7 +705,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   }
 
   outOfRange = false
-  buttons = document.querySelectorAll(SEL.datePickerDaysButtons)
+  buttons = document.querySelectorAll(global.isNewTestDateRangeBehavior ? SEL.newDatePickerDaysButtons : SEL.datePickerDaysButtons)
   for (let button of buttons) {
     if (outOfRange || button.innerText === day.toString()) {
       if (button.disabled) {
@@ -714,6 +718,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
       break
     }
   }
+  console.log('TV.setDeepDateValues set date:', dateValue, 'year:', year, 'month:', month, 'day:', day)
 }
 
 tv.loadCurrentBestStrategyNumbers = async () => {

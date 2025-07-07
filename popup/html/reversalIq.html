@@ -131,23 +131,7 @@
             </div>
         </div>
     </div>
-    <div class="w3-cell-row">
-        <div class="w3-cell w3-cell-middle" style="width: 35%;">
-            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
-                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
-                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z"></path>
-                </svg>
-            </div>
-            <label class="w3-cell w3-cell-middle">Minimum ATR Profit</label>
-        </div>
-        <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" class="w3-input" id="reversalIq_min_atr_profit" data-warn-id="reversalIq_min_atr_profit_warning" type="text" placeholder="comma seperated list" title="Timeout">
-        </div>
-    </div>
-    <div id="reversalIq_min_atr_profit_warning" class="w3-cell-row prevent-select w3-red w3-margin">
-        <span><b>Warning </b><span id="warningMsg"></span></span>
-    </div>
+    <input-with-warning input-id="reversalIq_min_atr_profit" width="35%" label="Minimum ATR Profit" placeholder="comma seperated list" tooltip="#CSL_INFO#"></input-with-warning>
     <div class="w3-cell-row" style="justify-content: left; display: flex; margin: 0 0 0 30px;">
         <div id="reversalIq_link_toggle" type="button" class="w3-tooltip w3-cell w3-cell-middle w3-round-xxlarge active link-toggle" style="padding: 1px; padding-left: 7px; width: 30px; height: 18px;margin-top: -4px;margin-bottom: -4px;border: 1px solid aqua;">
             <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="link" style="position:absolute;left:-50px;top:18px;width:550px;z-index: 100;">If enabled the Min ATR will set as pairs, this will reduce the backtest cycles, eg.:<br>
@@ -160,29 +144,14 @@
             </svg>
         </div>
     </div>
-    <div class="w3-cell-row">
-        <div class="w3-cell w3-cell-middle" style="width: 35%;">
-            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
-                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
-                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z"></path>
-                </svg>
-            </div>
-            <label class="w3-cell w3-cell-middle">Minimum ATR Stop</label>
-        </div>
-        <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" class="w3-input" id="reversalIq_min_atr_stop" data-warn-id="reversalIq_min_atr_stop_warning" type="text" placeholder="comma seperated list" title="Timeout">
-        </div>
-    </div>
-    <div id="reversalIq_min_atr_stop_warning" class="w3-cell-row prevent-select w3-red w3-margin">
-        <span><b>Warning </b><span id="warningMsg"></span></span>
-    </div>
+    <input-with-warning input-id="reversalIq_min_atr_stop" width="35%" label="Minimum ATR Stop" placeholder="comma seperated list" tooltip="#CSL_INFO#"></input-with-warning>
     <div class="w3-cell-row">
         <div class="w3-cell w3-cell-middle" style="width: 35%;">
             <label class="w3-cell w3-cell-middle">Calculated bars</label>
         </div>
         <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" class="w3-input" id="reversalIq_calculated_bars" type="text" placeholder="comma seperated list" title="Timeout">
+            <input data-name="iqSettings" class="w3-input" id="reversalIq_calculated_bars" type="text" placeholder="comma seperated list">
         </div>
     </div>
+    <input-with-warning input-id="reversalIq_total_account_risk_per_trade" width="35%" label="Risk % of Total Account per Trade" placeholder="comma seperated list"></input-with-warning>
 </div>

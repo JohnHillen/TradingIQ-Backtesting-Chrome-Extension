@@ -32,7 +32,7 @@ function loadSettings() {
       disable('exchanges')
     }
 
-    if (!document.getElementById('iq_deep_enabled').checked) {
+    if (document.getElementById('iq_test_date_range_type').value !== '6') {
       document.getElementById('iq_deep_from').disabled = true
       document.getElementById('iq_deep_to').disabled = true
       disable('iq_deep_from')

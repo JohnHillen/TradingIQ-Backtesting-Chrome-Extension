@@ -59,7 +59,6 @@ tvChart.getAllUserTimeframes = async () => {
   return allTimeFrames
 }
 
-
 tvChart.changeTimeFrame = async (setTF) => {
   console.log('TVChart.changeTimeFrame: to:', setTF)
   const strategyTF = tvChart.correctTF(setTF)
@@ -121,7 +120,7 @@ tvChart.toggleTimeFrame = async () => {
   let tf1 = "1m" === cycleTf ? "2m" : "1m"
 
   let deepCheckbox = await page.waitForSelector(SEL.strategyDeepTestCheckbox, 500);
-  if (global.isDeepTest && deepCheckbox.checked) {
+  if (deepCheckbox && global.isDeepTest && deepCheckbox.checked) {
     console.log('TVChart.toggleTimeFrame disable deep test')
     page.mouseClick(deepCheckbox)
     await page.waitForTimeout(750);
@@ -136,7 +135,7 @@ tvChart.toggleTimeFrame = async () => {
   await page.waitForTimeout(500)
 
   deepCheckbox = await page.waitForSelector(SEL.strategyDeepTestCheckbox, 500);
-  if (global.isDeepTest && !deepCheckbox.checked) {
+  if (deepCheckbox && global.isDeepTest && !deepCheckbox.checked) {
     console.log('TVChart.toggleTimeFrame enable deep test')
     page.mouseClick(deepCheckbox)
     await page.waitForTimeout(750);
@@ -284,4 +283,152 @@ tvChart.enableStrategy = async (strategyName) => {
   }
 
   return iqWidgetEl
+}
+
+tvChart.setTestDateRange = async () => {
+  console.log('TVChart.setTestDateRange:', global.isDeepTest, global.deepFrom, global.deepTo);
+
+  let deepCheckbox = document.querySelector(SEL.strategyDeepTestCheckbox);
+  if (deepCheckbox) {
+    // Old behavior for deep test
+    global.isNewTestDateRangeBehavior = false;
+    await tvChart.setDeepDateValues(deepCheckbox);
+    return;
+  }
+
+  let testDateRangeButton = document.querySelector(SEL.testDateRangeButton)
+  if (!testDateRangeButton) {
+    throw new Error('There is no Test Date Range button on the chart')
+  }
+
+  if (testDateRangeButton.getAttribute('aria-expanded') === 'false') {
+    console.log('TVChart.setTestDateRange: open Test Date Range menu');
+    page.mouseClick(testDateRangeButton);
+    await page.waitForTimeout(200);
+  }
+
+  let resetToChartSession = document.querySelector(SEL.testDateRangeItemResetToChartSeession);
+  if (resetToChartSession && global.testDateRangeType === RANGE_FROM_CHART) {
+    console.log('TVChart.setTestDateRange: Reset to chart session');
+    page.mouseClickSelector(SEL.testDateRangeItemResetToChartSeession);
+    await page.waitForTimeout(200);
+    return;
+  }
+
+  switch (global.testDateRangeType) {
+    case RANGE_FROM_CHART:
+      console.log('TVChart.setTestDateRange: RangeFromChart');
+      page.mouseClickSelector(SEL.testDateRangeItemRangeFromChart);
+      break;
+    case LAST_7_DAYS:
+      console.log('TVChart.setTestDateRange: Last7Days');
+      page.mouseClickSelector(SEL.testDateRangeItemLast7Days);
+      break;
+    case LAST_30_DAYS:
+      console.log('TVChart.setTestDateRange: Last30Days');
+      page.mouseClickSelector(SEL.testDateRangeItemLast30Days);
+      break;
+    case LAST_90_DAYS:
+      console.log('TVChart.setTestDateRange: Last90Days');
+      page.mouseClickSelector(SEL.testDateRangeItemLast90Days);
+      break;
+    case LAST_365_DAYS:
+      console.log('TVChart.setTestDateRange: Last365Days');
+      page.mouseClickSelector(SEL.testDateRangeItemLast365Days);
+      break;
+    case ENTIRE_HISTORY:
+      console.log('TVChart.setTestDateRange: EntireHistory');
+      page.mouseClickSelector(SEL.testDateRangeItemEntireHistory);
+      break;
+    case CUSTOM_RANGE:
+      console.log('TVChart.setTestDateRange: CustomRange');
+      page.mouseClickSelector(SEL.testDateRangeItemCustomRange);
+      await page.waitForTimeout(500);
+      await setCustomDateRange(SEL.testDateRangeCustomStartDate, SEL.testDateRangeCustomEndDate);
+      await page.waitForTimeout(300);
+      let customApplyBtn = document.querySelector(SEL.testDateRangeCustomApplyBtn);
+      if (!customApplyBtn || customApplyBtn.disabled) {
+        throw new Error('There is no Custom Apply button on the chart or it is disabled');
+      }
+      page.mouseClickSelector(SEL.testDateRangeCustomApplyBtn);
+      await page.waitForTimeout(200);
+      break;
+  }
+  console.log('TVChart.setTestDateRange: Test Date Range set to:', global.testDateRangeType);
+}
+
+tvChart.setDeepDateValues = async (deepCheckbox) => {
+  console.log('TVChart.setDeepDateValues', deepCheckbox, global.isDeepTest, global.deepFrom, global.deepTo);
+
+  if (deepCheckbox.checked !== global.isDeepTest) {
+    console.log('TVChart.setDeepDateValues: Set deep test');
+    page.mouseClick(deepCheckbox);
+    await page.waitForTimeout(500);
+  }
+
+  if (global.isDeepTest) {
+    await setCustomDateRange(SEL.strategyDeepTestStartDate, SEL.strategyDeepTestEndDate);
+  }
+}
+
+async function setCustomDateRange(selectorStart, selectorEnd) {
+  console.log('TVChart.setCustomDateRange');
+  let startDate = document.querySelector(selectorStart)
+  let endDate = document.querySelector(selectorEnd)
+  let endDateValue = endDate.value
+  let startDateValue = startDate.value
+
+  if (global.isNewTestDateRangeBehavior) {
+    startDateValue = startDate.querySelector('input').value;
+    endDateValue = endDate.querySelector('input').value;
+  }
+
+  if (global.deepFrom > endDateValue) {
+    if (endDateValue !== global.deepTo) {
+      await tv.setDeepDateValues(endDate, global.deepTo)
+    }
+    if (startDateValue !== global.deepFrom) {
+      await tv.setDeepDateValues(startDate, global.deepFrom)
+    }
+  }
+  else {
+    if (startDateValue !== global.deepFrom) {
+      await tv.setDeepDateValues(startDate, global.deepFrom)
+    }
+    if (endDateValue !== global.deepTo) {
+      await tv.setDeepDateValues(endDate, global.deepTo)
+    }
+  }
+  let msg = await tv.generateDeepTestReport();
+  console.log('TVChart.setCustomDateRange: Deep Test Result:', msg)
+}
+
+tvChart.updateReport = async () => {
+  console.log('TVChart.updateReport: Start updating report');
+  await waitForReportUpdate();
+
+  await waitForReportUpdate();
+
+  console.log('TVChart.isReportOutdated: Report is up to date');
+  return false;
+}
+
+async function waitForReportUpdate(expected) {
+  let updatingReportContainer = document.querySelector(SEL.updatingReportContainer);
+  while (updatingReportContainer = document.querySelector(SEL.updatingReportContainer)) {
+    console.log('TVChart.isReportOutdated: Report is being updated');
+    await page.waitForTimeout(500);
+    updatingReportContainer = document.querySelector(SEL.updatingReportContainer);
+    if (!updatingReportContainer) {
+      console.log('TVChart.isReportOutdated: Report is up to date');
+      break;
+    } else {
+      const outdatedButton = document.querySelector(SEL.reportOutdatedButton);
+      if (outdatedButton) {
+        console.log('TVChart.isReportOutdated: Report is outdated');
+        page.mouseClickSelector(SEL.reportOutdatedButton);
+        await page.waitForTimeout(500);
+      }
+    }
+  }
 }

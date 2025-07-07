@@ -25,14 +25,16 @@ action.testStrategy = async (request) => {
         global.isNova = global.iqIndicator === NOVA
         global.isNovaTrend = request.options.isNovaTrendSelected
         global.isNovaReversion = request.options.isNovaReversionSelected
+
         global.isCS = global.iqIndicator === COUNTER_STRIKE
         rfHtml = request.options.reportResultOptions.html
         rfCsv = request.options.reportResultOptions.csv
         global.pfFilter = request.options.pfFilter //{long:0, short: 0, operator: [0: AND, 1: OR]}
         global.htmlEquityChartOnOff = request.options.reportResultOptions.htmlEquityChart
-        global.isDeepTest = request.options.deeptest
-        global.deepFrom = request.options.deepfrom
-        global.deepTo = request.options.deepto
+        global.testDateRangeType = request.options.testDateRangeType
+        global.isDeepTest = global.testDateRangeType === CUSTOM_RANGE
+        global.deepFrom = global.isDeepTest ? request.options.testDateRangeFrom : null
+        global.deepTo = global.isDeepTest ? request.options.testDateRangeTo : null
         global.fileName = request.options.fileName
         if (!global.fileName || global.fileName === '') {
             global.fileName = global.iqIndicator
@@ -103,36 +105,9 @@ action.testStrategy = async (request) => {
             } else {
                 global.fileName = global.fileName.replace(/CURRENT_TF/g, global.cycleTf)
             }
-            let deepCheckbox = document.querySelector(SEL.strategyDeepTestCheckbox)
-            if (global.isDeepTest !== deepCheckbox.checked) {
-                page.mouseClick(deepCheckbox)
-                await page.waitForTimeout(1500)
-            }
 
-            if (global.isDeepTest) {
-                console.log('Action.testStrategy: Set deep test date range:', global.deepFrom, global.deepTo)
-                let startDate = document.querySelector(SEL.strategyDeepTestStartDate)
-                let endDate = document.querySelector(SEL.strategyDeepTestEndDate)
-                if (global.deepFrom > endDate.value) {
-                    if (endDate.value !== global.deepTo) {
-                        await tv.setDeepDateValues(endDate, global.deepTo)
-                    }
-                    if (startDate.value !== global.deepFrom) {
-                        await tv.setDeepDateValues(startDate, global.deepFrom)
-                    }
-                }
-                else {
-                    if (startDate.value !== global.deepFrom) {
-                        await tv.setDeepDateValues(startDate, global.deepFrom)
-                    }
-                    if (endDate.value !== global.deepTo) {
-                        await tv.setDeepDateValues(endDate, global.deepTo)
-                    }
-                }
-                let msg = await tv.generateDeepTestReport();
-                console.log('Action.testStrategy: Deep Test Result:', msg)
+            await tvChart.setTestDateRange();
 
-            }
 
             let testResults = {}
             testResults.isDeepTest = global.isDeepTest
@@ -164,6 +139,8 @@ action.testStrategy = async (request) => {
                     break
                 }
                 try {
+                    await tvChart.updateReport();
+
                     testResult = await tv.getPerformance(testResults)
                     if (testResult.error?.msg) {
                         console.log('Action.testStrategy: Error getting performance:', testResult.error.msg)
@@ -271,6 +248,8 @@ async function processCycle(iqWidget, retryCount, cycle) {
             break
         }
 
+        await tvChart.updateReport();
+
         global.indicatorError = null
 
         console.log('Action.processCycle:', i + '. try to get best strategy numbers for tf: ', global.cycleTf)
@@ -308,7 +287,7 @@ async function initLegendObserver() {
 
     let indicatorLegendItem = null
     for (let legendSource of legendSources) {
-        if (legendSource.innerText && legendSource.innerText.includes(global.iqIndicator)) {
+        if (legendSource.querySelector(SEL.legendSourceTitle)?.innerText.includes(global.iqIndicator)) {
             indicatorLegendItem = legendSource
             break
         }
@@ -327,20 +306,18 @@ async function initLegendObserver() {
     }
 
     const legendStatusObserver = new MutationObserver(() => {
-        if (global.indicatorLegendStatus.querySelector('div[class*="dataProblemLow"]')) {
-            console.log('Action.initLegendObserver: Data problem detected: Low data quality');
+        if (global.indicatorLegendStatus.querySelector(SEL.legendStatusDataProblemLow)) {
+            console.log('Action.initLegendObserver(legendStatusObserver): Data problem detected: Low data quality');
             global.indicatorError = 'Runtime error';
         } else {
             global.indicatorError = null;
         }
     });
-
     legendStatusObserver.observe(global.indicatorLegendStatus, {
         childList: true,
         subtree: true,
         attributes: false,
         characterData: false
     });
-
-    console.log('Action.initLegendObserver: initLegendObserver initialized')
+    console.log('Action.initLegendObserver: legendStatusObserver initialized')
 }

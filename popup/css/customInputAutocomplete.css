@@ -1,0 +1,29 @@
+/* Custom styles for the customFileName autocompletion list */
+.autocomplete-items {
+    background: #23272e;
+    color: #00ffff;
+    border: 0px solid #00ffff80;
+    box-shadow: 0 2px 8px 0 #00000040;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 2px;
+    padding: 0;
+    z-index: 9999;
+}
+.autocomplete-items div {
+    padding: 4px 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #00ffff20;
+    transition: background 0.15s;
+}
+.autocomplete-items div:last-child {
+    border-bottom: none;
+}
+.autocomplete-items div:hover, .autocomplete-items div:active {
+    background: #00ffff33;
+    color: #181818;
+}
+.autocomplete-selected {
+    background: #00ffff66;
+    color: #181818;
+}

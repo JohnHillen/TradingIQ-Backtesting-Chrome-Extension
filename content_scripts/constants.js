@@ -19,6 +19,14 @@ const NOVA_REVERSION_SHORT_PF = 'IQ Short PF (Reversion)'
 const LONG_PF = 'IQ Long PF'
 const SHORT_PF = 'IQ Short PF'
 
+const RANGE_FROM_CHART = 'Range from chart';
+const LAST_7_DAYS = 'Last 7 days';
+const LAST_30_DAYS = 'Last 30 days';
+const LAST_90_DAYS = 'Last 90 days';
+const LAST_365_DAYS = 'Last 365 days';
+const ENTIRE_HISTORY = 'Entire history';
+const CUSTOM_RANGE = 'Custom date range…';
+
 const STATUS_MSG = `
 Do not change/move/resize the window/tab.<br>
 If the Tradingview page is not in the foreground, the extension will not work.<br>

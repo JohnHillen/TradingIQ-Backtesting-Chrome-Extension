@@ -32,6 +32,19 @@ range: 1-5 -> 1,2,3,4,5<br>
 range: 2-11 -> 2,4,6,8,10,11<br>
 final: 0.1,0.2, 0.4,0.8,1,1.2, 2,3,4,5,6,8,10,11`
 
+const LINK_INFO = `If enabled the Min ATR will set as pairs, this will reduce the backtest cycles, eg.:<br>
+Min ATR Profit: 0.2,0.5<br>
+Min ATR Stop: 1,2<br>
+enabled: (Profit: 0.2, Stop: 1), (Profit: 0.5, Stop: 2) = <b>2 cycle</b><br>
+disabled: (Profit: 0.2, Stop: 1), (Profit: 0.2, Stop: 2), (Profit: 0.5, Stop: 1), (Profit: 0.5, Stop: 2) = <b>4 cycles</b>`
+
+const LINK_LTF_HTF_INFO = `If enabled the LTF/HTF will set as
+pairs, this will reduce the backtest cycles, eg.:<br>
+LTF: 1m,5m<br>
+HTF: 10m,20m<br>
+enabled: (LTF: 1m, HTF: 10m), (LTF: 5m, HTF: 20m) = <b>2 cycles</b><br>
+disabled: (LTF: 1m, HTF: 10m), (LTF: 1m, HTF: 20m), (LTF: 5m, HTF: 10m), (LTF: 5m, HTF: 20m) = <b>4 cycles</b>`
+
 document.addEventListener('DOMContentLoaded', () => {
   // Use Promise.all to wait for all HTML loads
   Promise.all([

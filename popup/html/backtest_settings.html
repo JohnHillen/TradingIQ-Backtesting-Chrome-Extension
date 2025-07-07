@@ -9,9 +9,9 @@
             </svg>
         </div>
     </div>
-    <input data-name="iqSettings" class="w3-input" id="tfList" data-warn-id="main-tf-warning" type="text" placeholder="1m,2h,1D,2W,1M,1h-5h" title="List of timeframes">
+    <input data-name="iqSettings" class="w3-input" id="tfList" data-warn-id="main_tf_warning" type="text" placeholder="1m,2h,1D,2W,1M,1h-5h" title="List of timeframes">
 </div>
-<div id="main-tf-warning" class="w3-container prevent-select w3-red w3-margin">
+<div id="main_tf_warning" class="w3-container prevent-select w3-red w3-margin">
     <span><b>Warning </b><span id="warningMsg"></span></span>
 </div>
 <div class="w3-section">
@@ -96,11 +96,16 @@
     </div>
 </div>
 <div class="w3-section w3-cell-row">
-    <div class="w3-cell" style="width: 35%;">
-        <label class="container">Deep Backtesting
-            <input data-name="iqSettings" id="iq_deep_enabled" type="checkbox" checked="checked">
-            <span class="checkmark"></span>
-        </label>
+    <div class="w3-cell custom-select" style="width: 35%;">
+        <select data-name="iqSettings" id="iq_test_date_range_type" style="margin-top: 3px;">
+            <option value="0">Range from chart</option>
+            <option value="1">Last 7 days</option>
+            <option value="2">Last 30 days</option>
+            <option value="3">Last 90 days</option>
+            <option value="4">Last 365 days</option>
+            <option value="5">Entire history</option>
+            <option value="6">Custom date range…</option>
+        </select>
     </div>
     <div class="w3-cell" style="padding: 0 8px;">
         <label>From

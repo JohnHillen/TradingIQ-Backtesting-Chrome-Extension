@@ -43,20 +43,7 @@
             </div>
         </div>
     </div>
-    <div class="w3-cell-row">
-        <div class="w3-cell w3-cell-middle" style="width: 35%;">
-            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="csl" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
-                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
-                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z"></path>
-                </svg>
-            </div>
-            <label class="w3-cell w3-cell-middle">Minimum Stop Loss And Trailing Target Distance</label>
-        </div>
-        <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" data-min="0.4" class="w3-input" id="impulsIq_slAndTd" type="text" placeholder="comma seperated list" title="Timeout">
-        </div>
-    </div>
+    <input-with-warning input-id="impulsIq_slAndTd" width="35%" label="Minimum Stop Loss And Trailing Target Distance" placeholder="comma seperated list" data-min="0.4" tooltip="#CSL_INFO#"></input-with-warning>
     <div class="w3-cell-row">
         <div class="w3-cell" style="width: 35%;">
             <label>Strategy Type</label>
@@ -114,55 +101,21 @@
             </div>
         </div>
         <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" class="w3-input" id="impulsIq_rr" type="text" placeholder="comma seperated list" title="Timeout">
+            <input data-name="iqSettings" class="w3-input" id="impulsIq_rr" type="text" placeholder="comma seperated list">
         </div>
     </div>
-    <div class="w3-cell-row">
-        <div class="w3-cell w3-cell-middle" style="width: 35%;">
-            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="tflist" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
-                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
-                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z"></path>
-                </svg>
-            </div>
-            <label class="w3-cell w3-cell-middle">LTF Zig Zag</label>
-        </div>
-        <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" class="w3-input" id="impulsIq_ltf" data-warn-id="impulsIq_ltf_warning" type="text" placeholder="1m,2h,1D,2W,1M,1h-5h" data-type="tfList">
-        </div>
+    <div id="impulsIq_rr_warning" class="w3-cell-row prevent-select w3-red w3-margin" style="display:none;">
+        <span><b>Warning </b><span id="warningMsg">${warnMsg}</span></span>
     </div>
-    <div id="impulsIq_ltf_warning" class="w3-cell-row prevent-select w3-red w3-margin">
-        <span><b>Warning </b><span id="warningMsg"></span></span>
-    </div>
+    <input-with-warning input-id="impulsIq_ltf" width="35%" label="LTF Zig Zag" placeholder="1m,2h,1D,2W,1M,1h-5h" data-type="tfList"></input-with-warning>
     <div class="w3-cell-row" style="justify-content: left; display: flex; margin: 0 0 0 30px;">
         <div id="impulsIq_link_toggle" type="button" class="w3-tooltip w3-cell w3-cell-middle w3-round-xxlarge active link-toggle"
             style="padding: 1px; padding-left: 7px; width: 30px; height: 18px;margin-top: -4px;margin-bottom: -4px;border: 1px solid aqua;">
-            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="link" style="position:absolute;left:-50px;top:18px;width:550px;z-index: 100;">If enabled the LTF/HTF will set as
-                pairs, this will reduce the backtest cycles, eg.:<br>
-                LTF: 1m,5m<br>
-                HTF: 10m,20m<br>
-                enabled: (LTF: 1m, HTF: 10m), (LTF: 5m, HTF: 20m) = <b>2 cycles</b><br>
-                disabled: (LTF: 1m, HTF: 10m), (LTF: 1m, HTF: 20m), (LTF: 5m, HTF: 10m), (LTF: 5m, HTF: 20m) = <b>4 cycles</b></span>
+            <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="link" style="position:absolute;left:-50px;top:18px;width:550px;z-index: 100;"></span>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path d="M17 7h2a5 5 0 0 1 0 10h-2m-10 0H5a5 5 0 0 1 0-10h2m1 5h8" stroke="#181818" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </div>
     </div>
-    <div class="w3-cell-row">
-        <div class="w3-cell w3-cell-middle" style="width: 35%;">
-            <div class="w3-tooltip w3-small w3-cell w3-cell-middle" style="width: 22px;">
-                <span class="w3-text w3-aqua w3-padding w3-round w3-card-4" data-info="tflist" style="position:absolute;left:-20;top:20px;width:370px;z-index: 100;"></span>
-                <svg class="w3-cell" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18" height="18">
-                    <path fill="currentColor" d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16Zm1-12a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8.5 9.5H7V8h3v6H8.5V9.5Z"></path>
-                </svg>
-            </div>
-            <label class="w3-cell w3-cell-middle">HTF Zig Zag</label>
-        </div>
-        <div class="w3-cell w3-cell-middle">
-            <input data-name="iqSettings" class="w3-input" id="impulsIq_htf" data-warn-id="impulsIq_htf_warning" type="text" placeholder="1m,2h,1D,2W,1M,1h-5h" data-type="tfList">
-        </div>
-    </div>
-    <div id="impulsIq_htf_warning" class="w3-cell-row prevent-select w3-red w3-margin">
-        <span><b>Warning </b><span id="warningMsg"></span></span>
-    </div>
+    <input-with-warning input-id="impulsIq_htf" width="35%" label="HTF Zig Zag" placeholder="1m,2h,1D,2W,1M,1h-5h" data-type="tfList"></input-with-warning>
 </div>
