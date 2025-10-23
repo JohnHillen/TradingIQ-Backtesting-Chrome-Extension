@@ -19,16 +19,20 @@ function getIqData(iqValues) {
             if (values[0].includes('Long Strategy')) {
                 let bestLong = parseInt(values[1].replace(/,/g, ''), 10);
                 let propName = !global.isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Long Strategy Reversion Number' : 'Best Long Strategy Trend Number');
+                bestLong = values[0].includes('Trend') && !global.isNovaTrendCycle ? 0 : bestLong; //Workaround: Trend values are not reset if nova trend is disabled
                 props.strategyNumbers[propName] = isNaN(bestLong) ? 0 : bestLong;
             } else if (values[0].includes('Short Strategy')) {
                 let bestShort = parseInt(values[1].replace(/,/g, ''), 10);
                 let propName = !global.isNova ? values[0] : (values[0].includes('Reversion') ? 'Best Short Strategy Reversion Number' : 'Best Short Strategy Trend Number');
+                bestShort = values[0].includes('Trend') && !global.isNovaTrendCycle ? 0 : bestShort; //Workaround: Trend values are not reset if nova trend is disabled
                 props.strategyNumbers[propName] = isNaN(bestShort) ? 0 : bestShort;
             } else if (values[0].includes('PF')) { // Long PF or Short PF or for Impuls Longs PF or Shorts PF
                 let pf = parseFloat(values[1].replace(/,/g, ''), 10);
                 let propName = util.getProfitFactorKey(values[0]);
-                let pfValue = isNaN(pf) ? 0 : pf;
-                props.profitFactors[propName] = pfValue;
+                console.log('IQUtil.getIqData: PF:', pf)
+                pf = values[0].includes('Trend') && !global.isNovaTrendCycle ? 0 : pf; //Workaround: Trend values are not reset if nova trend is disabled
+                console.log('IQUtil.getIqData: PF:', pf, 'isTrend:', values[0].includes('Trend'), 'isNovaTrendCycle:', global.isNovaTrendCycle)
+                props.profitFactors[propName] = isNaN(pf) ? 0 : pf;
             }
         } else {
             console.warn('IQUtil.getIqData: Unexpected iqValue format:', value.innerText);
@@ -51,6 +55,8 @@ iqUtil.detectIqParameter = async (iqWidget, cycle) => {
         await page.waitForTimeout(250)
         await tv.generateDeepTestReport()
     }
+
+    await tvChart.updateReport();
 
     let props = { strategyNumbers: {}, profitFactors: {} };
     let maxTime = Date.now() + global.timeout

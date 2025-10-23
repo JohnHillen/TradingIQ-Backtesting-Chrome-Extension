@@ -44,6 +44,9 @@ const constants = {
     'impulsIq_trade_short': 'Trade Short',
     'impulsIq_ltf': 'LTF Zig Zag',
     'impulsIq_htf': 'HTF Zig Zag',
+    'impulsIq_risk_per_trade_on_off': 'Risk % of Total Account per Trade',
+    'impulsIq_risk_per_trade': 'Risk % of Total Account per Trade',
+    'impulsIq_calc_bars': 'Calculated bars',
 
     'counterIq_use_ema_filter': 'Use EMA Filter',
     'counterIq_ema_length': 'EMA Length',
@@ -59,6 +62,9 @@ const constants = {
     'counterIq_not_trade_high_vola': 'Do Not Trade High Volatility',
     'counterIq_not_trade_low_vola': 'Do Not Trade Low Volatility',
     'counterIq_not_trade_very_high_vola': 'Do Not Trade Very High Volatility',
+    'counterIq_risk_per_trade_on_off': 'Risk % of Total Account per Trade',
+    'counterIq_risk_per_trade': 'Risk % of Total Account per Trade',
+    'counterIq_calc_bars': 'Calculated bars',
 
     'novaIq_min_atr_profit': 'Minimum ATR Profit Target',
     'novaIq_min_atr_stop': 'Minimum ATR Stop Loss',
@@ -67,6 +73,9 @@ const constants = {
     'novaIq_trade_reversions': 'Trade Nova IQ Reversions',
     'novaIq_trade_trends': 'Trade Nova IQ Trends',
     'novaIq_use_higher_rr': 'Use Higher RR',
+    'novaIq_risk_per_trade_on_off': 'Risk % of Total Account per Trade',
+    'novaIq_risk_per_trade': 'Risk % of Total Account per Trade',
+    'novaIq_calc_bars': 'Calculated bars',
 
     'reversalIq_optimize': 'Run Optimize',
     'reversalIq_ai_direction': 'AI Direction',
@@ -79,6 +88,9 @@ const constants = {
     'reversalIq_not_trade_very_high_vola': 'Do Not Trade Very High Volatility',
     'reversalIq_optimize_ai_agg': 'Optimization AI Aggressiveness',
     'reversalIq_calculated_bars': 'Calculated bars',
+    'reversalIq_risk_per_trade_on_off': 'Risk % of Total Account per Trade',
+    'reversalIq_risk_per_trade': 'Risk % of Total Account per Trade',
+    'reversalIq_calc_bars': 'Calculated bars',
 
     'razorIq_trade_long': 'Trade Long',
     'razorIq_trade_short': 'Trade Short',

@@ -75,6 +75,7 @@ function checkIsTVChart() {
 
 function startTest() {
     console.log('startTest')
+    saveSettings();
     let msgOptions = null
     msgOptions = getTestOptions()
 
@@ -147,6 +148,10 @@ function attachDynamicEventListeners() {
     document.getElementById("Settings").onmouseleave = function () {
         saveSettings()
     }
+    document.getElementById("testStrategy").onmouseleave = function () {
+        saveSettings()
+    }
+
 }
 
 function showWarning(message, elementId) {

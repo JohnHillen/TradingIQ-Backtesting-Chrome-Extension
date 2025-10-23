@@ -206,10 +206,11 @@ tvChart.enableStrategy = async (strategyName) => {
     page.mouseClickSelector(SEL.indicatorDropdown)
     let sideBarTabs = []
     let maxTime = Date.now() + 30000
+    let filteredMap = []
     while (true) {
       await page.waitForTimeout(500)
       sideBarTabs = [...document.querySelectorAll(SEL.indicatorsDialogSideBarTabs)]
-      let filteredMap = sideBarTabs.map(div => div.innerText).filter(txt => txt.includes('Invite-only'))
+      filteredMap = sideBarTabs.filter(div => div.innerText.includes('Invite-only'))
       if (global.workerStatus === null || Date.now() > maxTime || filteredMap.length > 0) {
         break
       }
@@ -219,7 +220,7 @@ tvChart.enableStrategy = async (strategyName) => {
       return null
     }
 
-    let inviteOnlyTab = sideBarTabs[sideBarTabs.length - 1]
+    let inviteOnlyTab = filteredMap[0];
     if (!inviteOnlyTab) {
       return null
     }
@@ -239,7 +240,7 @@ tvChart.enableStrategy = async (strategyName) => {
       indicatorList = document.querySelectorAll(SEL.indicatorsDialogContentList)
       if (indicatorList) {
         for (let item of indicatorList) {
-          if (item.innerText.includes(strategyName)) {
+          if (item.innerText.includes(strategyName) && item.innerText.includes('Backtester')) {
             item.focus()
             page.mouseClick(item)
             found = true
@@ -406,14 +407,15 @@ async function setCustomDateRange(selectorStart, selectorEnd) {
 tvChart.updateReport = async () => {
   console.log('TVChart.updateReport: Start updating report');
   await waitForReportUpdate();
-
-  await waitForReportUpdate();
-
   console.log('TVChart.isReportOutdated: Report is up to date');
-  return false;
 }
 
-async function waitForReportUpdate(expected) {
+async function waitForReportUpdate() {
+  await waitForLegendLoaderToFinish();
+  await waitForTestReportUpdate();
+}
+
+async function waitForTestReportUpdate() {
   let updatingReportContainer = document.querySelector(SEL.updatingReportContainer);
   while (updatingReportContainer = document.querySelector(SEL.updatingReportContainer)) {
     console.log('TVChart.isReportOutdated: Report is being updated');
@@ -429,6 +431,23 @@ async function waitForReportUpdate(expected) {
         page.mouseClickSelector(SEL.reportOutdatedButton);
         await page.waitForTimeout(500);
       }
+    }
+  }
+}
+
+async function waitForLegendLoaderToFinish() {
+  if (!global.legendLoaderElement) {
+    console.log('TVChart.waitForLegendLoaderToFinish: No legend source item to monitor');
+    return;
+  }
+  let legendLoaderVisible = !global.legendLoaderElement.className.includes('blockHidden-');
+  while (legendLoaderVisible) {
+    console.log('TVChart.waitForLegendLoaderToFinish: Legend is loading data');
+    await page.waitForTimeout(500);
+    legendLoaderVisible = !global.legendLoaderElement.className.includes('blockHidden-');
+    if (!legendLoaderVisible) {
+      console.log('TVChart.waitForLegendLoaderToFinish: Legend data loading finished');
+      break;
     }
   }
 }

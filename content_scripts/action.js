@@ -47,7 +47,7 @@ action.testStrategy = async (request) => {
         await util.openStrategyTab()
         await util.verifyTimeFrame(request.options.requiredTimeframes)
 
-        let iqWidget = await tvChart.enableStrategy(global.iqIndicator.replace('tester [Trading IQ]', '').trim())
+        let iqWidget = await tvChart.enableStrategy(global.iqIndicator.replace(' Backtester [Trading IQ]', '').trim())
         if (!iqWidget) {
             await ui.showPopup(global.iqIndicator + ' could not be added. Please reload the page and try again.')
             return
@@ -248,8 +248,6 @@ async function processCycle(iqWidget, retryCount, cycle) {
             break
         }
 
-        await tvChart.updateReport();
-
         global.indicatorError = null
 
         console.log('Action.processCycle:', i + '. try to get best strategy numbers for tf: ', global.cycleTf)
@@ -298,18 +296,22 @@ async function initLegendObserver() {
     }
 
     console.log('indicatorLegendItem:', indicatorLegendItem)
+    let valuesWrapper = indicatorLegendItem.querySelector('div[class^="valuesWrapper-"]')
+    global.legendLoaderElement = indicatorLegendItem.querySelector(SEL.legendLoaderStatus)
 
     global.indicatorLegendStatus = indicatorLegendItem.querySelector(SEL.legendStatus)
     if (!global.indicatorLegendStatus) {
         console.log('Action.initLegendObserver: No legend status found')
         return
     }
+    console.log('Action.initLegendObserver: global.indicatorLegendStatus:', global.indicatorLegendStatus)
 
     const legendStatusObserver = new MutationObserver(() => {
         if (global.indicatorLegendStatus.querySelector(SEL.legendStatusDataProblemLow)) {
             console.log('Action.initLegendObserver(legendStatusObserver): Data problem detected: Low data quality');
             global.indicatorError = 'Runtime error';
         } else {
+            console.log('Action.initLegendObserver(legendStatusObserver): No data problem detected');
             global.indicatorError = null;
         }
     });

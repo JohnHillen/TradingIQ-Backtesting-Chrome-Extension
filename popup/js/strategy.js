@@ -70,6 +70,10 @@ function getStrategyCycles() {
               let rrVal = newCombination[constants['impulsIq_rr']];
               newCombination[constants['impulsIq_rr']] = { adaptive: true, value1: rrVal, value2: value };
             }
+            else if (key.endsWith('Iq_risk_per_trade')) {
+              let riskOnOff = newCombination[constants[key + '_on_off']];
+              newCombination[constants[key]] = { adaptive: true, value1: value, value2: riskOnOff };
+            }
             else if (key === 'novaIq_trade_trends_reversions') {
               newCombination[constants['novaIq_trade_trends']] = value.includes('&') ? true : value === 'Trends';
               newCombination[constants['novaIq_trade_reversions']] = value.includes('&') ? true : value === 'Reversions';
@@ -107,17 +111,9 @@ function addLinkCombination(newCombination, key, value) {
     key1 = constants['impulsIq_ltf'];
     key2 = constants['impulsIq_htf'];
   }
-  else if (key === 'reversalIq_min_atr_link') {
-    key1 = constants['reversalIq_min_atr_profit'];
-    key2 = constants['reversalIq_min_atr_stop'];
-  }
-  else if (key === 'counterIq_min_atr_link') {
-    key1 = constants['counterIq_min_atr_profit'];
-    key2 = constants['counterIq_min_atr_stop'];
-  }
-  else if (key === 'novaIq_min_atr_link') {
-    key1 = constants['novaIq_min_atr_profit'];
-    key2 = constants['novaIq_min_atr_stop'];
+  else if (key.includes('Iq_min_atr_link')) { // e.g., reversalIq_min_atr_link, counterIq_min_atr_link, novaIq_min_atr_link
+    key1 = constants[key.replace('Iq_min_atr_link', 'Iq_min_atr_profit')];
+    key2 = constants[key.replace('Iq_min_atr_link', 'Iq_min_atr_stop')];
   }
 
   if (linkVal[0] !== 'null') {

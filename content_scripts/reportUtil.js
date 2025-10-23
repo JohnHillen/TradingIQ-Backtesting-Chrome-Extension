@@ -46,13 +46,13 @@ reportUtil.createReport = (tf, iqData, testResult, strategyParams, symbolExchang
     }
 
     if (global.isNova) {
-        report.push(iqData.profitFactors[NOVA_REVERSION_LONG_PF] || 'NA')
-        report.push(iqData.profitFactors[NOVA_REVERSION_SHORT_PF] || 'NA')
-        report.push(iqData.profitFactors[NOVA_TREND_LONG_PF] || 'NA')
-        report.push(iqData.profitFactors[NOVA_TREND_SHORT_PF] || 'NA')
+        report.push(iqData.profitFactors[NOVA_REVERSION_LONG_PF] ?? 'NA')
+        report.push(iqData.profitFactors[NOVA_REVERSION_SHORT_PF] ?? 'NA')
+        report.push(iqData.profitFactors[NOVA_TREND_LONG_PF] ?? 'NA')
+        report.push(iqData.profitFactors[NOVA_TREND_SHORT_PF] ?? 'NA')
     } else {
-        report.push(iqData.profitFactors[LONG_PF] || 'NA')
-        report.push(iqData.profitFactors[SHORT_PF] || 'NA')
+        report.push(iqData.profitFactors[LONG_PF] ?? 'NA')
+        report.push(iqData.profitFactors[SHORT_PF] ?? 'NA')
     }
 
 
@@ -74,8 +74,6 @@ reportUtil.createReport = (tf, iqData, testResult, strategyParams, symbolExchang
             if (key.startsWith('LTF') || key.startsWith('HTF')) {
                 if (val === null || val.length === 0) {
                     val = 'Chart'
-                } else if (val !== 'Chart') {
-                    val += 'm'
                 }
             }
             report.push(val)

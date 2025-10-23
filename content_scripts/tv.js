@@ -127,7 +127,20 @@ tv.setStrategyInputs = async (propVal) => {
       const propClassName = indicProperties[i].getAttribute('class')
       if (propClassName.includes('first-')) {
         i++
-        if (indicProperties[i].querySelector('input')) {
+        if (propVal[propText].hasOwnProperty('adaptive') && propText === 'Risk % of Total Account per Trade') {
+          if (indicProperties[i].querySelector('input')) {
+            page.setInputElementValue(indicProperties[i].querySelector('input'), propVal[propText].value1)
+          }
+          i++;
+          const checkboxEl = indicProperties[i].querySelector('input[type="checkbox"]')
+          const isChecked = Boolean(checkboxEl.checked)
+          if (Boolean(propVal[propText].value2) !== isChecked) {
+            page.mouseClick(checkboxEl)
+            checkboxEl.checked = Boolean(propVal[propText].value2)
+          }
+          propKeyProcessed = true
+        }
+        else if (indicProperties[i].querySelector('input')) {
           page.setInputElementValue(indicProperties[i].querySelector('input'), propVal[propText])
           propKeyProcessed = true
         } else if (indicProperties[i].querySelector('span[role="button"]')) { // List
@@ -621,9 +634,9 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
   }
   let equityData = []
   equityData.push(100) // equity starts always from 100%
-  let currentEquity = 100.0
   let rows = null
   let tradeId = 0
+
   while (tradeId < maxTradeId) {
     rows = await page.waitForSelectorAll(SEL.strategyReportRow, 100)
     if (!rows || rows.length === 0) {
@@ -647,6 +660,7 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
         return equityData
       }
       profit = profit.replace(/−/, '-')
+      let currentEquity = 100.0
       currentEquity += parseFloat(profit)
       currentEquity = parseFloat(currentEquity.toFixed(2))
       equityData.push(currentEquity)
@@ -654,8 +668,9 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
     }
 
     table.scrollTop -= 400;
-    await page.waitForTimeout(15)
 
+    // Wait for DOM to update using requestAnimationFrame instead of setTimeout
+    await new Promise(resolve => requestAnimationFrame(resolve));
   }
   return equityData
 }
@@ -754,6 +769,13 @@ tv.getStrategyParams = async () => {
       }
       else if (indicProperties[i] && indicProperties[i].querySelector('input')) {
         strategyInputs[propText] = util.parseInputValue(indicProperties[i]);
+        if (propText === 'Risk % of Total Account per Trade') {
+          i++;
+          const element = indicProperties[i].querySelector('input[type="checkbox"]')
+          if (element) {
+            strategyInputs['Risk % of Total Account per Trade Enabled'] = element.getAttribute('checked') !== null ? element.checked : false
+          }
+        }
       } else if (indicProperties[i].querySelector('span[role="button"]')) { // List
         const listValue = util.parseSelectValue(indicProperties[i]);
         if (listValue)

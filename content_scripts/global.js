@@ -23,6 +23,7 @@ const global = {
     isNovaReversionCycle: null,
     isCS: null,
     isNewTestDateRangeBehavior: true,
+    legendLoaderElement: null,
 }
 
 global.reset = () => {
@@ -50,4 +51,5 @@ global.reset = () => {
     global.isNovaReversionCycle = null
     global.isCS = null
     global.isNewTestDateRangeBehavior = true
+    global.legendLoaderElement = null
 }
