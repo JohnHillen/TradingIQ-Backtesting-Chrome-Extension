@@ -111,6 +111,24 @@ page.waitForMouseClickSelector = async function (selector, timeout = 1000) {
   }
 }
 
+page.pressTab = function (el) {
+  page.pressKey(el, 'Tab', 9)
+}
+
+page.pressKey = function (el, key, keyCode) {
+  ["keydown", "keypress", "keyup"].forEach((eventType) => {
+    let event = new KeyboardEvent('keydown', {
+      key: key,
+      code: key,
+      keyCode: keyCode,
+      which: keyCode,
+      bubbles: true,
+      cancelable: true
+    });
+    el.dispatchEvent(event)
+  })
+}
+
 page.$ = function (selector) {
   return document.querySelector(selector)
 }
@@ -135,5 +153,27 @@ page.setSelByText = (selector, textValue) => {
     }
   }
   return isSet
+}
+
+page.triggerTrustedClick = (element) => {
+  // 1. Finde die exakte Mitte des Elements
+  const rect = element.getBoundingClientRect();
+  const clickX = Math.round(rect.left + rect.width / 2);
+  const clickY = Math.round(rect.top + rect.height / 2);
+
+  console.log(`Sende "Trusted Click" Befehl an x:${clickX}, y:${clickY}`);
+
+  // 2. Sende die Koordinaten an das Background-Skript
+  chrome.runtime.sendMessage({
+    action: "performTrustedClick",
+    x: clickX,
+    y: clickY
+  }, (response) => {
+    if (response && response.success) {
+      console.log('Debugger Klick erfolgreich ausgeführt!');
+    } else {
+      console.error('Debugger Klick fehlgeschlagen:', response.error);
+    }
+  });
 }
 

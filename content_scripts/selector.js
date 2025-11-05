@@ -53,6 +53,7 @@ const SEL = {
     newDatePickerMonthButtons: '#overlap-manager-root div[class^="calendar-"] div[class^="view-year-"] button',
     newDatePickerViewDays: '#overlap-manager-root div[class^="calendar-"] div[class^="view-month-"]',
     newDatePickerDaysButtons: '#overlap-manager-root div[class^="calendar-"] div[class^="view-month-"] button',
+    newDatePickerSelectButton: '#overlap-manager-root div[data-outside-boundary-for="custom-date-range-dialog"] button[name="submit"]',
 
     dataWindowAndObjectTreeBtn: 'button[data-name="object_tree"]',
     dataWindowBtn: '#data-window',
@@ -105,8 +106,9 @@ const SEL = {
     testDateRangeItemEntireHistory: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Entire history"]',
     testDateRangeItemCustomRange: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Custom date range…"]',
     testDateRangeItemResetToChartSeession: '#overlap-manager-root div[role="menuitemcheckbox"][aria-label="Reset to chart session"]',
-    testDateRangeCustomStartDate: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"]> div:nth-child(1) div[class^="pickerInput-"]',
-    testDateRangeCustomEndDate: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"]> div:nth-child(2) div[class^="pickerInput"]',
+    testDateRangeCustomInputWrapper: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"]',
+    testDateRangeCustomStartDate: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"] > div:nth-child(1) div[class^="pickerInput-"]',
+    testDateRangeCustomEndDate: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="dialogContent-"] [class^="inputsWrapper"] > div:nth-child(2) div[class^="pickerInput"]',
     testDateRangeCustomApplyBtn: '#overlap-manager-root div[data-name="custom-date-range-dialog"] [class^="footer-"] button[name="submit"]',
 
     strategyListOptions: 'div[role="listbox"] div[class^="menuBox"] div[role="option"] span[class^="label-"]',

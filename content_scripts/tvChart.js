@@ -178,7 +178,7 @@ tvChart.getStrategyFromDataWindow = async (strategyName) => {
     }
     if (header.innerText) {
       let iqWidget = header.parentElement.parentElement
-      if (header.innerText.includes(strategyName) || strategyName === null) {
+      if (header.innerText.includes(strategyName) && header.innerText.includes('Backtester') || strategyName === null) {
         strategyName = header.innerText
         iqWidgetEl = iqWidget
         if (iqWidget.className.includes('hidden-_gbYDtbd')) {
@@ -345,6 +345,20 @@ tvChart.setTestDateRange = async () => {
       console.log('TVChart.setTestDateRange: CustomRange');
       page.mouseClickSelector(SEL.testDateRangeItemCustomRange);
       await page.waitForTimeout(500);
+
+      // Wait for the custom date range dialog to appear
+      const inputWrapper = await page.waitForSelector(SEL.testDateRangeCustomInputWrapper, 2000);
+      if (!inputWrapper) {
+        throw new Error('Custom date range dialog did not appear');
+      }
+
+      // Try clicking to focus
+      page.mouseClick(inputWrapper);
+      await page.waitForTimeout(200);
+
+      // Try Tab key to open date picker
+      page.pressTab(inputWrapper);
+      await page.waitForTimeout(500);
       await setCustomDateRange(SEL.testDateRangeCustomStartDate, SEL.testDateRangeCustomEndDate);
       await page.waitForTimeout(300);
       let customApplyBtn = document.querySelector(SEL.testDateRangeCustomApplyBtn);
@@ -379,10 +393,10 @@ async function setCustomDateRange(selectorStart, selectorEnd) {
   let endDateValue = endDate.value
   let startDateValue = startDate.value
 
-  if (global.isNewTestDateRangeBehavior) {
+  /* if (global.isNewTestDateRangeBehavior) {
     startDateValue = startDate.querySelector('input').value;
     endDateValue = endDate.querySelector('input').value;
-  }
+  } */
 
   if (global.deepFrom > endDateValue) {
     if (endDateValue !== global.deepTo) {

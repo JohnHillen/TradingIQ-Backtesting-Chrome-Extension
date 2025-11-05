@@ -659,7 +659,7 @@ async function getEqutiyData(table, cumulativeProfitIndex, maxTradeId = 1) {
         console.log('TV. WARNING: getEqutiyData profit not found:', profit, 'row:', rows[i])
         return equityData
       }
-      profit = profit.replace(/−/, '-')
+      profit = profit.replace(/−/, '-').replace(/,/g, '')
       let currentEquity = 100.0
       currentEquity += parseFloat(profit)
       currentEquity = parseFloat(currentEquity.toFixed(2))
@@ -681,8 +681,8 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
   let month = date.getMonth()
   let day = date.getDate()
 
-  page.mouseClick(dateElement)
-  await page.waitForTimeout(56)
+  page.triggerTrustedClick(dateElement)
+  await page.waitForTimeout(560)
 
   page.mouseClickSelector(global.isNewTestDateRangeBehavior ? SEL.newDatePickerSwitchToMonth : SEL.datePickerSwitchToMonth)
   await page.waitForTimeout(59)
@@ -699,7 +699,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
         outOfRange = true
         continue
       }
-      page.mouseClick(button)
+      page.triggerTrustedClick(button)
       await page.waitForTimeout(52)
       break
     }
@@ -713,7 +713,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
         outOfRange = true
         continue
       }
-      page.mouseClick(buttons[i])
+      page.triggerTrustedClick(buttons[i])
       await page.waitForTimeout(52)
       break
     }
@@ -728,7 +728,7 @@ tv.setDeepDateValues = async (dateElement, dateValue) => {
         outOfRange = true
         continue
       }
-      page.mouseClick(button)
+      page.triggerTrustedClick(button)
       await page.waitForTimeout(52)
       break
     }
